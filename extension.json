@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ritwickdey.liveserver",
+    "dsznajder.es7-react-js-snippets",
+    "bradlc.vscode-tailwindcss",
+    "alexcvzz.vscode-sqlite",
+    "rangav.vscode-thunder-client",
+    "eamodio.gitlens",
+    "streetsidesoftware.code-spell-checker",
+    "github.vscode-pull-request-github"
+  ]
+}
