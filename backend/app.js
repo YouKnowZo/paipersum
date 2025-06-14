@@ -1,0 +1,115 @@
+const express = require('express');
+const { auth } = require('express-openid-connect');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const path = require('path');
+const rateLimit = require('express-rate-limit');
+const slowDown = require('express-slow-down');
+require('dotenv').config();
+
+const app = express();
+
+// Security Middleware (Order matters!)
+app.use(helmet());
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+
+// Speed limiting
+const speedLimiter = slowDown({
+  windowMs: 15 * 60 * 1000,
+  delayAfter: 50,
+  delayMs: 100
+});
+
+app.use(limiter);
+app.use(speedLimiter);
+
+// Logging
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+// Body parsers
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: false }));
+
+// Auth0 Configuration (with enhanced security)
+const authConfig = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env.AUTH0_SECRET,
+  baseURL: process.env.BASE_URL,
+  clientID: process.env.AUTH0_CLIENT_ID,
+  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+  authorizationParams: {
+    response_type: 'code',
+    audience: process.env.AUTH0_AUDIENCE,
+    scope: 'openid profile email'
+  },
+  routes: {
+    callback: '/api/auth/callback', // Explicit callback path
+    login: false // Disable default login route
+  },
+  session: {
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    }
+  }
+};
+
+if (process.env.NODE_ENV === 'production') {
+  authConfig.session.cookie.domain = process.env.COOKIE_DOMAIN;
+}
+
+app.use(auth(authConfig));
+
+// API Routes (with versioning)
+app.use('/api/v1/waitlist', require('./routes/waitlist'));
+app.use('/api/v1/analyze', require('./routes/analyze'));
+app.use('/api/v1/scrape', require('./routes/scrape'));
+app.use('/api/v1/upload', require('./routes/upload'));
+app.use('/api/v1/auth', require('./routes/auth'));
+
+// Health Check Endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy' });
+});
+
+// Static Files (if needed)
+app.use('/static', express.static(path.join(__dirname, 'public')));
+
+// 404 Handler
+app.use((req, res, next) => {
+  res.status(404).json({ 
+    success: false,
+    error: 'Endpoint not found' 
+  });
+});
+
+// Enhanced Error Handler
+app.use((err, req, res, next) => {
+  console.error(`[${new Date().toISOString()}] ERROR:`, err.stack);
+  
+  const statusCode = err.statusCode || 500;
+  const message = process.env.NODE_ENV === 'development' 
+    ? err.message 
+    : 'An unexpected error occurred';
+    
+  res.status(statusCode).json({
+    success: false,
+    error: message,
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+});
+
+module.exports = app;

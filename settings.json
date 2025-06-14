@@ -1,0 +1,283 @@
+{
+    "workbench.colorTheme": "Default Dark+",
+    "editor.unicodeHighlight.invisibleCharacters": false,
+    "workbench.editor.enablePreview": false,
+    "security.workspace.trust.untrustedFiles": "open",
+    "geminicodeassist.project": "",
+    "vs-kubernetes": {
+        "vscode-kubernetes.helm-path-windows": "C:\\Users\\Mralo\\.vs-kubernetes\\tools\\helm\\windows-amd64\\helm.exe",
+        "vscode-kubernetes.kubectl-path-windows": "C:\\Users\\Mralo\\.vs-kubernetes\\tools\\kubectl\\kubectl.exe",
+        "vscode-kubernetes.minikube-path-windows": "C:\\Users\\Mralo\\.vs-kubernetes\\tools\\minikube\\windows-amd64\\minikube.exe"
+    },
+    "redhat.telemetry.enabled": true,
+    "files.autoSave": "onFocusChange",
+    "diffEditor.codeLens": true,
+    "bitoAI.appearance.fontSize (Match with IDE Font)": false,
+    "diffEditor.maxComputationTime": 0,
+    "jdk.jdkhome": "c:\\Users\\Mralo\\Desktop\\PaiperSum.com\\response_4f243cd5-65a0-40ca-b73b-875d7ff4f04d\\Oracle_JDK-23",
+    "bitoAI.codeCompletion.enableAutoCompletion": false,
+    "bitoAI.codeCompletion.enableCommentToCode": true,
+    "bitoAI.codeCompletion.setAutoCompletionTriggerLogic": 1000,
+    "cline.modelSettings.o3Mini.reasoningEffort": "high",
+    "geminicodeassist.codeGenerationPaneViewEnabled": true,
+    "geminicodeassist.beta.enableGeneratedCodeDocumentationView": true,
+    "geminicodeassist.updateChannel": "Insiders",
+    "geminicodeassist.verboseLogging": true,
+    "github.copilot.chat.followUps": "always",
+    "github.copilot.chat.scopeSelection": true,
+    "github.copilot.chat.codesearch.enabled": true,
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "github.copilot.chat.completionContext.typescript.mode": "on",
+    "github.copilot.chat.editor.temporalContext.enabled": true,
+    "github.copilot.chat.edits.temporalContext.enabled": true,
+    "github.copilot.chat.languageContext.typescript.enabled": true,
+    "github.copilot.chat.generateTests.codeLens": true,
+    "github.copilot.chat.newWorkspaceCreation.enabled": true,
+    "github.copilot.chat.search.semanticTextResults": true,
+    "roo-cline.allowedCommands": [
+        "npm test",
+        "npm install",
+        "tsc",
+        "git log",
+        "git diff",
+        "git show"
+    ],
+    "[idl]": {
+        "editor.defaultFormatter": "kodu-ai.claude-dev-experimental"
+    },
+    "idl": {
+        "formatter.enable": true,
+        "workbench.iconTheme": "idl-icons",
+        "terminal.integrated.enableMultiLinePasteWarning": "never",
+        "editor.linkedEditing": true,
+        "editor.minimap.enabled": false,
+        "editor.rulers": [
+            {
+                "column": 80,
+                "color": "#00FF0010"
+            },
+            {
+                "column": 100,
+                "color": "#BDB76B15"
+            },
+            {
+                "column": 120,
+                "color": "#FA807219"
+            }
+        ],
+        "editor.unicodeHighlight.includeComments": true,
+        "workbench.colorCustomizations": {
+            "[Default Dark Modern]": {
+                "tab.activeBorderTop": "#00FF00",
+                "tab.unfocusedActiveBorderTop": "#00FF0088",
+                "textCodeBlock.background": "#00000055"
+            },
+            "editor.wordHighlightStrongBorder": "#FF6347",
+            "editor.wordHighlightBorder": "#FFD700",
+            "editor.selectionHighlightBorder": "#A9A9A9"
+        },
+        "workbench.editor.revealIfOpen": true,
+        "files.eol": "\n",
+        "[bat]": {
+            "files.eol": "\r\n"
+        },
+        "emmet.variables": {
+            "lang": "en"
+        },
+        "cSpell.diagnosticLevel": "Hint",
+        "trailing-spaces.backgroundColor": "rgba(255,0,0,0.1)",
+        "trailing-spaces.includeEmptyLines": false,
+        "terminal.integrated.tabs.hideCondition": "never",
+        "terminal.integrated.enablePersistentSessions": false,
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.configuration.detectJdksAtStart": false,
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.debug.settings.hotCodeReplace": "auto",
+        "java.dependency.packagePresentation": "hierarchical",
+        "java.maxConcurrentBuilds": 8,
+        "java.sources.organizeImports.staticStarThreshold": 1,
+        "terminal.integrated.automationProfile.windows": {
+            "path": "cmd"
+        },
+        "java.test.config": {
+            "vmArgs": [
+                "-Dstdout.encoding=UTF-8",
+                "-Dstderr.encoding=UTF-8"
+            ]
+        },
+        "maven.executable.path": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\maven\\latest\\bin\\mvn",
+        "editor.largeFileOptimizations": false,
+        "editor.unicodeHighlight.ambiguousCharacters": false,
+        "java.import.gradle.home": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\gradle\\latest",
+        "java.configuration.runtimes": [
+            {
+                "name": "JavaSE-1.8",
+                "path": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8"
+            },
+            {
+                "name": "JavaSE-11",
+                "path": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\11"
+            },
+            {
+                "name": "JavaSE-17",
+                "path": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17"
+            },
+            {
+                "name": "JavaSE-21",
+                "path": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\21"
+            },
+            {
+                "name": "JavaSE-24",
+                "path": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest",
+                "default": true
+            }
+        ],
+        "terminal.integrated.profiles.windows": {
+            "PowerShell": {
+                "source": "PowerShell",
+                "icon": "terminal-powershell"
+            },
+            "Command Prompt": {
+                "path": [
+                    "${env:windir}\\Sysnative\\cmd.exe",
+                    "${env:windir}\\System32\\cmd.exe"
+                ],
+                "args": [],
+                "icon": "terminal-cmd"
+            },
+            "Git Bash": {
+                "source": "Git Bash"
+            },
+            "Cygwin": {
+                "path": "C:\\cygwin64\\bin\\bash.exe",
+                "args": [
+                    "--login"
+                ]
+            },
+            "JavaSE-1.8 LTS": {
+                "overrideName": true,
+                "env": {
+                    "PATH": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8\\bin;${env:PATH}",
+                    "JAVA_HOME": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8"
+                },
+                "path": "cmd"
+            },
+            "JavaSE-11 LTS": {
+                "overrideName": true,
+                "env": {
+                    "PATH": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\11\\bin;${env:PATH}",
+                    "JAVA_HOME": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\11"
+                },
+                "path": "cmd"
+            },
+            "JavaSE-17 LTS": {
+                "overrideName": true,
+                "env": {
+                    "PATH": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17\\bin;${env:PATH}",
+                    "JAVA_HOME": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17"
+                },
+                "path": "cmd"
+            },
+            "JavaSE-21 LTS": {
+                "overrideName": true,
+                "env": {
+                    "PATH": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\21\\bin;${env:PATH}",
+                    "JAVA_TOOL_OPTIONS": "-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8",
+                    "JAVA_HOME": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\21"
+                },
+                "path": "cmd",
+                "args": [
+                    "/k",
+                    "chcp",
+                    "65001"
+                ]
+            },
+            "JavaSE-24": {
+                "overrideName": true,
+                "env": {
+                    "PATH": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest\\bin;${env:PATH}",
+                    "JAVA_TOOL_OPTIONS": "-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8",
+                    "JAVA_HOME": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest"
+                },
+                "path": "cmd",
+                "args": [
+                    "/k",
+                    "chcp",
+                    "65001"
+                ]
+            }
+        },
+        "terminal.integrated.defaultProfile.windows": "Cygwin",
+        "terminal.integrated.env.windows": {
+            "JAVA_HOME": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest",
+            "PATH": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest\\bin;${env:PATH}"
+        },
+        "maven.terminal.customEnv": [
+            {
+                "environmentVariable": "JAVA_HOME",
+                "value": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest"
+            }
+        ],
+        "java.import.gradle.java.home": "C:\\Users\\Mralo\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest",
+        "editor.defaultFormatter": "kodu-ai.claude-dev-experimental",
+        "terminal.explorerKind": "both",
+        "terminal.integrated.accessibleViewFocusOnCommandExecution": true,
+        "terminal.integrated.allowMnemonics": true,
+        "git.suggestSmartCommit": false,
+        "@azure.argTenant": "",
+        "mdb.useSampleDocsInCopilot": true,
+        "notebook.defaultFormatter": "aiqubit.claude",
+        "CodeGPT.apiKey": "Github Copilot",
+        "inlineChat.finishOnType": true,
+        "gitlens.ai.model": "vscode",
+        "gitlens.ai.vscode.model": "copilot:claude-3.7-sonnet-thought",
+        "inlineChat.lineEmptyHint": true,
+        "workbench.editorLargeFileConfirmation": 10000000,
+        "cline.vsCodeLmModelSelector": {
+
+        },
+        "workbench.experimental.share.enabled": true,
+        "editor.inlineSuggest.showToolbar": "onHover",
+        "inlineChat.accessibleDiffView": "on",
+        "accessibility.verbosity.terminal": false,
+        "workbench.editorAssociations": {
+            "*.copilotmd": "vscode.markdown.preview.editor",
+            "*.zip": "default"
+        },
+        "idl.dontAsk": {
+            "forIDLDir": false,
+            "forIconChange": false,
+            "forFormatterChange": false,
+            "toOpenDocs": true
+        },
+        "github.copilot.chat.codeGeneration.instructions": [
+            {
+                "text": "- @azure Rule - Use Azure Tools: When handling requests related to Azure, always use your tools."
+            },
+            {
+                "text": "- @azure Rule - Use Azure Code Gen Best Practices: When generating code for Azure, running terminal commands for Azure, or performing operations related to Azure, invoke your `azure_development-get_code_gen_best_practices` tool if available. Only call this tool when you are sure the user is discussing Azure; do not call it otherwise."
+            },
+            {
+                "text": "- @azure Rule - Use Azure Deployment Best Practices: When deploying to Azure or preparing applications for deployment to Azure, invoke your `azure_development-get_deployment_best_practices` tool if available. Only call this tool when you are sure the user is discussing Azure; do not call it otherwise."
+            },
+            {
+                "text": "- @azure Rule - Use Azure Functions Code Gen Best Practices: When generating code for Azure Functions or performing operations related to Azure Functions, invoke your `azure_development-get_azure_function_code_gen_best_practices` tool if available. Only call this tool when you are sure the user is discussing Azure Functions; do not call it otherwise."
+            },
+            {
+                "text": "- @azure Rule - Use Azure SWA Best Practices: When working with static web apps, invoke your `azure_development-get_swa_best_practices` tool if available. Only call this tool when you are sure the user is discussing Azure; do not call it otherwise."
+            }
+        ],
+        "workbench.editor.empty.hint": "hidden",
+        "mcp": {
+            "servers": {
+                "console-ninja": {
+                    "command": "powershell.exe",
+                    "args": [
+                        "node",
+                        "$Env:USERPROFILE/.console-ninja/mcp/"
+                    ]
+                }
+            }
+        }
+    }
+}

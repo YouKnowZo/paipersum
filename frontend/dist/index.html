@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <!-- IP Protection Meta Tags -->
+    <meta name="copyright" content="Paipersum.com">
+    <meta name="owner" content="Alonzo Lockett">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com; img-src 'self' data:; font-src 'self' fonts.gstatic.com; connect-src 'self' api.paipersum.com; frame-ancestors 'none';">
+    <meta name="robots" content="noarchive">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paipersum.com - Document Summarizer. Your Secure AI Legal Assistant</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" as="style">
+    
+    <!-- CSS -->
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+    
+    <!-- Favicon with protection notice -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+  <link rel="stylesheet" href="/assets/index-1324ddb1.css">
+</head>
+<body>
+    <!-- Navigation with enhanced security -->
+    <nav class="nav-glass" id="main-nav">
+        <div class="container">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <div class="logo-icon mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold">PaipersumAI</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="#how-it-works" class="nav-link">How It Works</a>
+                    <a href="legal.html" class="nav-link">Legal</a>
+                    <button id="auth-btn" class="btn-primary">Sign In</button>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <!-- Content from previous implementation -->
+        </section>
+
+        <!-- Document Upload with Security -->
+        <section id="document-upload" class="py-16 bg-gray-900">
+            <div class="container">
+                <h2 class="text-3xl font-bold text-center mb-12">Analyze Your Documents</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- URL Analysis -->
+                    <div class="card-glass p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="icon-box bg-indigo-600">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <h3 class="text-xl ml-3">Website Analysis</h3>
+                        </div>
+                        <div class="mt-4">
+                            <input type="url" id="target-url" class="w-full input-field" placeholder="https://example.com/tos" required>
+                            <button id="analyze-url-btn" class="btn-primary mt-4 w-full">
+                                Analyze Terms
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">We'll automatically detect and analyze the terms</p>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="card-glass p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="icon-box bg-purple-600">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            <h3 class="text-xl ml-3">Upload Document</h3>
+                        </div>
+                        <div class="file-upload-box" id="file-upload-container">
+                            <input type="file" id="document-upload" class="hidden" accept=".pdf,.docx,.txt">
+                            <label for="document-upload" class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt text-4xl mb-3"></i>
+                                <p>Drag & drop files or click to browse</p>
+                                <p class="text-xs mt-2">Supports: PDF, DOCX, TXT (Max 5MB)</p>
+                            </label>
+                            <div id="file-info" class="file-info hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Text Input -->
+                    <div class="card-glass p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="icon-box bg-blue-600">
+                                <i class="fas fa-paste"></i>
+                            </div>
+                            <h3 class="text-xl ml-3">Paste Text</h3>
+                        </div>
+                        <textarea id="text-input" class="w-full input-field h-32" placeholder="Paste your contract text here..."></textarea>
+                        <button id="analyze-text-btn" class="btn-primary mt-4 w-full">
+                            Analyze Text
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Other sections... -->
+    </main>
+
+    <!-- Legal Footer -->
+    <footer class="bg-gray-900 py-12">
+        <div class="container">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-2">
+                    <h3 class="text-lg font-semibold mb-4">Paipersum.com</h3>
+                    <p class="text-gray-400">Your secure AI-powered legal assistant helping you understand contracts, T&C's  plus more with confidence.</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold uppercase mb-4">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="legal.html" class="text-gray-400 hover:text-white">Terms of Service</a></li>
+                        <li><a href="legal.html" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                        <li><a href="legal.html" class="text-gray-400 hover:text-white">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold uppercase mb-4">Protection</h4>
+                    <ul class="space-y-2">
+                        <li><a href="humans.txt" class="text-gray-400 hover:text-white">Humanstxt</a></li>
+                        <li><a href="robots.txt" class="text-gray-400 hover:text-white">Robotstxt</a></li>
+                        <li><a href="legal.html#dmca" class="text-gray-400 hover:text-white">DMCA</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-sm text-gray-500">
+                <p>© 2025
+Paipersum.com. All rights reserved. Not a law firm. Does not provide legal advice.</p>
+                <p class="mt-2">Patent Pending. All AI models and methodologies are proprietary.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <!-- Content from previous implementation -->
+    </div>
+
+    <!-- Consent Modal (Will be injected by consent.js) -->
+    
+    <!-- Scripts -->
+    <script src="./assets/js/security.js"></script>
+    <script src="./assets/js/auth.js"></script>
+    <script src="./assets/js/api.js"></script>
+    <script src="./assets/js/consent.js"></script>
+    <script src="./assets/js/main.js"></script>
+    
+    <!-- Free Monitoring (Only in production) -->
+    <script>
+        if (window.location.hostname === 'paipersum.com') {
+            // Uptime Robot
+            const urScript = document.createElement('script');
+            urScript.src = 'https://uptimerobot.com/monitor.js?id=YOUR_ID';
+            document.body.appendChild(urScript);
+            
+            // Simple intrusion detection
+            document.addEventListener('DOMContentLoaded', () => {
+                const protectedTerms = ['paipersumai', 'legalai'];
+                const pageText = document.body.innerText.toLowerCase();
+                protectedTerms.forEach(term => {
+                    if (pageText.includes(term)) {
+                        console.log(`[Protection] Term "${term}" found`);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
