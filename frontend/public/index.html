@@ -1,360 +1,1540 @@
-<!--
-PaiperSum AI-Powered Form Filling & PDF Generator - Full Backend Stack (Free, Local, Windows 11 Compatible)
-
-============================
-PYTHON BACKEND (Reference)
-============================
-# Install Required Libraries
-# pip install flask flask-cors pytesseract pillow reportlab pdf2image
-
-import os
-import json
-import pytesseract
-from PIL import Image
-from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS
-from reportlab.lib.pagesizes import LETTER
-from reportlab.pdfgen import canvas
-
-# Optional: Add Tesseract path manually (Windows)
-pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
-
-UPLOAD_FOLDER = 'uploads'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
-app = Flask(__name__)
-CORS(app)
-
-@app.route('/upload', methods=['POST'])
-def upload():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-    file = request.files['file']
-    filename = os.path.join(UPLOAD_FOLDER, file.filename)
-    file.save(filename)
-    text = pytesseract.image_to_string(Image.open(filename))
-    return jsonify({"text": text})
-
-def generate_pdf(filled_data, filename="completed_form.pdf"):
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    c = canvas.Canvas(filepath, pagesize=LETTER)
-    width, height = LETTER
-    y = height - 50
-    c.setFont("Helvetica", 12)
-    c.drawString(50, y, "Generated Document from PaiperSum")
-    y -= 30
-    for key, value in filled_data.items():
-        c.drawString(50, y, f"{key}: {value}")
-        y -= 25
-    c.save()
-    return filepath
-
-@app.route('/generate-pdf', methods=['POST'])
-def complete_pdf():
-    data = request.json
-    if not data:
-        return jsonify({"error": "No input received"}), 400
-    pdf_path = generate_pdf(data)
-    return send_file(pdf_path, as_attachment=True)
-
-@app.route('/smart-fill', methods=['POST'])
-def smart_fill():
-    body = request.json.get("message", "")
-    extracted = {
-        "Full Name": "John Doe",
-        "Date of Birth": "01/01/1990",
-        "Address": "123 Main St, Oakland, CA",
-        "Phone Number": "555-1234"
-    }
-    return jsonify({"data": extracted})
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-# ...additional backend code omitted for brevity...
--->
-
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-    <!-- IP Protection Meta Tags -->
-    <meta name="copyright" content="Paipersum.com">
-    <meta name="owner" content="Alonzo Lockett">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com; img-src 'self' data:; font-src 'self' fonts.gstatic.com; connect-src 'self' api.paipersum.com; frame-ancestors 'none';">
-    <meta name="robots" content="noarchive">
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paipersum.com - Document Summarizer. Your Secure AI Legal Assistant</title>
+    <title>Paipersum | Intelligent Document Understanding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@375;475;575;675;775;875&family=Space+Grotesk:wght@475;575;675;775&family=Figtree:wght@475;675;775&display=swap" rel="stylesheet">
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" as="style">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="./assets/css/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
-    
-    <!-- Favicon with protection notice -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+    <!-- SVG Logo Definition -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+      <symbol id="paipersum-logo" viewBox="0 0 200 200">
+        <path fill="currentColor" d="M50,10c-22.09,0-40,17.91-40,40s17.91,40,40,40s40-17.91,40-40S72.09,10,50,10z M50,82c-17.67,0-32-14.33-32-32 s14.33-32,32-32s32,14.33,32,32S67.67,82,50,82z"/>
+        <path fill="currentColor" d="M50,30c-11.05,0-20,8.95-20,20s8.95,20,20,20s20-8.95,20-20S61.05,30,50,30z M50,62c-6.63,0-12-5.37-12-12s5.37-12,12-12 s12,5.37,12,12S56.63,62,50,62z"/>
+        <path fill="currentColor" d="M65,42H35c-1.66,0-3,1.34-3,3v10c0,1.66,1.34,3,3,3h30c1.66,0,3-1.34,3-3V45C68,43.34,66.66,42,65,42z M62,52H38v-4h24V52z"/>
+      </symbol>
+       <symbol id="paipersum-logo-alt" viewBox="0 0 250 250">
+        <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:var(--accent-primary-dark);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:var(--accent-primary);stop-opacity:1" />
+            </linearGradient>
+        </defs>
+        <path fill="url(#logoGradient)" d="M100,10 C50.29,10 10,50.29 10,100 C10,149.71 50.29,190 100,190 C149.71,190 190,149.71 190,100 C190,50.29 149.71,10 100,10 Z M100,172 C60.38,172 28,139.62 28,100 C28,60.38 60.38,28 100,28 C139.62,28 172,60.38 172,100 C172,139.62 139.62,172 100,172 Z"></path>
+        <path fill="currentColor" d="M125.82,60.78 C121.73,58.37 116.66,58.69 113.06,61.4 L90.58,77.58 L77.58,68.16 C73.47,65.62 67.92,66.11 64.38,69.41 C60.83,72.72 60.99,78.36 64.8,81.44 L83.62,94.92 C85.62,96.34 88.04,97.08 90.46,97.08 C92.74,97.08 94.98,96.42 96.94,95.16 L127.38,74.58 C131.22,71.86 132.06,66.38 129.22,62.58 C128.36,61.52 127.18,60.98 125.82,60.78 Z M90.46,87.08 L72,76.26 L83.82,68.02 L106.3,84.19 L90.46,87.08 Z"></path>
+        <path fill="currentColor" d="M135.62,105.08 L116.38,118.56 C112.18,121.64 111.97,127.28 115.62,130.59 C117.81,132.64 120.69,133.58 123.58,133.58 C125.71,133.58 127.84,132.97 129.67,131.84 L150.38,118.41 C154.58,115.86 156.08,110.12 153.33,106.16 C150.58,102.21 144.88,101.11 140.54,103.42 L124.18,111.93 L108.97,102.58 C104.78,99.99 99.03,100.58 95.62,104.16 C92.22,107.74 92.48,113.38 96.38,116.59 L109.38,125.92 L100,132.92 L100,132.92 L135.62,105.08 Z"></path>
+    </symbol>
+    </svg>
+
+    <style>
+        :root {
+            /* Light Theme Color Palette */
+            --body-bg: #F8F9FA; /* Off-white for main background */
+            --surface-bg: #FFFFFF; /* Pure white for cards, modals, dropdowns */
+            --section-bg-alt: #F1F3F5; /* Slightly darker off-white for alternating sections */
+            
+            --text-primary: #212529; /* Near black for primary text */
+            --text-secondary: #495057; /* Dark gray for secondary text */
+            --text-muted: #6C757D; /* Medium gray for less important text, placeholders */
+            --text-on-accent: #FFFFFF; /* White text on accent backgrounds */
+
+            --accent-primary: #007BFF; /* A refined, modern blue */
+            --accent-primary-hover: #0056b3; /* Darker blue for hover */
+            --accent-primary-light: #E0F2FF; /* Light tint of accent for backgrounds */
+            --accent-primary-glow: rgba(0, 123, 255, 0.15); /* Subtle glow for focus/hovers */
+            --accent-primary-dark: #004085; /* Darker shade for logo gradient */
+
+
+            --accent-secondary: #17A2B8; /* A sophisticated teal */
+            --accent-secondary-hover: #117A8B;
+            --accent-secondary-glow: rgba(23, 162, 184, 0.15);
+
+            --border-color-soft: #E9ECEF; /* Light gray for subtle borders */
+            --border-color-strong: #CED4DA; /* Stronger gray for input borders, etc. */
+
+            --success: #28A745;
+            --warning: #FFC107; /* Brighter yellow */
+            --danger: #DC3545;
+            --info: #17A2B8; /* Using accent secondary for info */
+
+            --text-success: var(--success);
+            --text-warning: #c69500; /* Darker yellow text for better contrast on light bg */
+            --text-danger: var(--danger);
+            --text-info: var(--info);
+            --text-accent-primary: var(--accent-primary);
+            --text-purple-400: #6f42c1; /* A distinct purple for specific tags */
+
+            /* Backgrounds for specific elements, e.g., feature icons */
+            --bg-accent-primary: var(--accent-primary);
+            --bg-success: var(--success);
+            --bg-danger: var(--danger);
+            --bg-info: var(--info);
+            --bg-purple-500: #6f42c1;
+            --bg-warning: var(--warning);
+
+
+            /* Typography */
+            --font-body: 'Inter', sans-serif;
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-brand: 'Figtree', sans-serif; /* New brand font */
+
+            /* Shadows - subtle for light theme */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.07), 0 3px 6px rgba(0,0,0,0.05);
+
+             /* Animations */
+            --transition-duration: 0.3s;
+            --transition-easing: cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px; /* Base font size */
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--body-bg);
+            color: var(--text-primary);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        
+        /* Subtle background pattern */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23E9ECEF" fill-opacity="0.4"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM36-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            letter-spacing: -0.03em;
+            color: var(--text-primary); /* Ensure headings use primary text color */
+        }
+        h1 { font-size: 2.75rem; line-height: 1.2; font-weight: 700; margin-bottom: 1rem;} /* 44px */
+        h2 { font-size: 2.25rem; line-height: 1.25; font-weight: 600; margin-bottom: 0.75rem;} /* 36px */
+        h3 { font-size: 1.75rem; line-height: 1.3; font-weight: 600; margin-bottom: 0.5rem;} /* 28px */
+        h4 { font-size: 1.25rem; line-height: 1.4; font-weight: 600; margin-bottom: 0.25rem;} /* 20px */
+        
+        p { color: var(--text-secondary); margin-bottom: 1rem; }
+
+        .brand-name {
+            font-family: var(--font-brand);
+            font-weight: 700; /* Bolder brand name */
+            font-size: 1.5rem; /* Slightly larger */
+            color: var(--text-primary);
+        }
+        
+        /* Hero brand name shimmer */
+        .hero-section .brand-name {
+            background-image: linear-gradient(
+                -75deg,
+                var(--accent-primary-dark) 20%,
+                var(--accent-primary) 40%,
+                var(--accent-primary-dark) 60%,
+                var(--accent-primary) 80%
+            );
+            background-size: 300% auto;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: textShimmer 5s linear infinite;
+        }
+        @keyframes textShimmer {
+            to { background-position: -300% center; }
+        }
+
+
+        .nav-header {
+            background-color: rgba(255, 255, 255, 0.85); /* surface-bg with alpha */
+            backdrop-filter: blur(10px) saturate(180%);
+            border-bottom: 1px solid var(--border-color-soft);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform var(--transition-duration) var(--transition-easing);
+        }
+        .logo-container svg {
+            width: 100%;
+            height: 100%;
+            color: var(--accent-primary); 
+        }
+        .logo-container:hover {
+            transform: scale(1.05);
+        }
+        /* Hero logo subtle breathing shadow */
+        .hero-section .logo-container {
+             animation: logoBreathe 3s ease-in-out infinite alternate;
+        }
+        @keyframes logoBreathe {
+            0% { filter: drop-shadow(0 0 3px var(--accent-primary-glow)); }
+            100% { filter: drop-shadow(0 0 8px var(--accent-primary-glow)); }
+        }
+
+
+        .card {
+            background-color: var(--surface-bg);
+            border-radius: 0.75rem; 
+            border: 1px solid var(--border-color-soft);
+            box-shadow: var(--shadow-md);
+            transition: transform var(--transition-duration) var(--transition-easing),
+                        box-shadow var(--transition-duration) var,--transition-easing,
+                        border-color var(--transition-duration) var,--transition-easing;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg), 0 0 0 1px var(--accent-primary-glow); /* Added subtle border glow */
+            border-color: var(--accent-primary);
+        }
+        .feature-card .icon-wrapper {
+             transition: transform var(--transition-duration) var,--transition-easing,
+                         box-shadow var(--transition-duration) var,--transition-easing,
+                         background-color var(--transition-duration) var,--transition-easing;
+        }
+        .feature-card:hover .icon-wrapper {
+             transform: scale(1.1) translateY(-3px) rotate(-3deg);
+             box-shadow: 0 8px 20px rgba(0,123,255,0.25); /* More prominent glow for feature icons */
+        }
+
+
+        .hero-title-accent {
+            color: var(--accent-primary); 
+            text-shadow: 1px 1px 3px rgba(0, 123, 255, 0.15); 
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem; 
+            border-radius: 0.375rem; 
+            font-weight: 600;
+            font-family: var(--font-heading);
+            transition: all var(--transition-duration) var,--transition-easing;
+            text-align: center;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: var(--shadow-sm);
+        }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02); /* Added subtle scale */
+            box-shadow: var(--shadow-lg);
+        }
+        .btn:active:not(:disabled) {
+            transform: translateY(0px) scale(0.98); /* Added active state */
+             box-shadow: var(--shadow-sm);
+        }
+        .btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: var(--text-on-accent);
+            border-color: var(--accent-primary);
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--accent-primary-hover);
+            border-color: var(--accent-primary-hover);
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background-color: var(--accent-primary-light);
+            color: var(--accent-primary-hover);
+            border-color: var(--accent-primary-hover);
+        }
+        
+        .btn-cta-pulse { 
+            animation: pulse-shadow-soft 2.5s infinite;
+        }
+        @keyframes pulse-shadow-soft { /* Softer shadow pulse */
+            0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.2); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
+        .btn-cta-pulse:hover:not(:disabled) {
+             animation-play-state: paused;
+        }
+
+        .animated-underline {
+          position: relative;
+          text-decoration: none;
+          padding-bottom: 5px; 
+          color: var(--text-secondary);
+        }
+        .animated-underline:hover {
+            color: var(--text-primary);
+        }
+        .animated-underline::after {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 2px;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); /* Gradient underline */
+          transition: width var(--transition-duration) var,--transition-easing;
+        }
+        .animated-underline:hover::after, .animated-underline:focus::after {
+          width: 100%;
+        }
+        
+        .section-title { /* For general section titles */
+            font-family: var(--font-heading);
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: var(--text-primary);
+        }
+        .section-subtitle { /* For subtitles under main section titles */
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            font-size: 1.125rem; /* 18px */
+            max-width: 38rem; /* Consistent max width for subtitles */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .section-title-accent {
+            color: var(--accent-primary);
+            font-weight: 600; 
+        }
+
+        @keyframes scan-line-smooth {
+            0% { transform: translateY(-100%) scaleX(1.5); opacity: 0.5; }
+            50% { opacity: 0.2; }
+            100% { transform: translateY(100%) scaleX(1.5); opacity: 0; }
+        }
+        .file-drop-area {
+            border: 2px dashed var(--border-color-strong);
+            border-radius: 0.5rem;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            background-color: var(--surface-bg);
+            transition: border-color var(--transition-duration) var,--transition-easing),
+                        background-color var(--transition-duration) var,--transition-easing),
+                        box-shadow var(--transition-duration) var,--transition-easing;
+            position: relative;
+            overflow: hidden;
+        }
+        .file-drop-area.active, .file-drop-area:hover {
+            border-color: var(--accent-primary);
+            background-color: var(--accent-primary-light);
+            box-shadow: 0 0 15px var(--accent-primary-glow);
+        }
+        .file-drop-area.active::before, .file-drop-area:hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px; 
+            background: var(--accent-primary);
+            animation: scan-line-smooth 1.5s linear infinite; /* Smoother animation */
+        }
+        .file-drop-area input[type="file"] { display: none; }
+
+        .progress-bar-container {
+            background-color: var(--border-color-soft);
+            border-radius: 0.25rem;
+            height: 0.75rem;
+            padding: 2px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width var(--transition-duration) var,--transition-easing;
+            height: 100%; 
+            border-radius: 0.125rem;
+        }
+        
+        .floating { animation: float-light 5s ease-in-out infinite alternate; }
+        @keyframes float-light {
+            0% { transform: translateY(0px) rotate(-1deg); }
+            100% { transform: translateY(-10px) rotate(1deg); }
+        }
+        
+        .shadow-accent-primary-glow { 
+            box-shadow: 0 0 20px var(--accent-primary-glow);
+        }
+        .glow { 
+            box-shadow: 0 0 15px var(--accent-primary-glow), 0 0 25px var(--accent-primary-glow);
+        }
+        .pricing-card-popular.card { 
+             border-color: var(--accent-primary) !important;
+             box-shadow: 0 10px 25px var(--accent-primary-glow), var(--shadow-lg);
+        }
+
+
+        .demo-tab {
+            padding: 0.8rem 1.2rem; 
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-family: var(--font-heading);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px; 
+            transition: color var(--transition-duration) var,--transition-easing),
+                        border-color var(--transition-duration) var,--transition-easing),
+                        background-color var,--transition-duration) var,--transition-easing;
+            white-space: nowrap;
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+            position: relative; /* Needed for pseudo-element */
+        }
+        .demo-tab:hover:not(:disabled) {
+            color: var(--accent-primary);
+            background-color: var(--accent-primary-light);
+        }
+        .demo-tab.active {
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
+            background-color: var(--surface-bg); 
+            font-weight: 600;
+        }
+        .demo-tab.active::after { /* Active tab underline gradient */
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -2px; /* Position it over the border-bottom */
+            left: 0;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            background-size: 200% 100%; /* For shimmer effect */
+            animation: shimmerGradient 3s linear infinite;
+        }
+        @keyframes shimmerGradient {
+            0% { background-position: -100% 0; }
+            100% { background-position: 100% 0; }
+        }
+        .demo-tab:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: transparent !important;
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn-light 0.5s var(--transition-easing);
+            background-color: var(--surface-bg); 
+        }
+        @keyframes fadeIn-light {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sample-doc.card { 
+            transition: transform var(--transition-duration) var,--transition-easing),
+                        box-shadow var(--transition-duration) var,--transition-easing),
+                        border-color var,--transition-duration) var,--transition-easing;
+        }
+        .sample-doc.card:hover:not(:disabled) {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-primary);
+        }
+        .sample-doc.card:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: var(--shadow-md); 
+            border-color: var(--border-color-soft); 
+        }
+
+        .document-viewer, .analysis-results {
+            min-height: 28rem; 
+            background-color: var(--body-bg); 
+        }
+        /* Results emphasis animation */
+        .results-loaded .risk-summary, .results-loaded .clause-analysis {
+            animation: resultFadeIn 0.5s var(--transition-easing) forwards;
+        }
+        @keyframes resultFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .risk-score-value-animated { /* For the number itself */
+            transition: color 0.5s ease; /* Transition color change */
+            animation: scoreUpdateAnim 0.5s ease-out;
+        }
+        @keyframes scoreUpdateAnim {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+
+        textarea, input[type="text"], input[type="email"], input[type="url"] {
+            background-color: var(--surface-bg) !important;
+            border: 1px solid var(--border-color-strong) !important;
+            color: var(--text-primary) !important;
+            border-radius: 0.375rem !important;
+            padding: 0.8rem 1rem !important; 
+            width: 100%; 
+            transition: border-color var(--transition-duration) ease, box-shadow var(--transition-duration) ease;
+        }
+        textarea:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="url"]:focus {
+            border-color: var(--accent-primary) !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px var(--accent-primary-glow) !important;
+        }
+        textarea:disabled, input[type="text"]:disabled, input[type="email"]:disabled, input[type="url"]:disabled {
+            opacity: 0.7;
+            background-color: var(--section-bg-alt) !important; 
+            cursor: not-allowed;
+        }
+        
+        #url-panel .flex input[type="text"] {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right-width: 0 !important; 
+            flex-grow: 1;
+        }
+        #url-panel .flex button {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+        }
+
+        ::placeholder {
+            color: var(--text-muted) !important;
+            opacity: 1;
+        }
+        
+        /* Prose styles for light theme */
+        .prose { color: var(--text-secondary); line-height: 1.7; }
+        .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { color: var(--text-primary); margin-top: 1.4em; margin-bottom: 0.5em; font-weight: 600; font-family: var(--font-heading); }
+        .prose p { margin-top: 0.8em; margin-bottom: 0.8em; }
+        .prose strong { color: var(--text-primary); font-weight: 600; }
+        .prose a { color: var(--accent-primary); text-decoration: none; font-weight: 500; }
+        .prose a:hover { text-decoration: underline; color: var(--accent-primary-hover); }
+        .prose ul, .prose ol { margin-top: 0.8em; margin-bottom: 0.8em; padding-left: 1.6em; }
+        .prose li { margin-top: 0.25em; margin-bottom: 0.25em; }
+        .prose ul > li::marker { color: var(--accent-primary); }
+        .prose blockquote { margin-top: 1.2em; margin-bottom: 1.2em; padding-left: 1.2em; border-left: 3px solid var(--border-color-soft); color: var(--text-muted); font-style: italic;}
+        .prose code { background-color: var(--accent-primary-light); color: var(--accent-primary-hover); padding: 0.2em 0.4em; border-radius: 0.25rem; font-size: 0.9em; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; }
+        .prose pre { background-color: #212529; /* Dark background for code blocks for contrast */ color: #e9ecef; padding: 1.2em; border-radius: 0.5rem; overflow-x: auto; font-size: 0.9em; white-space: pre-wrap; word-wrap: break-word; box-shadow: var(--shadow-sm); }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; font-size: inherit; }
+        .prose .text-danger { color: var(--danger) !important; }
+        .prose .text-warning { color: var(--text-warning) !important; }
+        .prose .text-accent-primary { color: var(--accent-primary) !important; }
+
+
+        .testimonial-avatar {
+            border-radius: 0.5rem; 
+            overflow: hidden; /* To clip the image to the border-radius */
+            box-shadow: var(--shadow-sm);
+        }
+        .testimonial-avatar img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .testimonial-card .fa-comments { /* Decorative quote icon styling */
+            transition: transform 0.5s var(--transition-easing);
+        }
+        .testimonial-card:hover .fa-comments {
+            transform: rotate(5deg) scale(1.05);
+        }
+
+
+        .hero-blob-1 { background-color: var(--accent-primary); }
+        .hero-blob-2 { background-color: var(--accent-secondary); }
+        .hero-blob-3 { background-color: var(--warning); }
+        
+        @keyframes blob-organic { /* More continuous and subtle blob animation */
+            0%, 100% { border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%; transform: rotate(0deg) scale(1.0) translate(0px, 0px); opacity: 0.35; }
+            12% { border-radius: 50% 50% 60% 40% / 50% 40% 60% 50%; transform: rotate(2deg) scale(1.02) translate(5px, -8px); opacity: 0.4; }
+            25% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(-1deg) scale(1.05) translate(-3px, 5px); opacity: 0.45; }
+            37% { border-radius: 70% 30% 50% 50% / 40% 60% 30% 70%; transform: rotate(3deg) scale(1.0) translate(8px, -4px); opacity: 0.4; }
+            50% { border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%; transform: rotate(-2deg) scale(1.03) translate(-6px, 6px); opacity: 0.35; }
+            62% { border-radius: 50% 50% 30% 70% / 60% 40% 60% 40%; transform: rotate(1deg) scale(0.98) translate(3px, -7px); opacity: 0.4; }
+            75% { border-radius: 40% 60% 70% 30% / 70% 30% 50% 50%; transform: rotate(-3deg) scale(1.02) translate(-5px, 3px); opacity: 0.45; }
+            87% { border-radius: 30% 70% 40% 60% / 50% 70% 30% 50%; transform: rotate(2deg) scale(0.99) translate(6px, -5px); opacity: 0.38; }
+        }
+        .animate-blob {
+          animation: blob-organic 25s infinite cubic-bezier(0.65, 0.05, 0.36, 1) alternate; /* Added alternate */
+        }
+        .animation-delay-2000 { animation-delay: -4s; }
+        .animation-delay-4000 { animation-delay: -8s; }
+        
+        <!-- How It Works - Step Indicators & Arrows -->
+        .step-indicator {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            box-shadow: 0 4px 15px rgba(0,123,255,0.25);
+            transition: transform var(--transition-duration) var,--transition-easing), box-shadow var,--transition-duration) var,--transition-easing;
+        }
+        .step-indicator:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,123,255,0.35);
+        }
+        .connecting-arrow { /* For fa-angles-right / fa-angles-down */
+             font-size: 2.5rem; /* Larger */
+             opacity: 0.6;
+             transition: opacity var(--transition-duration) ease;
+             color: var(--accent-primary);
+        }
+        .card:hover + .connecting-arrow {
+            opacity: 0.9;
+        }
+        @keyframes ping-slow-horizontal-refined {
+            0%, 100% { transform: translateX(0); opacity: 0.7; }
+            50% { transform: translateX(8px); opacity: 0.4; }
+        }
+        @keyframes ping-slow-vertical-refined {
+             0%, 100% { transform: translateY(0); opacity: 0.7; }
+            50% { transform: translateY(8px); opacity: 0.4; }
+        }
+        .animate-ping-slow.fa-angles-right { animation: ping-slow-horizontal-refined 2.5s infinite ease-in-out; }
+        .animate-ping-slow.fa-angles-down { animation: ping-slow-vertical-refined 2.5s infinite ease-in-out; }
+
+
+        *:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 3px; /* Increased offset */
+            box-shadow: 0 0 0 5px var(--accent-primary-glow); /* Slightly larger glow */
+            border-radius: 0.25rem; /* Ensure focus outline matches element radius */
+        }
+        *:focus:not(:focus-visible) { outline: none; }
+
+        @keyframes slideInUp-refined {
+            from { transform: translateY(100%) scale(0.98); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .cookie-consent-banner {
+             animation: slideInUp-refined 0.6s var(--transition-easing) forwards;
+             background-color: var(--surface-bg);
+             border-color: var(--accent-primary);
+             box-shadow: var(--shadow-lg), 0 0 20px var(--accent-primary-glow);
+        }
+        
+        @keyframes resultFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .risk-score-value-animated { /* For the number itself */
+            transition: color 0.5s ease; /* Transition color change */
+            animation: scoreUpdateAnim 0.5s ease-out;
+        }
+        @keyframes scoreUpdateAnim {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* --- Remove duplicate/faulty inline CSS blocks from <style> in index.html ---
+         --- Rely on main.css for all card, tab, file-drop, and transition styles.
+         --- Only keep unique or page-specific styles in index.html.
+        */
+    </style>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/assets/paipersum_logo.png">
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="description" content="PaiperSum: Instantly understand any contract, policy, or legal document. AI-powered, privacy-first, and fully compliant.">
 </head>
-<body>
-    <!-- Navigation with enhanced security -->
-    <nav class="nav-glass" id="main-nav">
-        <div class="container">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center">
-                    <div class="logo-icon mr-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
+<body class="antialiased">
+    
+    <!-- Header -->
+    <header class="nav-header sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="#" class="flex items-center space-x-2">
+                    <div class="logo-container h-10 w-10">
+                        <svg class="h-10 w-10" aria-hidden="true"><use xlink:href="#paipersum-logo-alt"></use></svg>
                     </div>
-                    <span class="text-xl font-bold">PaipersumAI</span>
+                    <span class="brand-name">PaiperSum</span>
+                </a>
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="font-medium animated-underline">Features</a>
+                    <a href="#how-it-works" class="font-medium animated-underline">How It Works</a>
+                    <a href="#pricing" class="font-medium animated-underline">Pricing</a>
+                    <a href="#about" class="font-medium animated-underline">About</a>
+                </nav>
+                <!-- CTA Button -->
+                <div class="hidden md:flex items-center">
+                    <a href="#demo" class="btn btn-primary">Try The Demo</a>
                 </div>
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="#features" class="nav-link">Features</a>
-                    <a href="#how-it-works" class="nav-link">How It Works</a>
-                    <a href="legal.html" class="nav-link">Legal</a>
-                    <button id="auth-btn" class="btn-primary">Sign In</button>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--section-bg-alt)] focus:outline-none" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
                 </div>
-                <button id="mobile-menu-btn" class="md:hidden">
-                    <i class="fas fa-bars"></i>
-                </button>
             </div>
         </div>
-    </nav>
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--section-bg-alt)]">Features</a>
+                <a href="#how-it-works" class="block px-3 py-2 rounded-md text-base font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--section-bg-alt)]">How It Works</a>
+                <a href="#pricing" class="block px-3 py-2 rounded-md text-base font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--section-bg-alt)]">Pricing</a>
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-[var(--text-secondary)] hover:text-[var,--text-primary)] hover:bg-[var(--section-bg-alt)]">About</a>
+                <a href="#demo" class="block px-3 py-3 mt-2 rounded-md text-base font-medium text-center text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)]">Try The Demo</a>
+            </div>
+        </div>
+    </header>
 
-    <!-- Main Content -->
-    <main>
+    <main id="main-content" tabindex="-1" aria-label="Main Content">
         <!-- Hero Section -->
-        <section class="hero-section">
-            <!-- Content from previous implementation -->
+        <section class="hero-section relative overflow-hidden py-24 sm:py-32">
+            <div class="absolute inset-0 -z-10">
+                <div class="absolute left-[50%] top-0 h-[30rem] w-[40rem] -translate-x-1/2 rounded-full hero-blob-1 animate-blob" ></div>
+                <div class="absolute left-[30%] top-[10rem] h-[30rem] w-[50rem] -translate-x-1/3 rounded-full hero-blob-2 animate-blob animation-delay-2000" ></div>
+                <div class="absolute left-[70%] top-[5rem] h-[25rem] w-[40rem] -translate-x-1/2 rounded-full hero-blob-3 animate-blob animation-delay-4000" ></div>
+            </div>
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center relative z-10">
+                <div class="max-w-3xl mx-auto">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl scroll-reveal">
+                        Understand Any Document, <span class="hero-title-accent">Instantly</span>.
+                    </h1>
+                    <p class="mt-6 text-lg md:text-xl section-subtitle scroll-reveal" style="transition-delay: 100ms;">
+                        Welcome to <span class="brand-name">Paipersum</span>, your intelligent co-pilot for navigating complex contracts, policies, and legal jargon with confidence and clarity.
+                    </p>
+                    <div class="mt-10 flex items-center justify-center gap-x-6 scroll-reveal" style="transition-delay: 200ms;">
+                        <a href="#demo" class="btn btn-primary btn-cta-pulse">
+                            <i class="fas fa-play mr-2"></i> Try Live Demo
+                        </a>
+                        <a href="#how-it-works" class="btn btn-secondary">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <!-- Document Upload with Security -->
-        <section id="document-upload" class="py-16 bg-gray-900">
-            <div class="container">
-                <h2 class="text-3xl font-bold text-center mb-12">Analyze Your Documents</h2>
-                <div class="grid md:grid-cols-3 gap-8">
-                    <!-- URL Analysis -->
-                    <div class="card-glass p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="icon-box bg-indigo-600">
-                                <i class="fas fa-link"></i>
-                            </div>
-                            <h3 class="text-xl ml-3">Website Analysis</h3>
-                        </div>
-                        <div class="mt-4">
-                            <input type="url" id="target-url" class="w-full input-field" placeholder="https://example.com/tos" required>
-                            <button id="analyze-url-btn" class="btn-primary mt-4 w-full">
-                                Analyze Terms
-                            </button>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-2">We'll automatically detect and analyze the terms</p>
-                    </div>
+        <!-- Features Section -->
+        <div id="features" class="py-20 sm:py-24 bg-[var(--section-bg-alt)]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center scroll-reveal">
+                    <h2 class="text-base section-title-accent font-semibold tracking-wide uppercase">Features</h2>
+                    <p class="mt-2 text-3xl section-title sm:text-4xl">
+                        Your Legal Co-Pilot
+                    </p>
+                    <p class="mt-4 max-w-2xl text-xl section-subtitle">
+                        Paipersum helps you navigate the complex world of legal documents with confidence.
+                    </p>
+                </div>
 
-                    <!-- File Upload -->
-                    <div class="card-glass p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="icon-box bg-purple-600">
-                                <i class="fas fa-file-upload"></i>
+                <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    <!-- Feature 1: Contract Analysis -->
+                    <div class="card feature-card scroll-reveal">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-accent-primary)] text-white">
+                                    <i class="fas fa-file-contract text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium ml-4">Contract Analysis</h3>
                             </div>
-                            <h3 class="text-xl ml-3">Upload Document</h3>
-                        </div>
-                        <div class="file-upload-box" id="file-upload-container">
-                            <input type="file" id="document-upload" class="hidden" accept=".pdf,.docx,.txt" aria-label="Upload document">
-                            <label for="document-upload" class="file-upload-label" tabindex="0" aria-label="Click to upload document">
-                                <i class="fas fa-cloud-upload-alt text-4xl mb-3"></i>
-                                <p>Drag & drop files or click to browse</p>
-                                <p class="text-xs mt-2">Supports: PDF, DOCX, TXT (Max 5MB)</p>
-                            </label>
-                            <div id="file-info" class="file-info hidden"></div>
-                            <div id="upload-feedback" class="text-sm text-red-500 mt-2 hidden"></div>
-                            <div id="upload-spinner" class="hidden mt-2"><i class="fas fa-spinner fa-spin"></i> Processing...</div>
+                            <p class="mt-4 text-base">
+                                Upload any contract or policy and get a plain English summary with risk ratings and actionable insights.
+                            </p>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <span class="feature-tag tag-pdf"><i class="fas fa-file-pdf"></i>PDF</span>
+                                <span class="feature-tag tag-docx"><i class="fas fa-file-word"></i>DOCX</span>
+                                <span class="feature-tag tag-txt"><i class="fas fa-file-alt"></i>TXT</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Text Input -->
-                    <div class="card-glass p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="icon-box bg-blue-600">
-                                <i class="fas fa-paste"></i>
+                    <!-- Feature 2: Privacy Shield -->
+                    <div class="card feature-card scroll-reveal" style="transition-delay: 100ms;">
+                         <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-success)] text-white">
+                                    <i class="fas fa-shield-alt text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium ml-4">Privacy Shield Score</h3>
                             </div>
-                            <h3 class="text-xl ml-3">Paste Text</h3>
+                            <p class="mt-4 text-base">
+                                System generated trust ranking for websites based on their data sharing and privacy practices.
+                            </p>
+                            <div class="mt-4">
+                                <div class="risk-meter w-full relative mt-2">
+                                    <div class="risk-indicator-pointer" style="left: 75%; border-color: var(--danger);"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>Safe</span>
+                                    <span>Risky</span>
+                                    <span>Danger</span>
+                                </div>
+                            </div>
                         </div>
-                        <textarea id="text-input" class="w-full input-field h-32" placeholder="Paste your contract text here..."></textarea>
-                        <button id="analyze-text-btn" class="btn-primary mt-4 w-full">
-                            Analyze Text
+                    </div>
+
+                    <!-- Feature 3: Risk Detection -->
+                    <div class="card feature-card scroll-reveal" style="transition-delay: 200ms;">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-danger)] text-white">
+                                    <i class="fas fa-exclamation-triangle text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium ml-4">Compliance Check</h3>
+                            </div>
+                            <p class="mt-4 text-base">
+                                Instantly identify high-risk clauses and potential violations of GDPR, CCPA, HIPAA, and more.
+                            </p>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <span class="feature-tag tag-gdpr">GDPR</span>
+                                <span class="feature-tag tag-ccpa">CCPA</span>
+                                <span class="feature-tag tag-hipaa">HIPAA</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature 4: Auto-Fetch -->
+                    <div class="card feature-card scroll-reveal" style="transition-delay: 300ms;">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-info)] text-white">
+                                    <i class="fas fa-globe text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium ml-4">Auto-Fetch T&Cs</h3>
+                            </div>
+                            <p class="mt-4 text-base">
+                                Enter any URL, and we'll automatically find, fetch, and analyze their terms and policies.
+                            </p>
+                             <div class="mt-4">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-link text-[var(--text-muted)]"></i>
+                                    </div>
+                                    <input type="url" placeholder="https://example.com/tos" class="pl-10">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature 5: Document Generator -->
+                    <div class="card feature-card scroll-reveal" style="transition-delay: 400ms;">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-purple-500)] text-white">
+                                    <i class="fas fa-file-signature text-xl"></i>
+                                </div>
+                                 <h3 class="text-lg font-medium ml-4">Smart Generator</h3>
+                            </div>
+                            <p class="mt-4 text-base">
+                                Auto-generate NDAs, ToS, partnership agreements, and more with assistance and templates.
+                            </p>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <span class="feature-tag tag-nda">NDA</span>
+                                <span class="feature-tag tag-tos">ToS</span>
+                                <span class="feature-tag tag-privacy-policy">Privacy Policy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature 6: Data Protection -->
+                    <div class="card feature-card scroll-reveal" style="transition-delay: 500ms;">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-warning)]">
+                                    <i class="fas fa-lock text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium ml-4">Your Data is Safe</h3>
+                            </div>
+                            <p class="mt-4 text-base">
+                                We use end-to-end encryption and never store your documents after processing. Your privacy is paramount.
+                            </p>
+                            <div class="mt-4">
+                                <div class="feature-tag-icon-text text-[var(--text-success)]">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>256-bit AES Encryption</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How It Works Section -->
+        <div id="how-it-works" class="py-20 sm:py-24 bg-[var(--body-bg)]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center scroll-reveal">
+                    <h2 class="text-base section-title-accent font-semibold tracking-wide uppercase">Process</h2>
+                    <p class="mt-2 text-3xl section-title sm:text-4xl">
+                        Clarity in Three Simple Steps
+                    </p>
+                    <p class="mt-4 max-w-2xl text-xl section-subtitle">
+                        Transform complex legal documents into simple, actionable insights.
+                    </p>
+                </div>
+
+                <div class="mt-20 flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-8">
+                    <!-- Step 1 -->
+                    <div class="card flex flex-col items-center text-center max-w-sm p-8 scroll-reveal">
+                        <div class="step-indicator flex items-center justify-center h-20 w-20 rounded-full text-white text-3xl font-bold mb-6">
+                            1
+                        </div>
+                        <h3 class="text-xl font-medium">Upload or Link</h3>
+                        <p class="mt-2 text-base">
+                            Securely upload a document, paste text, or simply provide a URL to any online terms of service or policy.
+                        </p>
+                    </div>
+
+                    <i class="fas fa-angles-right connecting-arrow hidden md:block animate-ping-slow"></i>
+                    <i class="fas fa-angles-down connecting-arrow md:hidden animate-ping-slow"></i>
+
+                    <!-- Step 2 -->
+                    <div class="card flex flex-col items-center text-center max-w-sm p-8 scroll-reveal" style="transition-delay: 150ms;">
+                        <div class="step-indicator flex items-center justify-center h-20 w-20 rounded-full text-white text-3xl font-bold mb-6">
+                            2
+                        </div>
+                        <h3 class="text-xl font-medium">Analysis</h3>
+                        <p class="mt-2 text-base">
+                            Our secure engine scans the document, identifying key clauses, potential risks, and compliance issues in seconds.
+                        </p>
+                    </div>
+
+                    <i class="fas fa-angles-right connecting-arrow hidden md:block animate-ping-slow"></i>
+                     <i class="fas fa-angles-down connecting-arrow md:hidden animate-ping-slow"></i>
+
+                    <!-- Step 3 -->
+                    <div class="card flex flex-col items-center text-center max-w-sm p-8 scroll-reveal" style="transition-delay: 300ms;">
+                        <div class="step-indicator flex items-center justify-center h-20 w-20 rounded-full text-white text-3xl font-bold mb-6">
+                            3
+                        </div>
+                        <h3 class="text-xl font-medium">Get Results</h3>
+                        <p class="mt-2 text-base">
+                           Receive a plain-English summary, a risk score, and clear recommendations to help you make informed decisions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Section -->
+        <div id="demo" class="py-20 sm:py-24 bg-[var(--section-bg-alt)]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center scroll-reveal">
+                    <h2 class="text-base section-title-accent font-semibold tracking-wide uppercase">Interactive Demo</h2>
+                    <p class="mt-2 text-3xl section-title sm:text-4xl">
+                        See Paipersum in Action
+                    </p>
+                    <p class="mt-4 max-w-2xl text-xl section-subtitle">
+                        Choose an input method below to see how our services transforms complex text into understandable insights.
+                    </p>
+                </div>
+                
+                <div class="mt-12 max-w-5xl mx-auto scroll-reveal" style="transition-delay: 150ms;">
+                    <!-- Tab Buttons -->
+                    <div class="border-b border-[var(--border-color-strong)] flex flex-wrap justify-center">
+                        <button class="demo-tab active" data-tab="upload-panel">
+                            <i class="fas fa-upload mr-2"></i> Upload File
+                        </button>
+                        <button class="demo-tab" data-tab="text-panel">
+                             <i class="fas fa-paste mr-2"></i> Paste Text
+                        </button>
+                        <button class="demo-tab" data-tab="url-panel">
+                            <i class="fas fa-link mr-2"></i> Fetch from URL
                         </button>
                     </div>
+
+                    <!-- Tab Content -->
+                    <div class="card rounded-t-none border-t-0 p-6 md:p-8">
+                        <div id="upload-panel" class="tab-content active">
+                            <div class="grid md:grid-cols-2 gap-8 items-center">
+                                <div>
+                                    <h3 class="text-xl font-semibold">Try a Sample Document</h3>
+                                    <p class="mt-2 text-[var(--text-secondary)]">Select a pre-loaded document to see instant analysis. Or, drag and drop your own file.</p>
+                                    <div class="space-y-4 mt-6">
+                                        <button class="sample-doc card w-full text-left p-4 flex items-center space-x-4">
+                                            <i class="fas fa-file-invoice-dollar text-2xl text-[var(--accent-primary)]"></i>
+                                            <div>
+                                                <p class="font-semibold text-[var(--text-primary)]">Freelance Agreement</p>
+                                                <p class="text-sm text-[var(--text-muted)]">Standard contract for client work.</p>
+                                            </div>
+                                        </button>
+                                         <button class="sample-doc card w-full text-left p-4 flex items-center space-x-4">
+                                            <i class="fas fa-user-secret text-2xl text-[var(--accent-secondary)]"></i>
+                                            <div>
+                                                <p class="font-semibold text-[var(--text-primary)]">Privacy Policy</p>
+                                                <p class="text-sm text-[var(--text-muted)]">Typical policy from a social media app.</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="file-drop-area">
+                                    <i class="fas fa-cloud-upload-alt text-5xl text-[var(--accent-primary)] opacity-50 mb-4"></i>
+                                    <h4 class="font-semibold text-lg">Drag & Drop Your File</h4>
+                                    <p class="text-[var(--text-muted)]">or click to browse</p>
+                                    <p class="text-xs text-[var(--text-muted)] mt-2">PDF, DOCX, TXT up to 10MB</p>
+                                    <input type="file" id="file-upload">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="text-panel" class="tab-content">
+                            <h3 class="text-xl font-semibold">Paste Your Text</h3>
+                            <p class="mt-2 mb-4 text-[var(--text-secondary)]">Copy and paste any text into the field below for analysis.</p>
+                            <textarea rows="8" placeholder="e.g., By using our services, you agree to grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, modify, and distribute your content..."></textarea>
+                            <button class="btn btn-primary mt-4">Analyze Text</button>
+                        </div>
+                        
+                        <div id="url-panel" class="tab-content">
+                            <h3 class="text-xl font-semibold">Analyze a Live Website</h3>
+                             <p class="mt-2 mb-4 text-[var(--text-secondary)]">Enter a URL to a terms of service or privacy policy page.</p>
+                             <div class="flex">
+                                 <input type="text" placeholder="https://example.com/privacy">
+                                 <button class="btn btn-primary flex-shrink-0">Fetch & Analyze</button>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demo Results (Shared for all tabs) -->
+                <div class="mt-12 max-w-5xl mx-auto scroll-reveal">
+                    <h3 class="text-2xl font-semibold text-center mb-6">Analysis Results</h3>
+                    <div class="grid lg:grid-cols-5 gap-8">
+                        <div class="lg:col-span-3 card p-6 document-viewer">
+                           <div class="prose max-w-none">
+                                <h4>Preview: <strong>Freelance Agreement</strong></h4>
+                                <p>This Agreement is made between <strong>Client Inc.</strong> ("Client") and <strong>You, the Freelancer</strong> ("Contractor").</p>
+                                <blockquote>This document outlines the terms and conditions of the professional relationship. The Contractor agrees to provide services as described in Exhibit A.</blockquote>
+                                <p><strong>4. Data Sharing and Third Parties.</strong></p>
+                                <p class="text-danger">Client reserves the right to share any and all data related to the project with its third-party advertising partners without prior notification to the Contractor. This data may include personal identifiable information (PII).</p>
+                                <p><strong>8. Jurisdiction.</strong></p>
+                                <p class="text-warning">Any disputes arising from this agreement shall be resolved exclusively in the courts of the State of Delaware, regardless of the Contractor's location.</p>
+                                <ul>
+                                    <li>Payment will be made within 30 days of invoice receipt.</li>
+                                    <li>The contractor retains ownership of pre-existing intellectual property.</li>
+                                </ul>
+                           </div>
+                        </div>
+                        <div class="lg:col-span-2 analysis-results">
+                            <div class="risk-summary">
+                                <h4 class="font-semibold text-lg mb-4">Risk Summary</h4>
+                                <div class="card p-4 flex items-center justify-between">
+                                    <div class="text-center">
+                                        <p class="text-sm text-[var(--text-muted)]">Overall Score</p>
+                                        <p class="font-bold text-4xl text-[var(--text-danger)] risk-score-value-animated">4.8<span class="text-lg">/10</span></p>
+                                    </div>
+                                    <div class="text-center">
+                                         <p class="text-sm text-[var(--text-muted)]">Clarity</p>
+                                        <p class="font-bold text-4xl text-[var(--text-warning)] risk-score-value-animated">6.2</p>
+                                    </div>
+                                    <div class="text-center">
+                                         <p class="text-sm text-[var(--text-muted)]">Fairness</p>
+                                        <p class="font-bold text-4xl text-[var(--text-danger)] risk-score-value-animated">3.5</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clause-analysis mt-6">
+                                <h4 class="font-semibold text-lg mb-4">Key Clauses</h4>
+                                <div class="risk-item-card border-l-[var(--danger)] text-[var(--text-danger)]">
+                                    <div class="risk-title">
+                                        <i class="fas fa-exclamation-circle mr-2"></i> High Risk
+                                        <span class="risk-section-tag ml-auto">Section 4</span>
+                                    </div>
+                                    <p class="risk-description">Broad data sharing clause allows sharing of your personal info with advertisers.</p>
+                                    <p class="risk-recommendation"><i class="fas fa-gavel"></i><strong>Recommendation:</strong> Negotiate to limit or remove this clause.</p>
+                                </div>
+                                <div class="risk-item-card border-l-[var(--warning)] text-[var(--text-warning)]">
+                                    <div class="risk-title">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i> Medium Risk
+                                        <span class="risk-section-tag ml-auto">Section 8</span>
+                                    </div>
+                                    <p class="risk-description">Jurisdiction clause may be inconvenient and costly if a dispute arises.</p>
+                                </div>
+                                <div class="risk-item-card border-l-[var(--success)] text-[var(--text-success)]">
+                                    <div class="risk-title">
+                                        <i class="fas fa-check-circle mr-2"></i> Low Risk
+                                        <span class="risk-section-tag ml-auto">Section 1</span>
+                                    </div>
+                                    <p class="risk-description">Standard payment terms and IP ownership clauses are fair.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+
+
+        <!-- Pricing Section -->
+        <div id="pricing" class="py-20 sm:py-24 bg-[var(--body-bg)]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center scroll-reveal">
+                    <h2 class="text-base section-title-accent font-semibold tracking-wide uppercase">Pricing</h2>
+                    <p class="mt-2 text-3xl section-title sm:text-4xl">
+                        Simple, Transparent Plans
+                    </p>
+                    <p class="mt-4 max-w-2xl text-xl section-subtitle">
+                        Choose the plan that fits your needs. Cancel anytime, no questions asked.
+                    </p>
+                </div>
+
+                <div class="mt-16 space-y-12 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-x-8">
+                    <!-- Free Tier -->
+                    <div class="card flex flex-col p-8 scroll-reveal">
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-semibold">Starter</h3>
+                            <p class="mt-4 flex items-baseline">
+                                <span class="text-5xl font-extrabold tracking-tight">$0</span>
+                                <span class="ml-1 text-xl font-semibold text-[var(--text-muted)]">/month</span>
+                            </p>
+                            <p class="mt-6 text-base text-[var(--text-secondary)]">Perfect for occasional users who need basic document analysis.</p>
+                            <ul role="list" class="mt-8 space-y-4">
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">5 document scans/month</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Basic risk analysis</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Plain English summaries</span></li>
+                                <li class="flex items-start"><i class="fas fa-times text-[var(--text-muted)] mt-1 shrink-0"></i><span class="ml-3 text-[var(--text-muted)]">No document generation</span></li>
+                                <li class="flex items-start"><i class="fas fa-times text-[var(--text-muted)] mt-1 shrink-0"></i><span class="ml-3 text-[var(--text-muted)]">No browser extension</span></li>
+                            </ul>
+                        </div>
+                        <a href="#" class="btn btn-secondary mt-8">Get Started</a>
+                    </div>
+
+                    <!-- Pro Tier -->
+                    <div class="card pricing-card-popular relative flex flex-col p-8 scroll-reveal" style="transition-delay: 150ms;">
+                        <div class="absolute top-0 -translate-y-1/2 w-full flex justify-center">
+                           <div class="bg-[var(--accent-primary)] text-white px-4 py-1 rounded-full text-sm font-semibold uppercase tracking-wider shadow-lg">Most Popular</div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-semibold">Pro</h3>
+                            <p class="mt-4 flex items-baseline text-[var(--accent-primary)]">
+                                <span class="text-5xl font-extrabold tracking-tight">$9</span>
+                                <span class="ml-1 text-xl font-semibold">/month</span>
+                            </p>
+                            <p class="mt-6 text-base text-[var(--text-secondary)]">For individuals and freelancers who regularly deal with contracts.</p>
+                            <ul role="list" class="mt-8 space-y-4">
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3"><strong>Unlimited</strong> document scans</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3"><strong>Advanced</strong> risk analysis</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Detailed legal insights</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">5 document generations/month</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Browser extension included</span></li>
+                            </ul>
+                        </div>
+                        <a href="#" class="btn btn-primary mt-8">Choose Pro</a>
+                    </div>
+
+                    <!-- Business Tier -->
+                    <div class="card flex flex-col p-8 scroll-reveal" style="transition-delay: 300ms;">
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-semibold">Business</h3>
+                             <p class="mt-4 flex items-baseline">
+                                <span class="text-5xl font-extrabold tracking-tight">$29</span>
+                                <span class="ml-1 text-xl font-semibold text-[var(--text-muted)]">/month</span>
+                            </p>
+                            <p class="mt-6 text-base text-[var(--text-secondary)]">For teams and businesses that need comprehensive legal tools.</p>
+                            <ul role="list" class="mt-8 space-y-4">
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3"><strong>Everything in Pro</strong></span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3"><strong>Unlimited</strong> document generation</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Team collaboration features</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Priority support</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">API access (coming soon)</span></li>
+                            </ul>
+                        </div>
+                        <a href="#" class="btn btn-secondary mt-8">Contact Sales</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testimonials -->
+        <div class="py-20 sm:py-24 bg-[var(--section-bg-alt)]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center scroll-reveal">
+                    <h2 class="text-base section-title-accent font-semibold tracking-wide uppercase">Testimonials</h2>
+                    <p class="mt-2 text-3xl section-title sm:text-4xl">
+                        Trusted by Early Adopters
+                    </p>
+                </div>
+
+                <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    <!-- Testimonial 1 -->
+                    <div class="card testimonial-card p-6 relative scroll-reveal">
+                        <i class="fas fa-comments text-5xl text-[var(--border-color-soft)] absolute top-4 right-5 -z-0"></i>
+                        <div class="relative z-10">
+                            <div class="flex items-center">
+                                <div class="testimonial-avatar h-12 w-12 flex-shrink-0">
+                                    <img src="https://i.pravatar.cc/48?u=sarah" alt="Sarah Johnson">
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-[var(--text-primary)]">Sarah Johnson</h4>
+                                    <p class="text-sm text-[var(--text-muted)]">Freelance Designer</p>
+                                </div>
+                            </div>
+                            <blockquote class="mt-4 text-[var(--text-secondary)]">"As a freelancer, I sign contracts all the time but never really understood them. PaiperSum has saved me from two potentially terrible deals already!"</blockquote>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 2 -->
+                     <div class="card testimonial-card p-6 relative scroll-reveal" style="transition-delay: 150ms;">
+                        <i class="fas fa-comments text-5xl text-[var(--border-color-soft)] absolute top-4 right-5 -z-0"></i>
+                        <div class="relative z-10">
+                            <div class="flex items-center">
+                                <div class="testimonial-avatar h-12 w-12 flex-shrink-0">
+                                    <img src="https://i.pravatar.cc/48?u=michael" alt="Michael Chen">
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-[var(--text-primary)]">Michael Chen</h4>
+                                    <p class="text-sm text-[var(--text-muted)]">Small Business Owner</p>
+                                </div>
+                            </div>
+                            <blockquote class="mt-4 text-[var(--text-secondary)]">"The Privacy Shield Score alone is worth the subscription. I can instantly see which vendors are trustworthy before doing business with them."</blockquote>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 3 -->
+                    <div class="card testimonial-card p-6 relative scroll-reveal" style="transition-delay: 300ms;">
+                        <i class="fas fa-comments text-5xl text-[var(--border-color-soft)] absolute top-4 right-5 -z-0"></i>
+                        <div class="relative z-10">
+                            <div class="flex items-center">
+                                <div class="testimonial-avatar h-12 w-12 flex-shrink-0">
+                                    <img src="https://i.pravatar.cc/48?u=david" alt="David Rodriguez">
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-semibold text-[var(--text-primary)]">David Rodriguez</h4>
+                                    <p class="text-sm text-[var(--text-muted)]">Privacy Advocate</p>
+                                </div>
+                            </div>
+                            <blockquote class="mt-4 text-[var(--text-secondary)]">"Finally, a tool that empowers users to understand what they're signing. This should be a standard utility for anyone who uses the internet."</blockquote>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div id="about" class="py-20 sm:py-24 bg-[var(--body-bg)]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center">
+                    <div class="scroll-reveal">
+                        <h2 class="text-3xl section-title sm:text-4xl">
+                            About PaiperSum
+                        </h2>
+                        <p class="mt-4 text-lg text-[var(--text-secondary)]">
+                            PaiperSum was born from a simple idea: legal documents should be understandable by everyone, not just lawyers. We're on a mission to democratize legal knowledge.
+                        </p>
+                        <div class="mt-8 space-y-8">
+                            <div class="flex items-start">
+                                <div class="icon-wrapper flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-md bg-[var(--accent-primary-light)] text-[var(--accent-primary)]">
+                                    <i class="fas fa-bullseye text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="text-lg font-medium">Our Mission</h4>
+                                    <p class="mt-1 text-base text-[var(--text-secondary)]">Protect users from unknowingly signing away their rights through complex contracts and opaque policies.</p>
+                                </div>
+                            </div>
+                             <div class="flex items-start">
+                                <div class="icon-wrapper flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-md bg-[var(--accent-primary-light)] text-[var(--accent-primary)]">
+                                    <i class="fas fa-eye text-xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="text-lg font-medium">Our Vision</h4>
+                                    <p class="mt-1 text-base text-[var(--text-secondary)]">To be the world's most trusted legal assistant, making legal comprehension accessible and instant for everyone.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-10 lg:mt-0 relative scroll-reveal" style="transition-delay: 150ms;">
+                        <div class="card p-2">
+                             <div class="relative rounded-lg shadow-xl overflow-hidden aspect-[4/3]">
+                                <img class="absolute inset-0 h-full w-full object-cover" src="https://images.unsplash.com/photo-1520333789090-1afc82db536a?q=80&w=800" alt="Founder discussing ideas">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[var(--accent-primary-light)] to-transparent opacity-60"></div>
+                                <div class="relative p-6 flex flex-col justify-end h-full">
+                                    <blockquote class="text-white">
+                                        <p class="relative font-medium text-lg">"I created Paipersum because I saw too many people blindly accepting terms they didn't understand you feel me. Everyone deserves to know what they're signing."</p>
+                                    </blockquote>
+                                    <footer class="mt-4">
+                                        <p class="text-base font-semibold text-white">Alonzo Lockett</p>
+                                        <p class="text-sm text-[var(--accent-primary-light)]">Founder, PaiperSum</p>
+                                    </footer>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Smart Form Upload Section -->
+        <section class="my-12 max-w-xl mx-auto p-6 card-glass">
+          <h2 class="text-2xl font-semibold mb-4">Smart Form Upload</h2>
+          <form id="docForm">
+            <input type="file" id="fileInput" accept="image/*,.pdf" class="mb-4" required>
+            <textarea id="instructions" placeholder="Describe what you need filled in…" class="mb-4"></textarea>
+            <button type="submit" class="btn btn-primary">Fill Document</button>
+          </form>
+          <pre id="result" class="mt-6 text-sm text-slate-300"></pre>
         </section>
+        <script>
+        document.getElementById('docForm').addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const file = document.getElementById('fileInput').files[0];
+          const instructions = document.getElementById('instructions').value;
 
-        <!-- Other sections... -->
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("instructions", instructions);
+
+          const res = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          const data = await res.json();
+          document.getElementById('result').textContent = data.extracted || data.error;
+        });
+        </script>
+
+        <!-- CTA Section -->
+        <div class="bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)]">
+            <div class="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 lg:flex lg:items-center lg:justify-between">
+                <div class="max-w-xl scroll-reveal">
+                    <h2 class="text-4xl font-extrabold text-white sm:text-5xl">
+                        Ready to Take Control?
+                    </h2>
+                    <p class="mt-4 text-xl text-white opacity-90">
+                        Stop guessing and start understanding. Join our waitlist to get early access and be the first to experience the future of document analysis.
+                    </p>
+                </div>
+                <div class="mt-10 w-full max-w-md scroll-reveal" style="transition-delay: 150ms;">
+                    <form class="sm:flex" id="waitlist-form">
+                        <label for="email-address" class="sr-only">Email address</label>
+                        <input id="email-address" name="email" type="email" autocomplete="email" required class="w-full px-5 py-3 border-transparent" placeholder="Enter your email">
+                        <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3 sm:flex-shrink-0">
+                            <button type="submit" class="w-full flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-[var(--accent-primary)] bg-white hover:bg-[var(--section-bg-alt)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-600 focus:ring-white">
+                                Join Waitlist
+                            </button>
+                        </div>
+                    </form>
+                    <p class="mt-3 text-sm text-white opacity-80" id="form-message">
+                        We care about your data. Read our <a href="#" class="font-medium underline">Privacy Policy</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
     </main>
-
-    <!-- Legal Footer -->
-    <footer class="bg-gray-900 py-12">
-        <div class="container">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="col-span-2">
-                    <h3 class="text-lg font-semibold mb-4">Paipersum.com</h3>
-                    <p class="text-gray-400">Your secure AI-powered legal assistant helping you understand contracts, T&C's  plus more with confidence.</p>
-                    <div class="flex space-x-4 mt-4">
-                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+    
+    <!-- Footer -->
+    <footer class="bg-[#212529] text-white" role="contentinfo" aria-label="Footer">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="col-span-2 md:col-span-1">
+                    <a href="#" class="flex items-center space-x-2">
+                         <div class="logo-container h-10 w-10">
+                            <svg class="h-10 w-10 text-white" aria-hidden="true"><use xlink:href="#paipersum-logo-alt"></use></svg>
+                        </div>
+                        <span class="font-brand text-2xl font-bold">Paiperum</span>
+                    </a>
+                    <p class="mt-4 text-sm text-gray-400">
+                        Intelligent document understanding for everyone.
+                    </p>
+                    <div class="mt-6 flex space-x-6">
+                        <a href="#" class="text-gray-400 hover:text-white"><span class="sr-only">Twitter</span><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><span class="sr-only">LinkedIn</span><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><span class="sr-only">GitHub</span><i class="fab fa-github"></i></a>
                     </div>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold uppercase mb-4">Legal</h4>
-                    <ul class="space-y-2">
-                        <li><a href="legal.html" class="text-gray-400 hover:text-white">Terms of Service</a></li>
-                        <li><a href="legal.html" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
-                        <li><a href="legal.html" class="text-gray-400 hover:text-white">GDPR Compliance</a></li>
+                    <h3 class="text-white text-sm font-semibold tracking-wider uppercase">Product</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#features" class="text-gray-400 hover:text-white text-sm">Features</a></li>
+                        <li><a href="#pricing" class="text-gray-400 hover:text-white text-sm">Pricing</a></li>
+                        <li><a href="#demo" class="text-gray-400 hover:text-white text-sm">Demo</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Roadmap</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold uppercase mb-4">Protection</h4>
-                    <ul class="space-y-2">
-                        <li><a href="humans.txt" class="text-gray-400 hover:text-white">Humanstxt</a></li>
-                        <li><a href="robots.txt" class="text-gray-400 hover:text-white">Robotstxt</a></li>
-                        <li><a href="legal.html#dmca" class="text-gray-400 hover:text-white">DMCA</a></li>
+                    <h3 class="text-white text-sm font-semibold tracking-wider uppercase">Company</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#about" class="text-gray-400 hover:text-white text-sm">About</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white text-sm font-semibold tracking-wider uppercase">Legal</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="/legal.html#privacy" class="text-gray-400 hover:text-white text-sm">Privacy</a></li>
+                        <li><a href="/legal.html#terms" class="text-gray-400 hover:text-white text-sm">Terms</a></li>
+                        <li><a href="/legal.html#cookie" class="text-gray-400 hover:text-white text-sm">Cookie Policy</a></li>
+                        <li><a href="/legal.html#gdpr" class="text-gray-400 hover:text-white text-sm">GDPR</a></li>
+                        <li><a href="/legal.html#ccpa" class="text-gray-400 hover:text-white text-sm">CCPA</a></li>
+                        <li><a href="/legal.html#dmca" class="text-gray-400 hover:text-white text-sm">DMCA</a></li>
+                        <li><a href="/legal.html#ai-disclaimer" class="text-gray-400 hover:text-white text-sm">AI Disclaimer</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-sm text-gray-500">
-                <p>© 2025
-Paipersum.com. All rights reserved. Not a law firm. Does not provide legal advice.</p>
-                <p class="mt-2">Patent Pending. All AI models and methodologies are proprietary.</p>
+            <div class="mt-12 border-t border-gray-800 pt-8">
+                <p class="text-gray-500 text-sm text-center">
+                    © 2024 PaiperSum. All rights reserved. PaiperSum is not a law firm and does not provide legal advice.
+                </p>
             </div>
         </div>
     </footer>
 
-    <!-- Modals -->
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="modal hidden">
-        <!-- Content from previous implementation -->
-    </div>
-
-    <!-- Consent Modal (Will be injected by consent.js) -->
-    
-    <!-- Modal for PDF download success -->
-    <div id="pdf-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pdf-modal-title">
-      <div class="modal-content">
-        <h2 id="pdf-modal-title" class="text-xl font-bold mb-4">PDF Ready!</h2>
-        <p>Your completed form has been generated and downloaded.</p>
-        <button id="close-pdf-modal" class="btn-primary mt-4">Close</button>
-      </div>
-    </div>
-
-    <!-- Integration Placeholder for Backend Logic -->
+    <!-- JavaScript -->
     <script>
-      // Enhanced backend integration for file upload
-      const uploadInput = document.getElementById('document-upload');
-      const fileInfo = document.getElementById('file-info');
-      const feedback = document.getElementById('upload-feedback');
-      const spinner = document.getElementById('upload-spinner');
-      const pdfModal = document.getElementById('pdf-modal');
-      const closePdfModal = document.getElementById('close-pdf-modal');
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- Mobile Menu Toggle ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    const isOpen = mobileMenu.classList.contains('block');
+                    mobileMenu.classList.toggle('hidden', isOpen);
+                    mobileMenu.classList.toggle('block', !isOpen);
+                    mobileMenuButton.setAttribute('aria-expanded', String(!isOpen));
+                });
+            }
 
-      uploadInput.addEventListener('change', async function () {
-        const file = uploadInput.files[0];
-        fileInfo.classList.add('hidden');
-        feedback.classList.add('hidden');
-        spinner.classList.remove('hidden');
-        if (!file) return;
-        fileInfo.textContent = `Selected: ${file.name}`;
-        fileInfo.classList.remove('hidden');
-        if (file.size > 5 * 1024 * 1024) {
-          feedback.textContent = 'File too large (max 5MB).';
-          feedback.classList.remove('hidden');
-          spinner.classList.add('hidden');
-          return;
-        }
-        try {
-          const formData = new FormData();
-          formData.append("file", file);
-          const uploadRes = await fetch("http://localhost:5000/upload", {
-            method: "POST",
-            body: formData
-          });
-          const uploadData = await uploadRes.json();
-          if (!uploadData.filename) throw new Error(uploadData.error || 'Upload failed');
-          const filename = uploadData.filename;
-          const extractRes = await fetch("http://localhost:5000/extract-text", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ filename })
-          });
-          const extractData = await extractRes.json();
-          const extractedText = extractData.extracted_text;
-          const userInputs = {
-            "[FULL_NAME]": prompt("Enter Full Name"),
-            "[ADDRESS]": prompt("Enter Address"),
-            "[PHONE]": prompt("Enter Phone Number")
-          };
-          const fillRes = await fetch("http://localhost:5000/fill-form", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              extracted_text: extractedText,
-              inputs: userInputs
-            })
-          });
-          const blob = await fillRes.blob();
-          const downloadUrl = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = downloadUrl;
-          link.download = "completed_form.pdf";
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          spinner.classList.add('hidden');
-          pdfModal.classList.remove('hidden');
-        } catch (err) {
-          feedback.textContent = err.message || 'An error occurred.';
-          feedback.classList.remove('hidden');
-          spinner.classList.add('hidden');
-        }
-      });
-      closePdfModal?.addEventListener('click', () => {
-        pdfModal.classList.add('hidden');
-      });
-    </script>
-
-    <!-- Scripts -->
-    <script type="module" src="./assets/js/security.js"></script>
-    <script type="module" src="./assets/js/auth.js"></script>
-    <script type="module" src="./assets/js/api.js"></script>
-    <script type="module" src="./assets/js/consent.js"></script>
-    <script type="module" src="./assets/js/main.js"></script>
-    <!-- Free Monitoring (Only in production) -->
-    <script>
-        if (window.location.hostname === 'paipersum.com') {
-            // Uptime Robot
-            const urScript = document.createElement('script');
-            urScript.src = 'https://uptimerobot.com/monitor.js?id=YOUR_ID';
-            document.body.appendChild(urScript);
-            
-            // Simple intrusion detection
-            document.addEventListener('DOMContentLoaded', () => {
-                const protectedTerms = ['paipersumai', 'legalai'];
-                const pageText = document.body.innerText.toLowerCase();
-                protectedTerms.forEach(term => {
-                    if (pageText.includes(term)) {
-                        console.log(`[Protection] Term "${term}" found`);
+            // --- Smooth Scrolling & Close Mobile Menu on Nav ---
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId && targetId.length > 1) {
+                        e.preventDefault();
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                            if (mobileMenu && mobileMenu.classList.contains('block')) {
+                                mobileMenu.classList.add('hidden');
+                                mobileMenu.classList.remove('block');
+                                if(mobileMenuButton) mobileMenuButton.setAttribute('aria-expanded', 'false');
+                            }
+                        }
                     }
                 });
             });
-        }
+
+            // --- Waitlist Form Submission ---
+            const waitlistForm = document.getElementById('waitlist-form');
+            if (waitlistForm) {
+                const emailInput = waitlistForm.querySelector('#email-address');
+                const submitButton = waitlistForm.querySelector('button[type="submit"]');
+                const formMessagePara = waitlistForm.nextElementSibling; // a bit fragile, better to use ID
+
+                const showFormMessage = (message, isError = false) => {
+                    if (formMessagePara) {
+                        formMessagePara.textContent = message;
+                        formMessagePara.className = `mt-3 text-sm ${isError ? 'text-yellow-300' : 'text-green-300'}`;
+                    }
+                };
+
+                waitlistForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    if (!emailInput.checkValidity()) {
+                        showFormMessage('Please enter a valid email address.', true);
+                        return;
+                    }
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Submitting...';
+                    
+                    // Mock API call
+                    setTimeout(() => {
+                        showFormMessage('Success! You are on the waitlist.', false);
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Join Waitlist';
+                        waitlistForm.reset();
+                    }, 1500);
+                });
+            }
+
+            // --- Interactive Demo Tabs ---
+            const tabs = document.querySelectorAll('.demo-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Deactivate all
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+
+                    // Activate clicked
+                    tab.classList.add('active');
+                    const content = document.getElementById(tab.dataset.tab);
+                    if (content) content.classList.add('active');
+                });
+            });
+
+            // --- Scroll Reveal Animation ---
+            const scrollRevealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                scrollRevealObserver.observe(el);
+            });
+        });
+
+        // --- Consent Banner Always Show & Log to Backend ---
+        (function() {
+            function showConsentBanner() {
+                if (!localStorage.getItem('consentGiven')) {
+                    var banner = document.createElement('div');
+                    banner.id = 'cookie-consent-banner';
+                    banner.className = 'fixed bottom-0 left-0 w-full bg-gray-900 text-white p-4 z-50 flex flex-col md:flex-row items-center justify-between shadow-xl cookie-consent-banner';
+                    banner.innerHTML = `
+                        <div class="flex-1 text-sm">
+                            We use cookies and similar technologies for essential site functionality and analytics. See our <a href="/legal.html#privacy" class="underline text-blue-400" target="_blank" rel="noopener">Privacy Policy</a>.
+                        </div>
+                        <div class="flex gap-2 mt-2 md:mt-0">
+                            <button id="consent-accept" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Accept</button>
+                            <button id="consent-reject" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Essential Only</button>
+                        </div>
+                    `;
+                    document.body.appendChild(banner);
+                    document.getElementById('consent-accept').onclick = function() { handleConsent('full'); };
+                    document.getElementById('consent-reject').onclick = function() { handleConsent('essential'); };
+                }
+            }
+            async function handleConsent(type) {
+                localStorage.setItem('consentGiven', type);
+                var banner = document.getElementById('cookie-consent-banner');
+                if (banner) banner.remove();
+                // Log consent to backend
+                try {
+                    await fetch('/api/v1/consent', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ consent: type, userAgent: navigator.userAgent })
+                    });
+                } catch (e) {}
+            }
+            document.addEventListener('DOMContentLoaded', showConsentBanner);
+        })();
     </script>
+
 </body>
 </html>

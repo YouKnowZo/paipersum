@@ -62,7 +62,7 @@ const authConfig = {
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
+      sameSite: process.env.SESSION_COOKIE_SAMESITE || 'none'
     }
   }
 };
@@ -88,23 +88,29 @@ app.get('/health', (req, res) => {
 // Static Files (if needed)
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
-// 404 Handler
+// 404 Error Page
 app.use((req, res, next) => {
-  res.status(404).json({ 
-    success: false,
-    error: 'Endpoint not found' 
-  });
+  if (req.accepts('html')) {
+    return res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+  }
+  res.status(404).json({ success: false, error: 'Endpoint not found' });
 });
 
 // Enhanced Error Handler
 app.use((err, req, res, next) => {
   console.error(`[${new Date().toISOString()}] ERROR:`, err.stack);
-  
+  // Audit log for compliance
+  if (req.user) {
+    // You could call an audit logging service here
+    // e.g., AuditLog.create({ user: req.user.id, error: err.message, ... })
+  }
   const statusCode = err.statusCode || 500;
   const message = process.env.NODE_ENV === 'development' 
     ? err.message 
     : 'An unexpected error occurred';
-    
+  if (req.accepts('html')) {
+    return res.status(statusCode).sendFile(path.join(__dirname, 'public', '500.html'));
+  }
   res.status(statusCode).json({
     success: false,
     error: message,
