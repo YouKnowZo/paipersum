@@ -1,15 +1,18 @@
 {
-  "name": "paiper-sum-frontend",
+  "name": "paipersum-frontend",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "PORT=3000 react-scripts start"
   },
   "dependencies": {
     "dotenv": "^16.5.0",
-    "express-rate-limit": "^7.5.0"
+    "express-rate-limit": "^7.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "vite": "^4.5.14"
