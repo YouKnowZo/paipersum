@@ -194,7 +194,7 @@
             border: 1px solid var(--border-color-soft);
             box-shadow: var(--shadow-md);
             transition: transform var(--transition-duration) var(--transition-easing),
-                        box-shadow var(--transition-duration) var,--transition-easing,
+                        box-shadow var(--transition-duration) var(--transition-easing),
                         border-color var(--transition-duration) var,--transition-easing;
         }
         .card:hover {
@@ -203,9 +203,7 @@
             border-color: var(--accent-primary);
         }
         .feature-card .icon-wrapper {
-             transition: transform var(--transition-duration) var,--transition-easing,
-                         box-shadow var(--transition-duration) var,--transition-easing,
-                         background-color var(--transition-duration) var,--transition-easing;
+             transition: transform var(--transition-duration) var(--transition-easing), box-shadow var(--transition-duration) var(--transition-easing), background-color var(--transition-duration) var(--transition-easing);
         }
         .feature-card:hover .icon-wrapper {
              transform: scale(1.1) translateY(-3px) rotate(-3deg);
@@ -223,7 +221,7 @@
             border-radius: 0.375rem; 
             font-weight: 600;
             font-family: var(--font-heading);
-            transition: all var(--transition-duration) var,--transition-easing;
+            transition: all var(--transition-duration) var(--transition-easing);
             text-align: center;
             cursor: pointer;
             display: inline-flex;
@@ -299,7 +297,7 @@
           left: 50%;
           transform: translateX(-50%);
           background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); /* Gradient underline */
-          transition: width var(--transition-duration) var,--transition-easing;
+          transition: width var(--transition-duration) var(--transition-easing);
         }
         .animated-underline:hover::after, .animated-underline:focus::after {
           width: 100%;
@@ -336,8 +334,8 @@
             text-align: center;
             cursor: pointer;
             background-color: var(--surface-bg);
-            transition: border-color var(--transition-duration) var,--transition-easing),
-                        background-color var(--transition-duration) var,--transition-easing),
+            transition: border-color var(--transition-duration) var,--transition-easing,
+                        background-color var(--transition-duration) var,--transition-easing,
                         box-shadow var(--transition-duration) var,--transition-easing;
             position: relative;
             overflow: hidden;
@@ -401,9 +399,9 @@
             cursor: pointer;
             border-bottom: 2px solid transparent;
             margin-bottom: -1px; 
-            transition: color var(--transition-duration) var,--transition-easing),
-                        border-color var(--transition-duration) var,--transition-easing),
-                        background-color var,--transition-duration) var,--transition-easing;
+            transition: color var(--transition-duration) var,--transition-easing,
+                        border-color var(--transition-duration) var,--transition-easing,
+                        background-color var(--transition-duration) var,--transition-easing;
             white-space: nowrap;
             border-top-left-radius: 0.375rem;
             border-top-right-radius: 0.375rem;
@@ -452,9 +450,9 @@
         }
 
         .sample-doc.card { 
-            transition: transform var(--transition-duration) var,--transition-easing),
-                        box-shadow var(--transition-duration) var,--transition-easing),
-                        border-color var,--transition-duration) var,--transition-easing;
+            transition: transform var(--transition-duration) var(--transition-easing),
+                        box-shadow var(--transition-duration) var(--transition-easing),
+                        border-color var(--transition-duration) var(--transition-easing);
         }
         .sample-doc.card:hover:not(:disabled) {
             transform: translateY(-5px) scale(1.02);
@@ -586,11 +584,11 @@
         .animation-delay-2000 { animation-delay: -4s; }
         .animation-delay-4000 { animation-delay: -8s; }
         
-        <!-- How It Works - Step Indicators & Arrows -->
+        /* How It Works - Step Indicators & Arrows */
         .step-indicator {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             box-shadow: 0 4px 15px rgba(0,123,255,0.25);
-            transition: transform var(--transition-duration) var,--transition-easing), box-shadow var,--transition-duration) var,--transition-easing;
+            transition: transform var(--transition-duration) var,--transition-easing, box-shadow var(--transition-duration) var,--transition-easing;
         }
         .step-indicator:hover {
             transform: scale(1.05);
@@ -680,27 +678,6 @@
                     <a href="#pricing" class="font-medium animated-underline">Pricing</a>
                     <a href="#about" class="font-medium animated-underline">About</a>
                 </nav>
-                <!-- CTA Button -->
-                <div class="hidden md:flex items-center">
-                    <a href="#demo" class="btn btn-primary">Try The Demo</a>
-                </div>
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--section-bg-alt)] focus:outline-none" aria-controls="mobile-menu" aria-expanded="false">
-                        <span class="sr-only">Open main menu</span>
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Mobile Menu -->
-        <div class="hidden md:hidden" id="mobile-menu">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--section-bg-alt)]">Features</a>
-                <a href="#how-it-works" class="block px-3 py-2 rounded-md text-base font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--section-bg-alt)]">How It Works</a>
-                <a href="#pricing" class="block px-3 py-2 rounded-md text-base font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--section-bg-alt)]">Pricing</a>
-                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-[var(--text-secondary)] hover:text-[var,--text-primary)] hover:bg-[var(--section-bg-alt)]">About</a>
-                <a href="#demo" class="block px-3 py-3 mt-2 rounded-md text-base font-medium text-center text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)]">Try The Demo</a>
             </div>
         </div>
     </header>
@@ -716,17 +693,17 @@
             <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center relative z-10">
                 <div class="max-w-3xl mx-auto">
                     <h1 class="text-4xl md:text-5xl lg:text-6xl scroll-reveal">
-                        Understand Any Document, <span class="hero-title-accent">Instantly</span>.
+                        All-in-One AI for <span class="hero-title-accent">Resumes, Contracts, and Privacy</span>
                     </h1>
                     <p class="mt-6 text-lg md:text-xl section-subtitle scroll-reveal" style="transition-delay: 100ms;">
-                        Welcome to <span class="brand-name">Paipersum</span>, your intelligent co-pilot for navigating complex contracts, policies, and legal jargon with confidence and clarity.
+                        Build, analyze, and protect your most important documents with PaiperSum’s unified AI suite.
                     </p>
-                    <div class="mt-10 flex items-center justify-center gap-x-6 scroll-reveal" style="transition-delay: 200ms;">
-                        <a href="#demo" class="btn btn-primary btn-cta-pulse">
-                            <i class="fas fa-play mr-2"></i> Try Live Demo
+                    <div class="mt-10 flex flex-col md:flex-row items-center justify-center gap-6 scroll-reveal" style="transition-delay: 200ms;">
+                        <a href="#upload" class="btn btn-primary btn-cta-pulse">
+                            <i class="fas fa-upload mr-2"></i> Upload Document
                         </a>
-                        <a href="#how-it-works" class="btn btn-secondary">
-                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        <a href="#pricing" class="btn btn-secondary">
+                            See Plans <i class="fas fa-arrow-right ml-2"></i>
                         </a>
                     </div>
                 </div>
@@ -739,146 +716,130 @@
                 <div class="text-center scroll-reveal">
                     <h2 class="text-base section-title-accent font-semibold tracking-wide uppercase">Features</h2>
                     <p class="mt-2 text-3xl section-title sm:text-4xl">
-                        Your Legal Co-Pilot
+                        Your Smart Document Co-Pilot
                     </p>
                     <p class="mt-4 max-w-2xl text-xl section-subtitle">
-                        Paipersum helps you navigate the complex world of legal documents with confidence.
+                        PaiperSum helps you build, analyze, and protect resumes, contracts, and privacy docs.
                     </p>
                 </div>
-
-                <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    <!-- Feature 1: Contract Analysis -->
+                <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
+                    <!-- Resume Builder -->
                     <div class="card feature-card scroll-reveal">
                         <div class="p-6">
                             <div class="flex items-center">
                                 <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-accent-primary)] text-white">
-                                    <i class="fas fa-file-contract text-xl"></i>
+                                    <i class="fas fa-user-tie text-xl"></i>
                                 </div>
-                                <h3 class="text-lg font-medium ml-4">Contract Analysis</h3>
+                                <h3 class="text-lg font-medium ml-4">Resume Builder</h3>
                             </div>
                             <p class="mt-4 text-base">
-                                Upload any contract or policy and get a plain English summary with risk ratings and actionable insights.
+                                Instantly create, fill, and optimize your resume for any job. Upload, edit, and export as PDF.
                             </p>
-                            <div class="mt-4 flex flex-wrap gap-2">
-                                <span class="feature-tag tag-pdf"><i class="fas fa-file-pdf"></i>PDF</span>
-                                <span class="feature-tag tag-docx"><i class="fas fa-file-word"></i>DOCX</span>
-                                <span class="feature-tag tag-txt"><i class="fas fa-file-alt"></i>TXT</span>
-                            </div>
                         </div>
                     </div>
-
-                    <!-- Feature 2: Privacy Shield -->
-                    <div class="card feature-card scroll-reveal" style="transition-delay: 100ms;">
-                         <div class="p-6">
+                    <!-- T&C Analyzer -->
+                    <div class="card feature-card scroll-reveal">
+                        <div class="p-6">
                             <div class="flex items-center">
                                 <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-success)] text-white">
                                     <i class="fas fa-shield-alt text-xl"></i>
                                 </div>
-                                <h3 class="text-lg font-medium ml-4">Privacy Shield Score</h3>
+                                <h3 class="text-lg font-medium ml-4">T&C Analyzer</h3>
                             </div>
                             <p class="mt-4 text-base">
-                                System generated trust ranking for websites based on their data sharing and privacy practices.
+                                Scan privacy policies and contracts for hidden risks, compliance issues, and plain-English summaries.
                             </p>
-                            <div class="mt-4">
-                                <div class="risk-meter w-full relative mt-2">
-                                    <div class="risk-indicator-pointer" style="left: 75%; border-color: var(--danger);"></div>
-                                </div>
-                                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                    <span>Safe</span>
-                                    <span>Risky</span>
-                                    <span>Danger</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
-
-                    <!-- Feature 3: Risk Detection -->
-                    <div class="card feature-card scroll-reveal" style="transition-delay: 200ms;">
+                    <!-- Contract Simplifier -->
+                    <div class="card feature-card scroll-reveal">
                         <div class="p-6">
                             <div class="flex items-center">
                                 <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-danger)] text-white">
-                                    <i class="fas fa-exclamation-triangle text-xl"></i>
-                                </div>
-                                <h3 class="text-lg font-medium ml-4">Compliance Check</h3>
-                            </div>
-                            <p class="mt-4 text-base">
-                                Instantly identify high-risk clauses and potential violations of GDPR, CCPA, HIPAA, and more.
-                            </p>
-                            <div class="mt-4 flex flex-wrap gap-2">
-                                <span class="feature-tag tag-gdpr">GDPR</span>
-                                <span class="feature-tag tag-ccpa">CCPA</span>
-                                <span class="feature-tag tag-hipaa">HIPAA</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Feature 4: Auto-Fetch -->
-                    <div class="card feature-card scroll-reveal" style="transition-delay: 300ms;">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-info)] text-white">
-                                    <i class="fas fa-globe text-xl"></i>
-                                </div>
-                                <h3 class="text-lg font-medium ml-4">Auto-Fetch T&Cs</h3>
-                            </div>
-                            <p class="mt-4 text-base">
-                                Enter any URL, and we'll automatically find, fetch, and analyze their terms and policies.
-                            </p>
-                             <div class="mt-4">
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-link text-[var(--text-muted)]"></i>
-                                    </div>
-                                    <input type="url" placeholder="https://example.com/tos" class="pl-10">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Feature 5: Document Generator -->
-                    <div class="card feature-card scroll-reveal" style="transition-delay: 400ms;">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-purple-500)] text-white">
                                     <i class="fas fa-file-signature text-xl"></i>
                                 </div>
-                                 <h3 class="text-lg font-medium ml-4">Smart Generator</h3>
+                                <h3 class="text-lg font-medium ml-4">Contract Simplifier</h3>
                             </div>
                             <p class="mt-4 text-base">
-                                Auto-generate NDAs, ToS, partnership agreements, and more with assistance and templates.
+                                Upload any contract and get a clear, actionable summary with risk ratings and recommendations.
                             </p>
-                            <div class="mt-4 flex flex-wrap gap-2">
-                                <span class="feature-tag tag-nda">NDA</span>
-                                <span class="feature-tag tag-tos">ToS</span>
-                                <span class="feature-tag tag-privacy-policy">Privacy Policy</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Feature 6: Data Protection -->
-                    <div class="card feature-card scroll-reveal" style="transition-delay: 500ms;">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="icon-wrapper flex items-center justify-center h-12 w-12 rounded-md bg-[var(--bg-warning)]">
-                                    <i class="fas fa-lock text-xl"></i>
-                                </div>
-                                <h3 class="text-lg font-medium ml-4">Your Data is Safe</h3>
-                            </div>
-                            <p class="mt-4 text-base">
-                                We use end-to-end encryption and never store your documents after processing. Your privacy is paramount.
-                            </p>
-                            <div class="mt-4">
-                                <div class="feature-tag-icon-text text-[var(--text-success)]">
-                                    <i class="fas fa-shield-alt"></i>
-                                    <span>256-bit AES Encryption</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
+
+        <!-- Smart Document Upload Section (single, enhanced, with reconstruction) -->
+        <section id="upload" class="my-20 max-w-2xl mx-auto p-10 card shadow-xl border-2 border-[var(--accent-primary)] bg-gradient-to-br from-white via-[var(--section-bg-alt)] to-[var(--accent-primary-light)]">
+            <h2 class="text-3xl font-bold mb-4 text-center text-[var(--accent-primary)]">Upload & Reconstruct Your Resume</h2>
+            <p class="mb-6 text-center text-lg text-[var(--text-secondary)]">
+                Upload your resume (PDF, DOCX, or image). Our AI will scan the content, font, and layout, then let you update info and rebuild your resume in the same style.
+            </p>
+            <form id="docForm">
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,image/*" class="mb-4 w-full border border-[var(--accent-primary)] rounded p-2 bg-white" required>
+                <textarea id="instructions" placeholder="Describe what you want to update (e.g., new job title, add skills)…" class="mb-4 w-full border border-[var(--accent-primary)] rounded p-2 bg-white"></textarea>
+                <button type="submit" class="btn btn-primary w-full text-lg py-3">Scan & Reconstruct</button>
+            </form>
+            <div id="reconstruction-area" class="hidden mt-8">
+                <h3 class="text-xl font-semibold mb-2 text-[var(--accent-primary)]">Preview & Edit Extracted Resume</h3>
+                <form id="editForm" class="space-y-4">
+                    <!-- Dynamically generated fields will appear here -->
+                </form>
+                <button id="rebuildBtn" class="btn btn-secondary w-full text-lg py-3 mt-4">Rebuild & Download</button>
+            </div>
+            <pre id="result" class="mt-6 text-sm text-slate-700 bg-white rounded p-4"></pre>
+        </section>
+        <script>
+        document.getElementById('docForm').addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const file = document.getElementById('fileInput').files[0];
+          const instructions = document.getElementById('instructions').value;
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("instructions", instructions);
+          // Call backend for OCR + style extraction
+          const res = await fetch('/api/scan-resume', {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if (data.fields) {
+            // Show editable fields for reconstruction
+            const area = document.getElementById('reconstruction-area');
+            const editForm = document.getElementById('editForm');
+            editForm.innerHTML = '';
+            Object.entries(data.fields).forEach(([key, value]) => {
+              editForm.innerHTML += `<label class='block font-medium mb-1'>${key.replace(/_/g, ' ')}<input name='${key}' value='${value}' class='w-full border rounded p-2 mb-2' /></label>`;
+            });
+            area.classList.remove('hidden');
+            // Store style info for later
+            area.dataset.style = JSON.stringify(data.style || {});
+          }
+          document.getElementById('result').textContent = data.message || data.error || '';
+        });
+        document.getElementById('rebuildBtn').addEventListener('click', async function () {
+          const editForm = document.getElementById('editForm');
+          const formData = new FormData(editForm);
+          // Attach style info
+          const style = document.getElementById('reconstruction-area').dataset.style;
+          formData.append('style', style);
+          // Call backend to rebuild document
+          const res = await fetch('/api/rebuild-resume', {
+            method: 'POST',
+            body: formData
+          });
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'Reconstructed_Resume.pdf';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+        });
+        </script>
+
         <!-- How It Works Section -->
         <div id="how-it-works" class="py-20 sm:py-24 bg-[var(--body-bg)]">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -891,7 +852,6 @@
                         Transform complex legal documents into simple, actionable insights.
                     </p>
                 </div>
-
                 <div class="mt-20 flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-8">
                     <!-- Step 1 -->
                     <div class="card flex flex-col items-center text-center max-w-sm p-8 scroll-reveal">
@@ -900,27 +860,23 @@
                         </div>
                         <h3 class="text-xl font-medium">Upload or Link</h3>
                         <p class="mt-2 text-base">
-                            Securely upload a document, paste text, or simply provide a URL to any online terms of service or policy.
+                            Securely upload a document, paste text, or provide a URL to any online terms or policy.
                         </p>
                     </div>
-
                     <i class="fas fa-angles-right connecting-arrow hidden md:block animate-ping-slow"></i>
                     <i class="fas fa-angles-down connecting-arrow md:hidden animate-ping-slow"></i>
-
                     <!-- Step 2 -->
                     <div class="card flex flex-col items-center text-center max-w-sm p-8 scroll-reveal" style="transition-delay: 150ms;">
                         <div class="step-indicator flex items-center justify-center h-20 w-20 rounded-full text-white text-3xl font-bold mb-6">
                             2
                         </div>
-                        <h3 class="text-xl font-medium">Analysis</h3>
+                        <h3 class="text-xl font-medium">AI Analysis & Fill</h3>
                         <p class="mt-2 text-base">
-                            Our secure engine scans the document, identifying key clauses, potential risks, and compliance issues in seconds.
+                            Our AI engine detects document type, extracts fields, and prompts for missing info. Optionally autofill with AI.
                         </p>
                     </div>
-
                     <i class="fas fa-angles-right connecting-arrow hidden md:block animate-ping-slow"></i>
-                     <i class="fas fa-angles-down connecting-arrow md:hidden animate-ping-slow"></i>
-
+                    <i class="fas fa-angles-down connecting-arrow md:hidden animate-ping-slow"></i>
                     <!-- Step 3 -->
                     <div class="card flex flex-col items-center text-center max-w-sm p-8 scroll-reveal" style="transition-delay: 300ms;">
                         <div class="step-indicator flex items-center justify-center h-20 w-20 rounded-full text-white text-3xl font-bold mb-6">
@@ -928,162 +884,14 @@
                         </div>
                         <h3 class="text-xl font-medium">Get Results</h3>
                         <p class="mt-2 text-base">
-                           Receive a plain-English summary, a risk score, and clear recommendations to help you make informed decisions.
+                           Receive a summary, risk score, and tailored recommendations. Export, share, or save securely.
                         </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Demo Section -->
-        <div id="demo" class="py-20 sm:py-24 bg-[var(--section-bg-alt)]">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center scroll-reveal">
-                    <h2 class="text-base section-title-accent font-semibold tracking-wide uppercase">Interactive Demo</h2>
-                    <p class="mt-2 text-3xl section-title sm:text-4xl">
-                        See Paipersum in Action
-                    </p>
-                    <p class="mt-4 max-w-2xl text-xl section-subtitle">
-                        Choose an input method below to see how our services transforms complex text into understandable insights.
-                    </p>
-                </div>
-                
-                <div class="mt-12 max-w-5xl mx-auto scroll-reveal" style="transition-delay: 150ms;">
-                    <!-- Tab Buttons -->
-                    <div class="border-b border-[var(--border-color-strong)] flex flex-wrap justify-center">
-                        <button class="demo-tab active" data-tab="upload-panel">
-                            <i class="fas fa-upload mr-2"></i> Upload File
-                        </button>
-                        <button class="demo-tab" data-tab="text-panel">
-                             <i class="fas fa-paste mr-2"></i> Paste Text
-                        </button>
-                        <button class="demo-tab" data-tab="url-panel">
-                            <i class="fas fa-link mr-2"></i> Fetch from URL
-                        </button>
-                    </div>
-
-                    <!-- Tab Content -->
-                    <div class="card rounded-t-none border-t-0 p-6 md:p-8">
-                        <div id="upload-panel" class="tab-content active">
-                            <div class="grid md:grid-cols-2 gap-8 items-center">
-                                <div>
-                                    <h3 class="text-xl font-semibold">Try a Sample Document</h3>
-                                    <p class="mt-2 text-[var(--text-secondary)]">Select a pre-loaded document to see instant analysis. Or, drag and drop your own file.</p>
-                                    <div class="space-y-4 mt-6">
-                                        <button class="sample-doc card w-full text-left p-4 flex items-center space-x-4">
-                                            <i class="fas fa-file-invoice-dollar text-2xl text-[var(--accent-primary)]"></i>
-                                            <div>
-                                                <p class="font-semibold text-[var(--text-primary)]">Freelance Agreement</p>
-                                                <p class="text-sm text-[var(--text-muted)]">Standard contract for client work.</p>
-                                            </div>
-                                        </button>
-                                         <button class="sample-doc card w-full text-left p-4 flex items-center space-x-4">
-                                            <i class="fas fa-user-secret text-2xl text-[var(--accent-secondary)]"></i>
-                                            <div>
-                                                <p class="font-semibold text-[var(--text-primary)]">Privacy Policy</p>
-                                                <p class="text-sm text-[var(--text-muted)]">Typical policy from a social media app.</p>
-                                            </div>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="file-drop-area">
-                                    <i class="fas fa-cloud-upload-alt text-5xl text-[var(--accent-primary)] opacity-50 mb-4"></i>
-                                    <h4 class="font-semibold text-lg">Drag & Drop Your File</h4>
-                                    <p class="text-[var(--text-muted)]">or click to browse</p>
-                                    <p class="text-xs text-[var(--text-muted)] mt-2">PDF, DOCX, TXT up to 10MB</p>
-                                    <input type="file" id="file-upload">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="text-panel" class="tab-content">
-                            <h3 class="text-xl font-semibold">Paste Your Text</h3>
-                            <p class="mt-2 mb-4 text-[var(--text-secondary)]">Copy and paste any text into the field below for analysis.</p>
-                            <textarea rows="8" placeholder="e.g., By using our services, you agree to grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, modify, and distribute your content..."></textarea>
-                            <button class="btn btn-primary mt-4">Analyze Text</button>
-                        </div>
-                        
-                        <div id="url-panel" class="tab-content">
-                            <h3 class="text-xl font-semibold">Analyze a Live Website</h3>
-                             <p class="mt-2 mb-4 text-[var(--text-secondary)]">Enter a URL to a terms of service or privacy policy page.</p>
-                             <div class="flex">
-                                 <input type="text" placeholder="https://example.com/privacy">
-                                 <button class="btn btn-primary flex-shrink-0">Fetch & Analyze</button>
-                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Demo Results (Shared for all tabs) -->
-                <div class="mt-12 max-w-5xl mx-auto scroll-reveal">
-                    <h3 class="text-2xl font-semibold text-center mb-6">Analysis Results</h3>
-                    <div class="grid lg:grid-cols-5 gap-8">
-                        <div class="lg:col-span-3 card p-6 document-viewer">
-                           <div class="prose max-w-none">
-                                <h4>Preview: <strong>Freelance Agreement</strong></h4>
-                                <p>This Agreement is made between <strong>Client Inc.</strong> ("Client") and <strong>You, the Freelancer</strong> ("Contractor").</p>
-                                <blockquote>This document outlines the terms and conditions of the professional relationship. The Contractor agrees to provide services as described in Exhibit A.</blockquote>
-                                <p><strong>4. Data Sharing and Third Parties.</strong></p>
-                                <p class="text-danger">Client reserves the right to share any and all data related to the project with its third-party advertising partners without prior notification to the Contractor. This data may include personal identifiable information (PII).</p>
-                                <p><strong>8. Jurisdiction.</strong></p>
-                                <p class="text-warning">Any disputes arising from this agreement shall be resolved exclusively in the courts of the State of Delaware, regardless of the Contractor's location.</p>
-                                <ul>
-                                    <li>Payment will be made within 30 days of invoice receipt.</li>
-                                    <li>The contractor retains ownership of pre-existing intellectual property.</li>
-                                </ul>
-                           </div>
-                        </div>
-                        <div class="lg:col-span-2 analysis-results">
-                            <div class="risk-summary">
-                                <h4 class="font-semibold text-lg mb-4">Risk Summary</h4>
-                                <div class="card p-4 flex items-center justify-between">
-                                    <div class="text-center">
-                                        <p class="text-sm text-[var(--text-muted)]">Overall Score</p>
-                                        <p class="font-bold text-4xl text-[var(--text-danger)] risk-score-value-animated">4.8<span class="text-lg">/10</span></p>
-                                    </div>
-                                    <div class="text-center">
-                                         <p class="text-sm text-[var(--text-muted)]">Clarity</p>
-                                        <p class="font-bold text-4xl text-[var(--text-warning)] risk-score-value-animated">6.2</p>
-                                    </div>
-                                    <div class="text-center">
-                                         <p class="text-sm text-[var(--text-muted)]">Fairness</p>
-                                        <p class="font-bold text-4xl text-[var(--text-danger)] risk-score-value-animated">3.5</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="clause-analysis mt-6">
-                                <h4 class="font-semibold text-lg mb-4">Key Clauses</h4>
-                                <div class="risk-item-card border-l-[var(--danger)] text-[var(--text-danger)]">
-                                    <div class="risk-title">
-                                        <i class="fas fa-exclamation-circle mr-2"></i> High Risk
-                                        <span class="risk-section-tag ml-auto">Section 4</span>
-                                    </div>
-                                    <p class="risk-description">Broad data sharing clause allows sharing of your personal info with advertisers.</p>
-                                    <p class="risk-recommendation"><i class="fas fa-gavel"></i><strong>Recommendation:</strong> Negotiate to limit or remove this clause.</p>
-                                </div>
-                                <div class="risk-item-card border-l-[var(--warning)] text-[var(--text-warning)]">
-                                    <div class="risk-title">
-                                        <i class="fas fa-exclamation-triangle mr-2"></i> Medium Risk
-                                        <span class="risk-section-tag ml-auto">Section 8</span>
-                                    </div>
-                                    <p class="risk-description">Jurisdiction clause may be inconvenient and costly if a dispute arises.</p>
-                                </div>
-                                <div class="risk-item-card border-l-[var(--success)] text-[var(--text-success)]">
-                                    <div class="risk-title">
-                                        <i class="fas fa-check-circle mr-2"></i> Low Risk
-                                        <span class="risk-section-tag ml-auto">Section 1</span>
-                                    </div>
-                                    <p class="risk-description">Standard payment terms and IP ownership clauses are fair.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Pricing Section -->
+        <!-- Pricing Section (enhanced) -->
         <div id="pricing" class="py-20 sm:py-24 bg-[var(--body-bg)]">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center scroll-reveal">
@@ -1092,137 +900,63 @@
                         Simple, Transparent Plans
                     </p>
                     <p class="mt-4 max-w-2xl text-xl section-subtitle">
-                        Choose the plan that fits your needs. Cancel anytime, no questions asked.
+                        Start free, upgrade for unlimited power. Cancel anytime.
                     </p>
                 </div>
-
                 <div class="mt-16 space-y-12 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-x-8">
-                    <!-- Free Tier -->
-                    <div class="card flex flex-col p-8 scroll-reveal">
+                    <!-- Starter Tier -->
+                    <div class="card flex flex-col p-8 scroll-reveal border-2 border-[var(--accent-primary-light)]">
                         <div class="flex-1">
                             <h3 class="text-2xl font-semibold">Starter</h3>
                             <p class="mt-4 flex items-baseline">
                                 <span class="text-5xl font-extrabold tracking-tight">$0</span>
                                 <span class="ml-1 text-xl font-semibold text-[var(--text-muted)]">/month</span>
                             </p>
-                            <p class="mt-6 text-base text-[var(--text-secondary)]">Perfect for occasional users who need basic document analysis.</p>
+                            <p class="mt-6 text-base text-[var(--text-secondary)]">Try basic analysis with limited scans. Upgrade for full features.</p>
                             <ul role="list" class="mt-8 space-y-4">
                                 <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">5 document scans/month</span></li>
                                 <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Basic risk analysis</span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Plain English summaries</span></li>
                                 <li class="flex items-start"><i class="fas fa-times text-[var(--text-muted)] mt-1 shrink-0"></i><span class="ml-3 text-[var(--text-muted)]">No document generation</span></li>
-                                <li class="flex items-start"><i class="fas fa-times text-[var(--text-muted)] mt-1 shrink-0"></i><span class="ml-3 text-[var(--text-muted)]">No browser extension</span></li>
                             </ul>
                         </div>
-                        <a href="#" class="btn btn-secondary mt-8">Get Started</a>
+                        <a href="#pricing" class="btn btn-secondary mt-8">Get Started</a>
                     </div>
-
                     <!-- Pro Tier -->
-                    <div class="card pricing-card-popular relative flex flex-col p-8 scroll-reveal" style="transition-delay: 150ms;">
+                    <div class="card pricing-card-popular relative flex flex-col p-8 scroll-reveal border-2 border-[var(--accent-primary)] shadow-xl" style="transition-delay: 150ms;">
                         <div class="absolute top-0 -translate-y-1/2 w-full flex justify-center">
                            <div class="bg-[var(--accent-primary)] text-white px-4 py-1 rounded-full text-sm font-semibold uppercase tracking-wider shadow-lg">Most Popular</div>
                         </div>
                         <div class="flex-1">
                             <h3 class="text-2xl font-semibold">Pro</h3>
                             <p class="mt-4 flex items-baseline text-[var(--accent-primary)]">
-                                <span class="text-5xl font-extrabold tracking-tight">$9</span>
+                                <span class="text-5xl font-extrabold tracking-tight">$12</span>
                                 <span class="ml-1 text-xl font-semibold">/month</span>
                             </p>
-                            <p class="mt-6 text-base text-[var(--text-secondary)]">For individuals and freelancers who regularly deal with contracts.</p>
+                            <p class="mt-6 text-base text-[var(--text-secondary)]">Unlimited scans, advanced analysis, and document generation. Stripe checkout ready.</p>
                             <ul role="list" class="mt-8 space-y-4">
                                 <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3"><strong>Unlimited</strong> document scans</span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3"><strong>Advanced</strong> risk analysis</span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Detailed legal insights</span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">5 document generations/month</span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Browser extension included</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Advanced risk analysis</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Document generation</span></li>
                             </ul>
                         </div>
-                        <a href="#" class="btn btn-primary mt-8">Choose Pro</a>
+                        <a href="#" class="btn btn-primary mt-8 text-lg py-3">Upgrade to Pro</a>
                     </div>
-
                     <!-- Business Tier -->
-                    <div class="card flex flex-col p-8 scroll-reveal" style="transition-delay: 300ms;">
+                    <div class="card flex flex-col p-8 scroll-reveal border-2 border-[var(--accent-secondary)]" style="transition-delay: 300ms;">
                         <div class="flex-1">
                             <h3 class="text-2xl font-semibold">Business</h3>
                              <p class="mt-4 flex items-baseline">
                                 <span class="text-5xl font-extrabold tracking-tight">$29</span>
                                 <span class="ml-1 text-xl font-semibold text-[var(--text-muted)]">/month</span>
                             </p>
-                            <p class="mt-6 text-base text-[var(--text-secondary)]">For teams and businesses that need comprehensive legal tools.</p>
+                            <p class="mt-6 text-base text-[var(--text-secondary)]">For teams and businesses: unlimited everything, collaboration, and priority support.</p>
                             <ul role="list" class="mt-8 space-y-4">
                                 <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3"><strong>Everything in Pro</strong></span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3"><strong>Unlimited</strong> document generation</span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Team collaboration features</span></li>
+                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Team collaboration</span></li>
                                 <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">Priority support</span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-[var(--success)] mt-1 shrink-0"></i><span class="ml-3">API access (coming soon)</span></li>
                             </ul>
                         </div>
-                        <a href="#" class="btn btn-secondary mt-8">Contact Sales</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Testimonials -->
-        <div class="py-20 sm:py-24 bg-[var(--section-bg-alt)]">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center scroll-reveal">
-                    <h2 class="text-base section-title-accent font-semibold tracking-wide uppercase">Testimonials</h2>
-                    <p class="mt-2 text-3xl section-title sm:text-4xl">
-                        Trusted by Early Adopters
-                    </p>
-                </div>
-
-                <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    <!-- Testimonial 1 -->
-                    <div class="card testimonial-card p-6 relative scroll-reveal">
-                        <i class="fas fa-comments text-5xl text-[var(--border-color-soft)] absolute top-4 right-5 -z-0"></i>
-                        <div class="relative z-10">
-                            <div class="flex items-center">
-                                <div class="testimonial-avatar h-12 w-12 flex-shrink-0">
-                                    <img src="https://i.pravatar.cc/48?u=sarah" alt="Sarah Johnson">
-                                </div>
-                                <div class="ml-4">
-                                    <h4 class="font-semibold text-[var(--text-primary)]">Sarah Johnson</h4>
-                                    <p class="text-sm text-[var(--text-muted)]">Freelance Designer</p>
-                                </div>
-                            </div>
-                            <blockquote class="mt-4 text-[var(--text-secondary)]">"As a freelancer, I sign contracts all the time but never really understood them. PaiperSum has saved me from two potentially terrible deals already!"</blockquote>
-                        </div>
-                    </div>
-
-                    <!-- Testimonial 2 -->
-                     <div class="card testimonial-card p-6 relative scroll-reveal" style="transition-delay: 150ms;">
-                        <i class="fas fa-comments text-5xl text-[var(--border-color-soft)] absolute top-4 right-5 -z-0"></i>
-                        <div class="relative z-10">
-                            <div class="flex items-center">
-                                <div class="testimonial-avatar h-12 w-12 flex-shrink-0">
-                                    <img src="https://i.pravatar.cc/48?u=michael" alt="Michael Chen">
-                                </div>
-                                <div class="ml-4">
-                                    <h4 class="font-semibold text-[var(--text-primary)]">Michael Chen</h4>
-                                    <p class="text-sm text-[var(--text-muted)]">Small Business Owner</p>
-                                </div>
-                            </div>
-                            <blockquote class="mt-4 text-[var(--text-secondary)]">"The Privacy Shield Score alone is worth the subscription. I can instantly see which vendors are trustworthy before doing business with them."</blockquote>
-                        </div>
-                    </div>
-
-                    <!-- Testimonial 3 -->
-                    <div class="card testimonial-card p-6 relative scroll-reveal" style="transition-delay: 300ms;">
-                        <i class="fas fa-comments text-5xl text-[var(--border-color-soft)] absolute top-4 right-5 -z-0"></i>
-                        <div class="relative z-10">
-                            <div class="flex items-center">
-                                <div class="testimonial-avatar h-12 w-12 flex-shrink-0">
-                                    <img src="https://i.pravatar.cc/48?u=david" alt="David Rodriguez">
-                                </div>
-                                <div class="ml-4">
-                                    <h4 class="font-semibold text-[var(--text-primary)]">David Rodriguez</h4>
-                                    <p class="text-sm text-[var(--text-muted)]">Privacy Advocate</p>
-                                </div>
-                            </div>
-                            <blockquote class="mt-4 text-[var(--text-secondary)]">"Finally, a tool that empowers users to understand what they're signing. This should be a standard utility for anyone who uses the internet."</blockquote>
-                        </div>
+                        <a href="#" class="btn btn-secondary mt-8 text-lg py-3">Contact Sales</a>
                     </div>
                 </div>
             </div>
@@ -1350,7 +1084,7 @@
                          <div class="logo-container h-10 w-10">
                             <svg class="h-10 w-10 text-white" aria-hidden="true"><use xlink:href="#paipersum-logo-alt"></use></svg>
                         </div>
-                        <span class="font-brand text-2xl font-bold">Paiperum</span>
+                        <span class="font-brand text-2xl font-bold">Paipersum</span>
                     </a>
                     <p class="mt-4 text-sm text-gray-400">
                         Intelligent document understanding for everyone.
@@ -1467,22 +1201,6 @@
                 });
             }
 
-            // --- Interactive Demo Tabs ---
-            const tabs = document.querySelectorAll('.demo-tab');
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Deactivate all
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tabContents.forEach(c => c.classList.remove('active'));
-
-                    // Activate clicked
-                    tab.classList.add('active');
-                    const content = document.getElementById(tab.dataset.tab);
-                    if (content) content.classList.add('active');
-                });
-            });
-
             // --- Scroll Reveal Animation ---
             const scrollRevealObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
@@ -1499,42 +1217,53 @@
         });
 
         // --- Consent Banner Always Show & Log to Backend ---
-        (function() {
-            function showConsentBanner() {
-                if (!localStorage.getItem('consentGiven')) {
-                    var banner = document.createElement('div');
-                    banner.id = 'cookie-consent-banner';
-                    banner.className = 'fixed bottom-0 left-0 w-full bg-gray-900 text-white p-4 z-50 flex flex-col md:flex-row items-center justify-between shadow-xl cookie-consent-banner';
-                    banner.innerHTML = `
-                        <div class="flex-1 text-sm">
-                            We use cookies and similar technologies for essential site functionality and analytics. See our <a href="/legal.html#privacy" class="underline text-blue-400" target="_blank" rel="noopener">Privacy Policy</a>.
-                        </div>
-                        <div class="flex gap-2 mt-2 md:mt-0">
-                            <button id="consent-accept" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Accept</button>
-                            <button id="consent-reject" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Essential Only</button>
-                        </div>
-                    `;
-                    document.body.appendChild(banner);
-                    document.getElementById('consent-accept').onclick = function() { handleConsent('full'); };
-                    document.getElementById('consent-reject').onclick = function() { handleConsent('essential'); };
-                }
-            }
-            async function handleConsent(type) {
-                localStorage.setItem('consentGiven', type);
-                var banner = document.getElementById('cookie-consent-banner');
-                if (banner) banner.remove();
-                // Log consent to backend
-                try {
-                    await fetch('/api/v1/consent', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ consent: type, userAgent: navigator.userAgent })
-                    });
-                } catch (e) {}
-            }
-            document.addEventListener('DOMContentLoaded', showConsentBanner);
-        })();
+        const consentBanner = document.getElementById('consent-banner');
+        if (consentBanner) {
+            const showConsentBanner = () => {
+                consentBanner.classList.remove('hidden');
+                consentBanner.classList.add('flex');
+            };
+            const hideConsentBanner = () => {
+                consentBanner.classList.add('hidden');
+                consentBanner.classList.remove('flex');
+            };
+
+            // Show banner on load
+            setTimeout(showConsentBanner, 500);
+
+            // Log consent to backend (mock)
+            document.getElementById('consent-accept').addEventListener('click', function() {
+                hideConsentBanner();
+                // Mock API call
+                setTimeout(() => {
+                    console.log('Consent accepted and logged.');
+                }, 500);
+            });
+            document.getElementById('consent-decline').addEventListener('click', function() {
+                hideConsentBanner();
+                // Mock API call
+                setTimeout(() => {
+                    console.log('Consent declined and logged.');
+                }, 500);
+ }
+        }
     </script>
 
+    <!-- Cookie Consent by Insites -->
+    <div id="consent-banner" class="hidden fixed bottom-0 inset-x-0 p-4 bg-white border-t border-gray-200 shadow-lg flex-col md:flex-row md:items-center md:justify-between z-50">
+      <div class="flex-1">
+        <p class="text-sm text-gray-700">
+          We use cookies to enhance your experience. By continuing to visit this site, you agree to our use of cookies. See our <a href="/legal.html#cookie" class="font-medium text-blue-600 hover:underline">Cookie Policy</a> for details.
+        </p>
+      </div>
+      <div class="mt-3 md:mt-0 md:ml-4 flex-shrink-0">
+        <button id="consent-accept" class="btn btn-primary btn-sm">
+          Accept Cookies
+        </button>
+        <button id="consent-decline" class="btn btn-secondary btn-sm ml-2">
+          Decline
+        </button>
+      </div>
+    </div>
 </body>
 </html>
