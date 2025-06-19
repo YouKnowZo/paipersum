@@ -1242,12 +1242,12 @@
             document.getElementById('consent-decline').addEventListener('click', function() {
                 hideConsentBanner();
                 // Mock API call
-                setTimeout(() => {
-                    console.log('Consent declined and logged.');
-                }, 500);
- }
-        }
-    </script>
+            setTimeout(() => {
+                console.log('Consent declined and logged.');
+            }, 500);
+        });
+    }
+</script>
 
     <!-- Cookie Consent by Insites -->
     <div id="consent-banner" class="hidden fixed bottom-0 inset-x-0 p-4 bg-white border-t border-gray-200 shadow-lg flex-col md:flex-row md:items-center md:justify-between z-50">
