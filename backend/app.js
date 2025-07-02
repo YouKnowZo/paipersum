@@ -48,6 +48,7 @@ const authConfig = {
   secret: process.env.AUTH0_SECRET,
   baseURL: process.env.BASE_URL,
   clientID: process.env.AUTH0_CLIENT_ID,
+  clientSecret: process.env.AUTH0_CLIENT_SECRET, // Added for client_secret_basic
   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
   authorizationParams: {
     response_type: 'code',
@@ -62,7 +63,7 @@ const authConfig = {
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.SESSION_COOKIE_SAMESITE || 'none'
+      sameSite: "Lax" // Capital L, as required by express-openid-connect
     }
   }
 };
