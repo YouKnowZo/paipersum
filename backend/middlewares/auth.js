@@ -1,27 +1,9 @@
-const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 
-// Authentication middleware
+// Authentication middleware (DISABLED for development)
 const protect = (req, res, next) => {
-  const token = req.header('x-auth-token');
-  
-  if (!token) {
-    return res.status(401).json({ 
-      success: false,
-      error: 'No token, authorization denied' 
-    });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user;
-    next();
-  } catch (err) {
-    res.status(401).json({ 
-      success: false,
-      error: 'Token is not valid' 
-    });
-  }
+  // Skip authentication for all requests
+  next();
 };
 
 // Rate limiting middleware

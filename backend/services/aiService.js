@@ -1,7 +1,22 @@
-const OpenAI = require('openai');
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let OpenAI, openai;
+try {
+  OpenAI = require('openai');
+  if (!process.env.OPENAI_API_KEY) {
+    console.warn('Warning: OPENAI_API_KEY is missing. AI features will be disabled.');
+    openai = null;
+  } else {
+    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+} catch (e) {
+  console.warn('OpenAI module not found or failed to load:', e);
+  openai = null;
+}
 
 exports.analyzeDocument = async (text) => {
+  if (!openai) {
+    // Fallback for dev: return a stub response
+    return '[AI DISABLED] No OpenAI API key set. Document analysis is unavailable.';
+  }
   try {
     const prompt = `
     Analyze this legal document and provide:

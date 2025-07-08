@@ -1,0 +1,24 @@
+{
+  "type": "Compass Connections",
+  "version": {
+    "$numberInt": "1"
+  },
+  "connections": [
+    {
+      "id": "e31e6590-f0dd-4150-bc5f-77a9719a63d0",
+      "lastUsed": {
+        "$date": {
+          "$numberLong": "1751448581150"
+        }
+      },
+      "favorite": {
+        "name": "paipersum.4wiupxo.mongodb.net"
+      },
+      "savedConnectionType": "favorite",
+      "connectionOptions": {
+        "connectionString": "mongodb+srv://paipersum@paipersum.4wiupxo.mongodb.net/?retryWrites=true&w=majority&appName=paipersum",
+        "oidc": {}
+      }
+    }
+  ]
+}

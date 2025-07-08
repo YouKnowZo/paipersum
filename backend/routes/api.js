@@ -1,7 +1,6 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const router = express.Router();
-const { authenticate, authorize } = require('../middlewares/auth');
 const ApiKey = require('../models/ApiKey');
 const crypto = require('crypto');
 const ApiUsage = require('../models/ApiUsage');
@@ -21,14 +20,15 @@ const apiLimiter = rateLimit({
   }
 });
 
-router.post('/analyze', apiLimiter, authenticate, authorize('api'), async (req, res) => {
+// Remove Auth0 and JWT middleware for dev
+router.post('/analyze', apiLimiter, async (req, res) => {
   try {
     const { content } = req.body;
     const analysis = await analyzeContent(content);
     
     // Log API call for billing
     await ApiUsage.create({
-      key: req.apiKey._id,
+      key: req.apiKey?._id,
       endpoint: '/analyze',
       charsProcessed: content.length
     });
@@ -39,13 +39,13 @@ router.post('/analyze', apiLimiter, authenticate, authorize('api'), async (req, 
   }
 });
 
-// Key generation endpoint
-router.post('/keys', authenticate, authorize('admin'), async (req, res) => {
+// Key generation endpoint (no auth for dev)
+router.post('/keys', async (req, res) => {
   const { tier } = req.body;
   const key = new ApiKey({
     key: crypto.randomBytes(32).toString('hex'),
     tier,
-    user: req.user.id
+    user: req.user?.id || 'dev-user'
   });
   await key.save();
   res.json({ key: key.key });
@@ -87,10 +87,7 @@ router.post('/billing/webhook', (req, res) => {
 
 // Admin Audit Log Endpoint (stub)
 router.get('/admin/audit-logs', (req, res) => {
-  // Only allow admin (add real auth in production)
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Forbidden' });
-  }
+  // No auth for dev
   res.json({ logs: [] });
 });
 

@@ -1,5 +1,4 @@
 const express = require('express');
-const { auth } = require('express-openid-connect');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -41,45 +40,62 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false }));
 
+// Remove Auth0 middleware for dev
+// const { auth } = require('express-openid-connect');
 // Auth0 Configuration (with enhanced security)
-const authConfig = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.AUTH0_SECRET,
-  baseURL: process.env.BASE_URL,
-  clientID: process.env.AUTH0_CLIENT_ID,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET, // Added for client_secret_basic
-  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-  authorizationParams: {
-    response_type: 'code',
-    audience: process.env.AUTH0_AUDIENCE,
-    scope: 'openid profile email'
-  },
-  routes: {
-    callback: '/api/auth/callback', // Explicit callback path
-    login: false // Disable default login route
-  },
-  session: {
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: "Lax" // Capital L, as required by express-openid-connect
-    }
+// const authConfig = {
+//   authRequired: false,
+//   auth0Logout: true,
+//   secret: process.env.AUTH0_SECRET,
+//   baseURL: process.env.BASE_URL,
+//   clientID: process.env.AUTH0_CLIENT_ID,
+//   clientSecret: process.env.AUTH0_CLIENT_SECRET, // Added for client_secret_basic
+//   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+//   authorizationParams: {
+//     response_type: 'code',
+//     audience: process.env.AUTH0_AUDIENCE,
+//     scope: 'openid profile email'
+//   },
+//   routes: {
+//     callback: '/api/auth/callback', // Explicit callback path
+//     login: false // Disable default login route
+//   },
+//   session: {
+//     cookie: {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === 'production',
+//       sameSite: "Lax" // Capital L, as required by express-openid-connect
+//     }
+//   }
+// };
+
+// if (process.env.NODE_ENV === 'production') {
+//   authConfig.session.cookie.domain = process.env.COOKIE_DOMAIN;
+// }
+
+// app.use(auth(authConfig));
+
+// API Routes (with versioning and improved routing)
+const apiRouter = express.Router();
+const routes = [
+  'waitlist',
+  'analyze',
+  'scrape',
+  'upload',
+  'auth'
+];
+
+routes.forEach(route => {
+  try {
+    const routeModule = require(`./routes/${route}`);
+    apiRouter.use(`/${route}`, routeModule);
+  } catch (error) {
+    console.error(`Failed to load route ${route}:`, error);
+    // Consider more robust error handling here, like a custom error middleware
   }
-};
+});
 
-if (process.env.NODE_ENV === 'production') {
-  authConfig.session.cookie.domain = process.env.COOKIE_DOMAIN;
-}
-
-app.use(auth(authConfig));
-
-// API Routes (with versioning)
-app.use('/api/v1/waitlist', require('./routes/waitlist'));
-app.use('/api/v1/analyze', require('./routes/analyze'));
-app.use('/api/v1/scrape', require('./routes/scrape'));
-app.use('/api/v1/upload', require('./routes/upload'));
-app.use('/api/v1/auth', require('./routes/auth'));
+app.use('/api/v1', apiRouter);
 
 // Health Check Endpoint
 app.get('/health', (req, res) => {
