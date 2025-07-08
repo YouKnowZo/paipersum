@@ -20,7 +20,7 @@ export default function App() {
     setLoading(true);
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch("http://localhost:8000/api/scan-resume", {
+    const res = await fetch(`${process.env.VITE_API_URL || 'http://localhost:5000'}/api/scan-resume`, {
       method: "POST",
       body: formData,
     });
@@ -36,7 +36,7 @@ export default function App() {
   const handleRebuild = async () => {
     const formData = new FormData();
     Object.entries(fields).forEach(([k, v]) => formData.append(k, v));
-    const res = await fetch("http://localhost:8000/api/rebuild-resume", {
+    const res = await fetch(`${process.env.VITE_API_URL || 'http://localhost:5000'}/api/rebuild-resume`, {
       method: "POST",
       body: formData,
     });

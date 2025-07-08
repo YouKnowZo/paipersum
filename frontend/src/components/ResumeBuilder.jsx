@@ -1,27 +1,29 @@
 import React, { useState } from "react";
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function ResumeBuilder() {
   const [resumeText, setResumeText] = useState("");
   const [jobDesc, setJobDesc] = useState("");
   // ...other state
 
   const saveResume = async () => {
-    await axios.post("http://localhost:5000/api/resumes", {
+    await axios.post(`${API_BASE_URL}/api/resumes`, {
       template_name: "default",
       resume_content: resumeText
     });
   };
 
   const formatResume = async () => {
-    const { data } = await axios.post("http://localhost:5000/api/resumes/format", {
+    const { data } = await axios.post(`${API_BASE_URL}/api/resumes/format`, {
       content: resumeText
     });
     setResumeText(data.formatted);
   };
 
   const enhanceResume = async () => {
-    const { data } = await axios.post("http://localhost:5000/api/resumes/suggest", {
+    const { data } = await axios.post(`${API_BASE_URL}/api/resumes/suggest`, {
       content: resumeText,
       job_title: "Frontend Developer"
     });
@@ -29,7 +31,7 @@ export default function ResumeBuilder() {
   };
 
   const checkATS = async () => {
-    const { data } = await axios.post("http://localhost:5000/api/resumes/ats-check", {
+    const { data } = await axios.post(`${API_BASE_URL}/api/resumes/ats-check`, {
       content: resumeText,
       job_description: jobDesc
     });
