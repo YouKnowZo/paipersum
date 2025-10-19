@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { RiskMeter } from './components/RiskMeter'
+import Upload from './components/Upload'
 
 type Clause = { title: string; summary: string; risk: 'green'|'yellow'|'red'; citation: string }
 
@@ -33,6 +34,10 @@ export default function App() {
         <h1 className="text-2xl font-semibold text-gray-900">PaiperSum · Legal Simplifier</h1>
         <p className="text-gray-600 text-sm">Paste a contract, waiver, or Terms of Service. Get a plain‑English risk read‑out.</p>
       </header>
+
+      <div className="mb-6">
+        <Upload api={API} />
+      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         <section className="bg-white p-4 rounded-xl shadow">
