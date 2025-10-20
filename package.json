@@ -1,1 +1,22 @@
-{"name":"backend","version":"1.0.0","main":"backend/server.js","scripts":{"start":"node backend/server.js","dev":"nodemon backend/server.js","prod":"set NODE_ENV=production&&node backend/server.js"},"dependencies":{"@vercel/speed-insights":"^1.2.0","cors":"^2.8.5","dotenv":"^16.5.0","express":"^5.1.0","express-openid-connect":"^2.15.0","firebase":"^11.10.0","helmet":"^8.1.0","jsonwebtoken":"^9.0.2","mongodb":"^6.17.0","mongoose":"^8.15.0","morgan":"^1.10.0","react-scripts":"^0.0.0"},"devDependencies":{"nodemon":"^3.1.10"}}
+{
+  "name": "paipersum",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "dev:api": "npm --workspace apps/api run dev",
+    "dev:ext": "npm --workspace apps/extension run dev",
+    "build": "npm -w apps/web run build && npm -w apps/extension run build",
+    "lint": "eslint \"**/*.{ts,tsx,js}\" --max-warnings=0",
+    "a11y": "playwright test && axe --exit zero apps/web/dist"
+  },
+  "devDependencies": {
+    "eslint": "^9.12.0",
+    "eslint-config-standard-with-typescript": "^43.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^17.10.3",
+    "eslint-plugin-promise": "^6.2.0",
+    "@playwright/test": "^1.47.0",
+    "axe-core": "^4.10.0"
+  }
+}
