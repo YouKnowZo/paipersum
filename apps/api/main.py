@@ -2,84 +2,125 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
-from typing import List, Literal
+from typing import List, Literal, Optional
 import re
 import os
 import tempfile
 from contextlib import asynccontextmanager
 
-# Import modules
+# Import existing modules
 from obs import install_handlers
 from security import security_headers, rate_limit
 from ingest import pdf_text
 from report import build_report
 
+# Import decision engine
+from decision_engine import (
+    generate_recommendation,
+    calculate_benchmarks,
+    extract_key_terms,
+    generate_negotiation_templates,
+    calculate_cost_scenarios
+)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    print("🚀 PaiperSum API starting...")
+    print("🚀 PaiperSum Enhanced API starting...")
     yield
-    # Shutdown
-    print("👋 PaiperSum API shutting down...")
+    print("👋 PaiperSum Enhanced API shutting down...")
 
 app = FastAPI(
-    title="PaiperSum API",
-    version="0.1.0",
-    description="Legal document simplification and risk analysis API",
+    title="PaiperSum Enhanced API",
+    version="2.0.0",
+    description="Actually useful legal document analysis with actionable recommendations",
     lifespan=lifespan
 )
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Install security and monitoring
+# Install security
 install_handlers(app)
 app.middleware('http')(rate_limit)
 app.middleware('http')(security_headers)
 
-# Models
+# Enhanced models
 class AnalyzeIn(BaseModel):
     text: str
+    doc_type: Optional[str] = 'general'
 
 class Clause(BaseModel):
     title: str
     summary: str
     risk: Literal['green', 'yellow', 'red']
     citation: str
+    impact: Optional[str] = None
 
-class AnalyzeOut(BaseModel):
+class Recommendation(BaseModel):
+    decision: Literal['sign', 'negotiate', 'walk_away']
+    confidence: float
+    reasoning: str
+    action_items: List[str]
+    cost_impact: int
+
+class Benchmark(BaseModel):
+    metric: str
+    your_value: str
+    average_value: str
+    percentile: int
+    is_good: bool
+
+class NegotiationPoint(BaseModel):
+    clause_title: str
+    current_term: str
+    suggested_term: str
+    success_rate: float
+    email_template: str
+    importance: str
+
+class CostScenario(BaseModel):
+    name: str
+    cost: int
+    description: str
+    is_best: bool
+    warning: Optional[str] = None
+
+class EnhancedAnalysis(BaseModel):
     risk_score: int
     clauses: List[Clause]
     confidence: float
+    recommendation: Recommendation
+    benchmarks: List[Benchmark]
+    negotiation_points: List[NegotiationPoint]
+    cost_scenarios: List[CostScenario]
+    share_url: Optional[str] = None
+    share_image_url: Optional[str] = None
 
-# Analysis rules
+# Analysis rules with impact
 RULES = [
-    (r"indemnif(y|ication)", "Indemnification", "You must defend and pay for the other party if something goes wrong.", 'red'),
-    (r"waive|release|hold harmless", "Release/Waiver", "You give up rights to sue or recover damages.", 'red'),
-    (r"arbitration|binding arbitration", "Arbitration", "Disputes must go to arbitration instead of court.", 'yellow'),
-    (r"class action", "Class Action Waiver", "You cannot join class actions.", 'yellow'),
-    (r"auto[- ]?renew|automatically renew", "Auto-Renewal", "The agreement renews unless you cancel.", 'yellow'),
-    (r"as is|no warranties|without warranty", "No Warranty", "The provider disclaims responsibility for quality or fitness.", 'yellow'),
-    (r"governing law|venue|jurisdiction", "Governing Law/Venue", "Which court/law applies is predefined.", 'green'),
-    (r"share .* data|third[- ]?part(y|ies) .* data|sell .* data", "Data Sharing", "Your data may be shared or sold to third parties.", 'yellow'),
-    (r"assume .* risk|at (my|your) sole risk", "Assumption of Risk", "You accept all risks of harm.", 'red'),
-    (r"limit(ing)? liability|limitation of liability", "Liability Limitation", "Provider limits how much they can be sued for.", 'yellow'),
-    (r"termination|cancel(l)?ation", "Termination Clause", "How and when the agreement can be ended.", 'green'),
-    (r"confidential(ity)?|non[- ]?disclosure", "Confidentiality", "You must keep certain information secret.", 'yellow'),
-    (r"intellectual property|IP rights", "IP Rights", "Who owns the intellectual property rights.", 'yellow'),
-    (r"force majeure", "Force Majeure", "Exceptions for unforeseeable circumstances.", 'green'),
+    (r"indemnif(y|ication)", "Indemnification", "You must defend and pay for the other party if something goes wrong.", 'red', "Unlimited liability"),
+    (r"waive|release|hold harmless", "Release/Waiver", "You give up rights to sue or recover damages.", 'red', "Give up legal rights"),
+    (r"arbitration|binding arbitration", "Arbitration", "Disputes must go to arbitration instead of court.", 'yellow', "Can't sue in court"),
+    (r"class action", "Class Action Waiver", "You cannot join class actions.", 'yellow', "Must sue alone"),
+    (r"auto[- ]?renew|automatically renew", "Auto-Renewal", "The agreement renews unless you cancel.", 'yellow', "May forget to cancel"),
+    (r"as is|no warranties|without warranty", "No Warranty", "The provider disclaims responsibility for quality or fitness.", 'yellow', "No guarantees"),
+    (r"governing law|venue|jurisdiction", "Governing Law/Venue", "Which court/law applies is predefined.", 'green', "Standard clause"),
+    (r"share .* data|third[- ]?part(y|ies) .* data|sell .* data", "Data Sharing", "Your data may be shared or sold to third parties.", 'yellow', "Privacy concern"),
+    (r"assume .* risk|at (my|your) sole risk", "Assumption of Risk", "You accept all risks of harm.", 'red', "All liability on you"),
+    (r"limit(ing)? liability|limitation of liability", "Liability Limitation", "Provider limits how much they can be sued for.", 'yellow', "Low damages cap"),
+    (r"termination|cancel(l)?ation", "Termination Clause", "How and when the agreement can be ended.", 'green', "Exit terms"),
+    (r"confidential(ity)?|non[- ]?disclosure", "Confidentiality", "You must keep certain information secret.", 'yellow', "Binding promise"),
 ]
 
 RISK_WEIGHTS = {'red': 30, 'yellow': 12, 'green': 4}
 
 def _extract_sentence(text: str, idx: int) -> str:
-    """Extract sentence around index for citation"""
     start = max(0, text.rfind('.', 0, idx) + 1)
     end = text.find('.', idx)
     if end == -1:
@@ -87,35 +128,61 @@ def _extract_sentence(text: str, idx: int) -> str:
     snippet = text[start:end].strip()
     return snippet[:240]
 
+def detect_document_type(text: str) -> str:
+    """Auto-detect document type"""
+    text_lower = text.lower()
+    
+    if any(word in text_lower for word in ['gym', 'fitness', 'membership', 'exercise']):
+        return 'gym_membership'
+    elif any(word in text_lower for word in ['lease', 'landlord', 'tenant', 'rent', 'apartment']):
+        return 'apartment_lease'
+    elif any(word in text_lower for word in ['phone', 'wireless', 'cellular', 'data plan', 'carrier']):
+        return 'phone_contract'
+    elif any(word in text_lower for word in ['software', 'terms of service', 'tos', 'privacy policy', 'user agreement']):
+        return 'software_tos'
+    else:
+        return 'general'
+
 @app.get('/')
 def root():
     return {
-        "name": "PaiperSum API",
-        "version": "0.1.0",
+        "name": "PaiperSum Enhanced API",
+        "version": "2.0.0",
         "status": "operational",
+        "new_features": [
+            "Clear recommendations (Sign/Negotiate/Walk Away)",
+            "Benchmarking vs similar contracts",
+            "Negotiation email templates",
+            "Cost scenario calculator",
+            "Document type detection"
+        ],
         "docs": "/docs"
     }
 
 @app.get('/health')
 def health():
-    return {"status": "healthy"}
+    return {"status": "healthy", "version": "2.0.0"}
 
-@app.post('/analyze', response_model=AnalyzeOut)
+@app.post('/analyze', response_model=EnhancedAnalysis)
 async def analyze(inp: AnalyzeIn):
-    """Analyze legal document text for risks and clauses"""
+    """Enhanced analysis with actionable recommendations"""
     text = inp.text or ''
     
     if not text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty")
     
-    if len(text) > 500000:  # 500KB limit
+    if len(text) > 500000:
         raise HTTPException(status_code=400, detail="Text too long (max 500KB)")
     
+    # Auto-detect document type if not provided
+    doc_type = inp.doc_type if inp.doc_type != 'general' else detect_document_type(text)
+    
+    # Original analysis
     found: List[Clause] = []
     total = 0
     seen_titles = set()
     
-    for pattern, title, summary, risk in RULES:
+    for pattern, title, summary, risk, impact in RULES:
         m = re.search(pattern, text, flags=re.IGNORECASE | re.DOTALL)
         if m and title not in seen_titles:
             snippet = _extract_sentence(text, m.start())
@@ -123,34 +190,77 @@ async def analyze(inp: AnalyzeIn):
                 title=title,
                 summary=summary,
                 risk=risk,
-                citation=snippet
+                citation=snippet,
+                impact=impact
             ))
             total += RISK_WEIGHTS[risk]
             seen_titles.add(title)
     
-    # Normalize score 0-100
-    score = max(0, min(100, total))
+    risk_score = max(0, min(100, total))
     confidence = 0.75 if found else 0.5
     
-    return AnalyzeOut(
-        risk_score=score,
+    # Extract key terms
+    terms = extract_key_terms(text, doc_type)
+    
+    # Generate recommendation
+    recommendation = generate_recommendation(risk_score, [c.dict() for c in found], terms, doc_type)
+    
+    # Calculate benchmarks
+    benchmarks = calculate_benchmarks(terms, doc_type)
+    benchmark_models = [
+        Benchmark(
+            metric=key,
+            your_value=b.your_value,
+            average_value=b.average_value,
+            percentile=b.percentile,
+            is_good=b.is_good
+        ) for key, b in zip(terms.keys(), benchmarks)
+    ]
+    
+    # Generate negotiation points
+    negotiation_points = generate_negotiation_templates([c.dict() for c in found], terms, doc_type)
+    negotiation_models = [
+        NegotiationPoint(
+            clause_title=n.clause_title,
+            current_term=n.current_term,
+            suggested_term=n.suggested_term,
+            success_rate=n.success_rate,
+            email_template=n.email_template,
+            importance=n.importance
+        ) for n in negotiation_points
+    ]
+    
+    # Calculate cost scenarios
+    scenarios = calculate_cost_scenarios(terms, doc_type)
+    scenario_models = [CostScenario(**s) for s in scenarios]
+    
+    # Generate share URL
+    import hashlib
+    doc_hash = hashlib.md5(text[:100].encode()).hexdigest()[:8]
+    share_url = f"https://paipersum.com/share/{doc_hash}"
+    
+    return EnhancedAnalysis(
+        risk_score=risk_score,
         clauses=found,
-        confidence=confidence
+        confidence=confidence,
+        recommendation=Recommendation(**recommendation.__dict__),
+        benchmarks=benchmark_models,
+        negotiation_points=negotiation_models,
+        cost_scenarios=scenario_models,
+        share_url=share_url,
+        share_image_url=f"{share_url}/image"
     )
 
-@app.post('/analyze-file', response_model=AnalyzeOut)
+@app.post('/analyze-file', response_model=EnhancedAnalysis)
 async def analyze_file(file: UploadFile = File(...)):
-    """Analyze uploaded document file"""
-    # Validate file
+    """Enhanced file analysis"""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
     
-    # Check file size (10MB limit)
     content = await file.read()
     if len(content) > 10 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="File too large (max 10MB)")
     
-    # Check file type
     allowed_extensions = {'.pdf', '.txt', '.doc', '.docx'}
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in allowed_extensions:
@@ -159,7 +269,6 @@ async def analyze_file(file: UploadFile = File(...)):
             detail=f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}"
         )
     
-    # Extract text
     try:
         if ext == '.pdf':
             with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
@@ -171,7 +280,6 @@ async def analyze_file(file: UploadFile = File(...)):
             finally:
                 os.unlink(tmp_path)
         else:
-            # Assume text file
             text = content.decode('utf-8', errors='ignore')
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to extract text: {str(e)}")
@@ -179,7 +287,6 @@ async def analyze_file(file: UploadFile = File(...)):
     if not text.strip():
         raise HTTPException(status_code=400, detail="No text could be extracted from file")
     
-    # Analyze extracted text
     return await analyze(AnalyzeIn(text=text))
 
 @app.post('/export/pdf')
@@ -188,10 +295,8 @@ async def export_pdf(inp: AnalyzeIn):
     if not inp.text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty")
     
-    # Analyze first
     analysis = await analyze(inp)
     
-    # Generate PDF
     try:
         pdf_bytes = build_report('Document Analysis', analysis.dict())
         
@@ -204,6 +309,19 @@ async def export_pdf(inp: AnalyzeIn):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
+
+@app.get('/document-types')
+def get_document_types():
+    """Get supported document types and their benchmarks"""
+    return {
+        "types": [
+            {"id": "gym_membership", "name": "Gym Membership", "emoji": "💪"},
+            {"id": "apartment_lease", "name": "Apartment Lease", "emoji": "🏠"},
+            {"id": "phone_contract", "name": "Phone Contract", "emoji": "📱"},
+            {"id": "software_tos", "name": "Software Terms of Service", "emoji": "💻"},
+            {"id": "general", "name": "General Contract", "emoji": "📄"}
+        ]
+    }
 
 if __name__ == "__main__":
     import uvicorn
