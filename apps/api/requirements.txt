@@ -20,5 +20,5 @@ pdfminer.six==20231228
 pytesseract==0.3.13
 Pillow==10.4.0
 fpdf==1.7.2
-transformers==4.46.2
+transformers==4.53.0
 torch==2.5.1
