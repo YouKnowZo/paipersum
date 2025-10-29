@@ -8,6 +8,7 @@ import FloatingChatbot from './components/FloatingChatbot'
 import Consent from './components/Consent'
 import Upload from './components/Upload'
 import EnhancedSummaryPage from './pages/EnhancedSummaryPage'
+import AccountPage from './pages/AccountPage'
 import { Card } from './components/Cards'
 import { analyzeText, analyzeFile, exportPDF } from './lib/api'
 import type { EnhancedAnalysisT } from './lib/schemas'
@@ -18,6 +19,9 @@ interface User {
   name: string
   isPro: boolean
   docsThisMonth: number
+  address?: string
+  phone?: string
+  company?: string
 }
 
 interface SavedAnalysis {
@@ -30,6 +34,7 @@ interface SavedAnalysis {
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
   const [showAuth, setShowAuth] = useState(false)
+  const [showAccount, setShowAccount] = useState(false)
   const [analysis, setAnalysis] = useState<EnhancedAnalysisT | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -549,7 +554,8 @@ export default function App() {
                   <ul className="space-y-2 text-sm text-ink-300">
                     <li><a href="https://twitter.com/paipersum" target="_blank" className="hover:text-white transition">Twitter/X</a></li>
                     <li><a href="https://linkedin.com/company/paipersum" target="_blank" className="hover:text-white transition">LinkedIn</a></li>
-                    <li><a href="mailto:hello@paipersum.com" className="hover:text-white transition">Contact Us</a></li>
+                    <li><a href="mailto:alonzolockett@paipersum.com" className="hover:text-white transition">General: alonzolockett@paipersum.com</a></li>
+                    <li><a href="mailto:support@paipersum.com" className="hover:text-white transition">Support: support@paipersum.com</a></li>
                   </ul>
                 </div>
               </div>
