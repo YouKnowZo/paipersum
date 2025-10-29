@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Request
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
@@ -22,6 +22,9 @@ from decision_engine import (
     generate_negotiation_templates,
     calculate_cost_scenarios
 )
+
+# Import Stripe routes
+from stripe_routes import create_checkout_session, handle_webhook, CheckoutSessionRequest
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -175,7 +178,7 @@ async def analyze(inp: AnalyzeIn):
         raise HTTPException(status_code=400, detail="Text too long (max 500KB)")
     
     # Auto-detect document type if not provided
-    doc_type = inp.doc_type if inp.doc_type != 'general' else detect_document_type(text)
+    doc_type: str = inp.doc_type if inp.doc_type and inp.doc_type != 'general' else detect_document_type(text)
     
     # Original analysis
     found: List[Clause] = []
@@ -186,10 +189,12 @@ async def analyze(inp: AnalyzeIn):
         m = re.search(pattern, text, flags=re.IGNORECASE | re.DOTALL)
         if m and title not in seen_titles:
             snippet = _extract_sentence(text, m.start())
+            # Type cast risk to literal type
+            risk_literal: Literal['green', 'yellow', 'red'] = risk  # type: ignore
             found.append(Clause(
                 title=title,
                 summary=summary,
-                risk=risk,
+                risk=risk_literal,
                 citation=snippet,
                 impact=impact
             ))
@@ -322,6 +327,18 @@ def get_document_types():
             {"id": "general", "name": "General Contract", "emoji": "📄"}
         ]
     }
+
+# Stripe Payment Endpoints
+@app.post('/create-checkout-session')
+async def create_checkout_session_endpoint(data: CheckoutSessionRequest):
+    """Create a Stripe checkout session for Pro subscription"""
+    return create_checkout_session(data)
+
+@app.post('/stripe-webhook')
+async def stripe_webhook(request: Request, stripe_signature: str = Header(None)):
+    """Handle Stripe webhooks"""
+    payload = await request.body()
+    return handle_webhook(payload, stripe_signature)
 
 if __name__ == "__main__":
     import uvicorn
