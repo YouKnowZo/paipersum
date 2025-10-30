@@ -267,10 +267,10 @@ export default function App() {
         <div className="text-center mb-6">
           <Logo size="lg" />
           <h2 className="text-2xl font-bold text-ink-900 mt-4 mb-2">
-            {user ? 'Upgrade to Pro' : 'Create Free Account'}
+            {user ? 'Upgrade to Pro' : 'Create Account'}
           </h2>
           <p className="text-ink-600">
-            {user ? 'Get unlimited document analyses' : 'Continue analyzing your documents'}
+            {user ? 'Unlock unlimited document analyses and premium features' : 'Start analyzing your documents professionally'}
           </p>
         </div>
 
@@ -304,7 +304,7 @@ export default function App() {
             </div>
             <div className="pt-2">
               <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
-                Create Free Account →
+                Create Account →
               </button>
               <button
                 type="button"
@@ -400,36 +400,29 @@ export default function App() {
                   </div>
                 )}
                 
-                {user ? (
+                {user && (
                   <div className="flex items-center gap-3">
                     <div className="text-right hidden sm:block">
                       <div className="text-sm font-semibold text-ink-900">{user.name}</div>
                       <div className="text-xs text-ink-500">
-                        {user.isPro ? 'Pro' : `${getRemainingAnalyses()} left this month`}
+                        {user.isPro ? 'Pro Member' : `${getRemainingAnalyses()} analyses remaining`}
                       </div>
                     </div>
-                    <button
-                      onClick={handleLogout}
-                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
-                    >
-                      Logout
-                    </button>
                     {!user.isPro && (
                       <button
                         onClick={() => setShowAuth(true)}
                         className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-ink-900 rounded-lg font-semibold text-sm hover:shadow-lg transition"
                       >
-                        Upgrade
+                        Upgrade to Pro
                       </button>
                     )}
+                    <button
+                      onClick={() => setShowAccount(true)}
+                      className="px-4 py-2 border rounded-lg hover:bg-paper-50 transition text-sm font-semibold"
+                    >
+                      Account
+                    </button>
                   </div>
-                ) : (
-                  <button
-                    onClick={() => setShowAuth(true)}
-                    className="px-4 py-2 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
-                  >
-                    Sign Up Free
-                  </button>
                 )}
                 
                 <button
@@ -498,10 +491,10 @@ export default function App() {
           <div className="bg-gradient-to-br from-brand-blue to-blue-900 py-16">
             <div className="max-w-4xl mx-auto px-4 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Ready to Stop Getting Scammed?
+                Protect Your Interests with Professional Analysis
               </h2>
               <p className="text-xl text-blue-100 mb-6">
-                Join {Math.max(5000, documentsAnalyzed * 50).toLocaleString()}+ people who analyze before they sign
+                Join thousands of professionals making informed decisions with comprehensive document analysis
               </p>
               {totalSavings > 0 && (
                 <div className="inline-block mb-6 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
@@ -515,7 +508,7 @@ export default function App() {
                   onClick={() => setShowAnalyzer(true)}
                   className="px-8 py-4 bg-white text-brand-blue rounded-xl font-bold text-lg hover:bg-gray-50 transition shadow-lg hover:shadow-xl hover:scale-105"
                 >
-                  Analyze Your First Document Free →
+                  Start Document Analysis →
                 </button>
               </div>
             </div>
@@ -530,7 +523,7 @@ export default function App() {
                     <Logo size="md" />
                   </div>
                   <p className="text-sm text-ink-300 leading-relaxed">
-                    Understand legal documents in plain English. Stop getting screwed by fine print.
+                    Professional document analysis platform delivering comprehensive risk assessment and clause-by-clause breakdowns in clear, understandable language.
                   </p>
                 </div>
                 <div>
@@ -560,7 +553,7 @@ export default function App() {
                 </div>
               </div>
               <div className="border-t border-ink-700 pt-8 text-center text-sm text-ink-400">
-                <p>© 2025 PaiperSum. Not legal advice. Automated analysis for informational purposes only. Always consult an attorney for legal decisions.</p>
+                <p>© 2025 PaiperSum. This service provides informational analysis only and does not constitute legal advice. Results are for educational and informational purposes. Always consult a licensed attorney for legal decisions and professional guidance.</p>
               </div>
             </div>
           </footer>
@@ -809,9 +802,9 @@ export default function App() {
                   <span className="font-bold text-yellow-900">Legal Disclaimer</span>
                 </div>
                 <p className="text-xs text-yellow-800 leading-relaxed">
-                  This analysis is for informational purposes only and does not constitute legal advice. 
-                  Automated analysis may miss clauses or misinterpret language. Always consult a licensed 
-                  attorney for legal decisions. We are not responsible for any decisions made based on this analysis.
+                  IMPORTANT NOTICE: This platform provides automated document analysis for informational and educational purposes only. 
+                  This is NOT legal advice. AI analysis may contain errors, omissions, or misinterpretations. 
+                  Always consult a licensed attorney before making any legal decisions. We assume no liability for actions taken based on this analysis.
                 </p>
               </div>
             </div>
