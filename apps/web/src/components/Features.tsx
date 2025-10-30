@@ -2,9 +2,9 @@ export default function Features() {
   const features = [
     {
       icon: '⚡',
-      title: '3-Second Analysis',
-      description: 'Upload any document and get instant results. No waiting, no hassle.',
-      highlight: 'Lightning fast'
+      title: 'Instant Analysis',
+      description: 'Upload a document and get results quickly. Clear, action‑oriented summaries.',
+      highlight: 'Fast turnaround'
     },
     {
       icon: '🎯',
@@ -31,10 +31,10 @@ export default function Features() {
       highlight: 'Professional output'
     },
     {
-      icon: '💰',
-      title: 'Free Forever',
-      description: 'No credit card, no trials, no BS. Truly free for everyone.',
-      highlight: 'Always free'
+      icon: '👤',
+      title: 'Designed for People',
+      description: 'Friendly experience that respects your time and privacy.',
+      highlight: 'Human‑centered'
     }
   ]
 

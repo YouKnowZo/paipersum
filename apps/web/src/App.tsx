@@ -101,7 +101,7 @@ export default function App() {
     
     // Check limits
     if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro for unlimited analyses!' : 'Free limit reached. Sign up to continue!')
+      setError(user ? 'Monthly limit reached. Upgrade to Pro for unlimited analyses!' : 'Create an account to continue')
       setShowAuth(true)
       return
     }
@@ -177,7 +177,7 @@ export default function App() {
 
   const handleFileSelect = async (file: File) => {
     if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro!' : 'Free limit reached. Sign up to continue!')
+      setError(user ? 'Monthly limit reached. Upgrade to Pro!' : 'Create an account to continue')
       setShowAuth(true)
       return
     }
@@ -267,7 +267,7 @@ export default function App() {
         <div className="text-center mb-6">
           <Logo size="lg" />
           <h2 className="text-2xl font-bold text-ink-900 mt-4 mb-2">
-            {user ? 'Upgrade to Pro' : 'Create Free Account'}
+            {user ? 'Upgrade to Pro' : 'Sign in or create an account'}
           </h2>
           <p className="text-ink-600">
             {user ? 'Get unlimited document analyses' : 'Continue analyzing your documents'}
@@ -304,7 +304,7 @@ export default function App() {
             </div>
             <div className="pt-2">
               <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
-                Create Free Account →
+                Continue →
               </button>
               <button
                 type="button"
@@ -409,10 +409,16 @@ export default function App() {
                       </div>
                     </div>
                     <button
+                      onClick={() => setShowAccount(true)}
+                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
+                    >
+                      Account
+                    </button>
+                    <button
                       onClick={handleLogout}
                       className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
                     >
-                      Logout
+                      Sign out
                     </button>
                     {!user.isPro && (
                       <button
@@ -428,7 +434,7 @@ export default function App() {
                     onClick={() => setShowAuth(true)}
                     className="px-4 py-2 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
                   >
-                    Sign Up Free
+                    Sign in / Create account
                   </button>
                 )}
                 
@@ -515,7 +521,7 @@ export default function App() {
                   onClick={() => setShowAnalyzer(true)}
                   className="px-8 py-4 bg-white text-brand-blue rounded-xl font-bold text-lg hover:bg-gray-50 transition shadow-lg hover:shadow-xl hover:scale-105"
                 >
-                  Analyze Your First Document Free →
+                  Analyze a Document →
                 </button>
               </div>
             </div>
@@ -566,6 +572,23 @@ export default function App() {
           </footer>
         </div>
       </>
+    )
+  }
+
+  // Render Account page when selected
+  if (showAccount && user) {
+    return (
+      <AccountPage
+        user={user}
+        onUpdate={(updated) => {
+          setUser(updated)
+          localStorage.setItem('paipersum_user', JSON.stringify(updated))
+        }}
+        onCancel={() => setShowAccount(false)}
+        onUpgrade={() => setShowAuth(true)}
+        totalSavings={totalSavings}
+        documentsAnalyzed={documentsAnalyzed}
+      />
     )
   }
 

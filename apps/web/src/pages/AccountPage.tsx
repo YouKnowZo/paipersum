@@ -102,7 +102,7 @@ export default function AccountPage({
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      Free Tier
+                      Starter
                     </>
                   )}
                 </div>
@@ -287,12 +287,12 @@ export default function AccountPage({
                   <div>
                     <h4 className="font-semibold text-ink-900">Current Plan</h4>
                     <p className="text-sm text-ink-600 mt-1">
-                      {user.isPro ? 'Pro - Unlimited analyses' : 'Free - 30 analyses per month'}
+                      {user.isPro ? 'Pro — Unlimited analyses' : 'Starter — Monthly analysis limit applies'}
                     </p>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-ink-900">
-                      {user.isPro ? '$20' : '$0'}
+                      {user.isPro ? '$20' : '—'}
                     </div>
                     <div className="text-xs text-ink-500">/month</div>
                   </div>
@@ -327,6 +327,66 @@ export default function AccountPage({
                     </button>
                   </div>
                 )}
+              </div>
+            </Card>
+
+            {/* Privacy & Data */}
+            <Card title="🔐 Privacy & Data">
+              <div className="space-y-3">
+                <p className="text-sm text-ink-600">
+                  You can export or delete your data at any time. Exports include your profile and saved analyses.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => {
+                      const payload = {
+                        user,
+                        savedAnalyses: JSON.parse(localStorage.getItem('saved_analyses') || '[]'),
+                        docsAnalyzed: parseInt(localStorage.getItem('docs_analyzed') || '0'),
+                        totalSavings: parseInt(localStorage.getItem('total_savings') || '0'),
+                      }
+                      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `paipersum-data-${new Date().toISOString()}.json`
+                      a.click()
+                      URL.revokeObjectURL(url)
+                    }}
+                    className="px-4 py-2 bg-white border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
+                  >
+                    Export my data
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!confirm('This will delete your account data on this device. Continue?')) return
+                      localStorage.removeItem('paipersum_user')
+                      localStorage.removeItem('saved_analyses')
+                      localStorage.removeItem('docs_analyzed')
+                      localStorage.removeItem('total_savings')
+                      window.location.href = '/'
+                    }}
+                    className="px-4 py-2 border-2 border-red-500 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition"
+                  >
+                    Delete my account & data
+                  </button>
+                  <a
+                    href="mailto:privacy@paipersum.com?subject=Data%20access%20request"
+                    className="px-4 py-2 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition text-center"
+                  >
+                    Request data by email
+                  </a>
+                </div>
+              </div>
+            </Card>
+
+            {/* Payment History (Placeholder) */}
+            <Card title="🧾 Payment History">
+              <p className="text-sm text-ink-600 mb-3">
+                Connect your Stripe account to display invoices and receipts here.
+              </p>
+              <div className="rounded-lg border border-border-200 p-4 bg-paper-50 text-sm text-ink-600">
+                No payments to show yet.
               </div>
             </Card>
 
