@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="PaiperSum Enhanced API",
     version="2.0.0",
-    description="Actually useful legal document analysis with actionable recommendations",
+    description="Useful document analysis with actionable recommendations",
     lifespan=lifespan
 )
 
