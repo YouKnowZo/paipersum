@@ -11,6 +11,7 @@ import EnhancedSummaryPage from './pages/EnhancedSummaryPage'
 import AccountPage from './pages/AccountPage'
 import { Card } from './components/Cards'
 import { analyzeText, analyzeFile, exportPDF } from './lib/api'
+import { createCheckoutSession } from './lib/stripe'
 import type { EnhancedAnalysisT } from './lib/schemas'
 
 // Simple auth types (localStorage-based for MVP)
@@ -66,16 +67,16 @@ export default function App() {
     setSavedAnalyses(saved)
   }, [])
 
-  // Check free tier limit
+  // Check usage limit
   const canAnalyze = (): boolean => {
     if (!user) {
-      // Not logged in - allow 5 free analyses
+      // Not logged in - allow limited analyses
       return documentsAnalyzed < 5
     }
     if (user.isPro) {
       return true // Unlimited
     }
-    // Free tier - 30/month
+    // Base plan - 30/month
     return user.docsThisMonth < 30
   }
 
@@ -101,7 +102,7 @@ export default function App() {
     
     // Check limits
     if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro for unlimited analyses!' : 'Free limit reached. Sign up to continue!')
+      setError(user ? 'Monthly limit reached. Upgrade to Pro for more analyses.' : 'Limit reached. Create an account to continue.')
       setShowAuth(true)
       return
     }
@@ -177,7 +178,7 @@ export default function App() {
 
   const handleFileSelect = async (file: File) => {
     if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro!' : 'Free limit reached. Sign up to continue!')
+      setError(user ? 'Monthly limit reached. Upgrade to Pro.' : 'Limit reached. Create an account to continue.')
       setShowAuth(true)
       return
     }
@@ -267,7 +268,7 @@ export default function App() {
         <div className="text-center mb-6">
           <Logo size="lg" />
           <h2 className="text-2xl font-bold text-ink-900 mt-4 mb-2">
-            {user ? 'Upgrade to Pro' : 'Create Free Account'}
+            {user ? 'Upgrade to Pro' : 'Create Account'}
           </h2>
           <p className="text-ink-600">
             {user ? 'Get unlimited document analyses' : 'Continue analyzing your documents'}
@@ -304,7 +305,7 @@ export default function App() {
             </div>
             <div className="pt-2">
               <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
-                Create Free Account →
+                Create Account →
               </button>
               <button
                 type="button"
@@ -315,7 +316,7 @@ export default function App() {
               </button>
             </div>
             <p className="text-xs text-center text-ink-500 mt-4">
-              By signing up, you agree to our Terms & Privacy Policy
+              By creating an account, you agree to our Terms & Privacy Policy
             </p>
           </form>
         ) : (
@@ -367,6 +368,69 @@ export default function App() {
     </div>
   )
 
+  // Account view (overrides landing/analyzer when open)
+  if (showAccount && user) {
+    const handleUpdateUser = (updated: User) => {
+      setUser(updated)
+      localStorage.setItem('paipersum_user', JSON.stringify(updated))
+    }
+
+    const handleUpgrade = async () => {
+      try {
+        const priceId = import.meta.env.VITE_STRIPE_PRICE_ID as string
+        if (!priceId) {
+          setError('Stripe not configured. Set VITE_STRIPE_PRICE_ID and keys.')
+          return
+        }
+        await createCheckoutSession(priceId, user.email)
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Upgrade failed')
+      }
+    }
+
+    const handleExportData = () => {
+      const data = {
+        user,
+        savedAnalyses,
+        documentsAnalyzed,
+        totalSavings
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `paipersum-data-${Date.now()}.json`
+      a.click()
+      window.URL.revokeObjectURL(url)
+    }
+
+    const handleDeleteAccount = () => {
+      try {
+        localStorage.removeItem('paipersum_user')
+        localStorage.removeItem('saved_analyses')
+        localStorage.removeItem('docs_analyzed')
+        localStorage.removeItem('total_savings')
+      } catch {}
+      setUser(null)
+      setSavedAnalyses([])
+      setDocumentsAnalyzed(0)
+      setShowAccount(false)
+    }
+
+    return (
+      <AccountPage
+        user={user}
+        onUpdate={handleUpdateUser}
+        onCancel={() => setShowAccount(false)}
+        onUpgrade={handleUpgrade}
+        totalSavings={totalSavings}
+        documentsAnalyzed={documentsAnalyzed}
+        onExportData={handleExportData}
+        onDeleteAccount={handleDeleteAccount}
+      />
+    )
+  }
+
   // Landing page
   if (!showAnalyzer) {
     return (
@@ -409,6 +473,12 @@ export default function App() {
                       </div>
                     </div>
                     <button
+                      onClick={() => setShowAccount(true)}
+                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
+                    >
+                      Account
+                    </button>
+                    <button
                       onClick={handleLogout}
                       className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
                     >
@@ -424,12 +494,20 @@ export default function App() {
                     )}
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setShowAuth(true)}
-                    className="px-4 py-2 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
-                  >
-                    Sign Up Free
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setShowAuth(true)}
+                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      onClick={() => setShowAuth(true)}
+                      className="px-4 py-2 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
+                    >
+                      Create Account
+                    </button>
+                  </div>
                 )}
                 
                 <button
@@ -515,7 +593,7 @@ export default function App() {
                   onClick={() => setShowAnalyzer(true)}
                   className="px-8 py-4 bg-white text-brand-blue rounded-xl font-bold text-lg hover:bg-gray-50 transition shadow-lg hover:shadow-xl hover:scale-105"
                 >
-                  Analyze Your First Document Free →
+                  Analyze a Document →
                 </button>
               </div>
             </div>
@@ -617,6 +695,14 @@ export default function App() {
                 )}
               </div>
               
+              {user && (
+                <button
+                  onClick={() => setShowAccount(true)}
+                  className="px-3 py-1.5 border rounded-lg text-sm hover:bg-paper-50 transition"
+                >
+                  Account
+                </button>
+              )}
               {user && !user.isPro && (
                 <button
                   onClick={() => setShowAuth(true)}

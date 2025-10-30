@@ -18,6 +18,8 @@ interface AccountPageProps {
   onUpgrade: () => void
   totalSavings: number
   documentsAnalyzed: number
+  onExportData: () => void
+  onDeleteAccount: () => void
 }
 
 export default function AccountPage({ 
@@ -287,7 +289,7 @@ export default function AccountPage({
                   <div>
                     <h4 className="font-semibold text-ink-900">Current Plan</h4>
                     <p className="text-sm text-ink-600 mt-1">
-                      {user.isPro ? 'Pro - Unlimited analyses' : 'Free - 30 analyses per month'}
+                      {user.isPro ? 'Pro - Unlimited analyses' : 'Starter - 30 analyses per month'}
                     </p>
                   </div>
                   <div className="text-right">
@@ -353,6 +355,50 @@ export default function AccountPage({
                     : `${30 - user.docsThisMonth} analyses remaining this month`
                   }
                 </p>
+              </div>
+            </Card>
+
+            {/* Privacy & Data */}
+            <Card title="🔐 Privacy & Data">
+              <div className="space-y-4">
+                <p className="text-sm text-ink-600">
+                  You can export your data or request account deletion at any time.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={onExportData}
+                    className="flex-1 px-4 py-3 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
+                  >
+                    Export my data (JSON)
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm('Delete your account and local data? This cannot be undone.')) {
+                        onDeleteAccount()
+                      }
+                    }}
+                    className="flex-1 px-4 py-3 border-2 border-red-500 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition"
+                  >
+                    Delete my account
+                  </button>
+                </div>
+                <p className="text-xs text-ink-500">
+                  For data access or deletion under applicable laws, contact support@paipersum.com with the subject "Data Request".
+                </p>
+              </div>
+            </Card>
+
+            {/* Billing History (placeholder) */}
+            <Card title="🧾 Billing History">
+              <div className="space-y-3 text-sm text-ink-600">
+                {user.isPro ? (
+                  <>
+                    <p>Invoices and payments will appear here.</p>
+                    <p className="text-xs text-ink-500">Connect Stripe webhooks and customer portal to populate this section.</p>
+                  </>
+                ) : (
+                  <p>Upgrade to Pro to view invoices and manage billing.</p>
+                )}
               </div>
             </Card>
           </div>

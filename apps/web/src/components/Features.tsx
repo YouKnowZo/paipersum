@@ -1,28 +1,28 @@
 export default function Features() {
   const features = [
     {
-      icon: '⚡',
-      title: '3-Second Analysis',
-      description: 'Upload any document and get instant results. No waiting, no hassle.',
-      highlight: 'Lightning fast'
+      icon: '👥',
+      title: 'Human-Centered Experience',
+      description: 'Clear, human‑friendly analysis and guidance without the legalese.',
+      highlight: 'Made for people'
     },
     {
-      icon: '🎯',
+      icon: '🧑‍⚖️',
       title: '14 Risk Types',
       description: 'Detects hidden fees, auto-renewals, arbitration clauses, and more.',
       highlight: 'Comprehensive'
     },
     {
-      icon: '📊',
+      icon: '🧑‍💼',
       title: 'Visual Risk Score',
       description: 'See your risk at a glance with color-coded scores and plain English.',
       highlight: 'Easy to understand'
     },
     {
       icon: '🔒',
-      title: '100% Private',
-      description: 'Your documents are analyzed and immediately deleted. Zero storage.',
-      highlight: 'Your data, your privacy'
+      title: 'Private by Design',
+      description: 'Documents are processed securely and not retained. Your data stays yours.',
+      highlight: 'Privacy first'
     },
     {
       icon: '📄',
@@ -31,10 +31,10 @@ export default function Features() {
       highlight: 'Professional output'
     },
     {
-      icon: '💰',
-      title: 'Free Forever',
-      description: 'No credit card, no trials, no BS. Truly free for everyone.',
-      highlight: 'Always free'
+      icon: '🗣️',
+      title: 'Plain‑English Summaries',
+      description: 'Know what you’re agreeing to at a glance.',
+      highlight: 'Clear and concise'
     }
   ]
 

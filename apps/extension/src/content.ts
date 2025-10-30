@@ -303,7 +303,7 @@
           animation: spin 1s linear infinite;
         "></div>
         <div style="font-weight: 600; margin-bottom: 8px;">Analyzing Terms...</div>
-        <div style="font-size: 13px; color: #666;">This will take about 3 seconds</div>
+        <div style="font-size: 13px; color: #666;">This will take a moment</div>
       </div>
       <style>
         @keyframes spin {
