@@ -144,13 +144,13 @@ export default function App() {
       
       // Achievement notifications
       if (newCount === 1) {
-        showAchievement('🎉 First Analysis Complete!', 'You\'re protecting yourself from hidden traps!')
+        showAchievement('First Analysis Complete!', 'You\'ve started your document analysis journey')
       } else if (newCount === 5) {
-        showAchievement('🏆 5 Documents Analyzed!', 'You\'re becoming a contract pro!')
+        showAchievement('5 Documents Analyzed!', 'You\'re building comprehensive document insights')
       } else if (newCount === 10) {
-        showAchievement('💎 Power User Unlocked!', `You've saved $${newSavings} total!`)
+        showAchievement('Power User Status!', `You've analyzed ${newCount} documents totaling $${newSavings} in value`)
       } else if (newSavings >= 1000) {
-        showAchievement('💰 $1,000+ Protected!', 'You\'ve avoided over $1,000 in potential costs!')
+        showAchievement('Milestone Reached!', 'You\'ve analyzed over $1,000 in document value')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed')
@@ -164,7 +164,11 @@ export default function App() {
     toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-blue to-blue-600 text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
     toast.innerHTML = `
       <div class="flex items-start gap-4">
-        <div class="text-4xl">🎉</div>
+        <div>
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
         <div>
           <div class="font-bold text-lg mb-1">${title}</div>
           <div class="text-sm text-blue-100">${message}</div>
@@ -234,7 +238,7 @@ export default function App() {
       a.click()
       window.URL.revokeObjectURL(url)
       
-      showAchievement('📄 PDF Exported!', 'Share this report with family or keep for your records')
+      showAchievement('PDF Exported Successfully', 'Your analysis report has been downloaded')
     } catch (err) {
       setError('Export failed')
     }
@@ -352,7 +356,17 @@ export default function App() {
                 </li>
               </ul>
             </div>
-            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+            <button 
+              onClick={async () => {
+                try {
+                  const { createCheckoutSession } = await import('./lib/stripe')
+                  await createCheckoutSession('price_pro_monthly', user.email)
+                } catch (err) {
+                  alert('Payment system initialization in progress. Please contact support@paipersum.com')
+                }
+              }}
+              className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition"
+            >
               Upgrade to Pro →
             </button>
             <button
@@ -439,13 +453,18 @@ export default function App() {
           </nav>
 
           {/* Hero section */}
-          <Hero onAnalyze={handleAnalyzeText} />
+          <Hero onGetStarted={() => setShowAnalyzer(true)} />
 
           {/* Recent analyses */}
           {savedAnalyses.length > 0 && (
             <div className="bg-paper-50 py-12">
               <div className="max-w-7xl mx-auto px-4">
-                <h2 className="text-2xl font-bold text-ink-900 mb-6">📚 Your Recent Analyses</h2>
+                <h2 className="text-2xl font-bold text-ink-900 mb-6 flex items-center gap-3">
+                  <svg className="w-7 h-7 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  Your Recent Analyses
+                </h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {savedAnalyses.slice(0, 6).map((saved) => (
                     <button
@@ -559,6 +578,26 @@ export default function App() {
           </footer>
         </div>
       </>
+    )
+  }
+
+  // Show account page
+  if (showAccount && user) {
+    return (
+      <AccountPage
+        user={user}
+        onUpdate={(updatedUser) => {
+          setUser(updatedUser)
+          localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
+        }}
+        onCancel={() => setShowAccount(false)}
+        onUpgrade={() => {
+          setShowAccount(false)
+          setShowAuth(true)
+        }}
+        totalSavings={totalSavings}
+        documentsAnalyzed={documentsAnalyzed}
+      />
     )
   }
 
@@ -693,7 +732,7 @@ export default function App() {
 
               {/* Recent analyses sidebar */}
               {savedAnalyses.length > 0 && (
-                <Card title="📚 Recent">
+                <Card title="Recent Documents">
                   <div className="space-y-2">
                     {savedAnalyses.slice(0, 5).map((saved) => (
                       <button

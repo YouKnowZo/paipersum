@@ -355,6 +355,108 @@ export default function AccountPage({
                 </p>
               </div>
             </Card>
+
+            {/* Data Privacy & Account Management */}
+            <Card title="🔒 Privacy & Data">
+              <div className="space-y-4">
+                <p className="text-sm text-ink-600 mb-4">
+                  You have full control over your data. Export your information or delete your account at any time.
+                </p>
+                
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      const userData = {
+                        profile: user,
+                        analyses: JSON.parse(localStorage.getItem('saved_analyses') || '[]'),
+                        statistics: {
+                          totalDocuments: documentsAnalyzed,
+                          totalSavings: totalSavings
+                        },
+                        exportDate: new Date().toISOString()
+                      }
+                      const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `paipersum-data-export-${Date.now()}.json`
+                      a.click()
+                      URL.revokeObjectURL(url)
+                    }}
+                    className="w-full px-4 py-3 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download My Data
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to delete all your data? This action cannot be undone.')) {
+                        localStorage.removeItem('saved_analyses')
+                        localStorage.removeItem('docs_analyzed')
+                        localStorage.removeItem('total_savings')
+                        alert('Your analysis history and statistics have been deleted.')
+                      }
+                    }}
+                    className="w-full px-4 py-3 border-2 border-orange-500 text-orange-500 rounded-lg font-semibold hover:bg-orange-50 transition flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete My Data
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to permanently delete your account? All data will be lost and this action cannot be undone.')) {
+                        if (window.confirm('This is your final warning. Delete account permanently?')) {
+                          localStorage.clear()
+                          window.location.href = '/'
+                        }
+                      }
+                    }}
+                    className="w-full px-4 py-3 border-2 border-red-500 text-red-500 rounded-lg font-semibold hover:bg-red-50 transition flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Delete Account Permanently
+                  </button>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-border-200">
+                  <h4 className="font-semibold text-ink-900 mb-2">Your Rights</h4>
+                  <ul className="space-y-2 text-sm text-ink-600">
+                    <li className="flex items-start gap-2">
+                      <svg className="w-4 h-4 text-brand-blue mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Right to access your data at any time</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <svg className="w-4 h-4 text-brand-blue mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Right to export your data in portable format</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <svg className="w-4 h-4 text-brand-blue mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>Right to delete your data permanently</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <svg className="w-4 h-4 text-brand-blue mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span>We never sell your personal information</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       </div>

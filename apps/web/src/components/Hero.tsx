@@ -1,4 +1,8 @@
-export default function Hero() {
+interface HeroProps {
+  onGetStarted?: () => void
+}
+
+export default function Hero({ onGetStarted }: HeroProps) {
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-brand-blue to-blue-900">
       {/* Animated background */}
@@ -21,12 +25,18 @@ export default function Hero() {
           </p>
 
           <div className="flex gap-4 justify-center">
-            <button className="px-8 py-4 bg-white text-brand-blue rounded-lg font-semibold text-lg hover:bg-gray-100 transition shadow-lg">
+            <button 
+              onClick={onGetStarted}
+              className="px-8 py-4 bg-white text-brand-blue rounded-lg font-semibold text-lg hover:bg-gray-100 transition shadow-lg"
+            >
               Get Started
             </button>
-            <button className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold text-lg hover:bg-white/10 transition">
+            <a 
+              href="#examples" 
+              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold text-lg hover:bg-white/10 transition inline-block"
+            >
               View Demo
-            </button>
+            </a>
           </div>
 
           <div className="mt-12 flex justify-center items-center gap-8 text-sm text-blue-200">

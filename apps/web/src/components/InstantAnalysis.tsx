@@ -6,26 +6,26 @@ import type { AnalysisT } from '../lib/schemas'
 const QUICK_EXAMPLES = [
   {
     title: 'Gym Membership',
-    emoji: '💪',
-    preview: 'See hidden fees and cancellation tricks',
+    icon: 'fitness',
+    preview: 'Analyze membership terms and obligations',
     text: 'You agree to a 12-month commitment. Cancellation requires 30 days written notice and a $50 fee. The membership automatically renews. We reserve the right to change pricing with 30 days notice.'
   },
   {
     title: 'Phone Contract',
-    emoji: '📱',
-    preview: 'Find early termination fees',
+    icon: 'phone',
+    preview: 'Review service agreements',
     text: 'This 24-month service agreement includes an early termination fee of $350. You waive your right to participate in class action lawsuits. All disputes must be resolved through binding arbitration.'
   },
   {
     title: 'Apartment Lease',
-    emoji: '🏠',
-    preview: 'Spot unfair clauses',
+    icon: 'home',
+    preview: 'Examine lease clauses',
     text: 'Tenant agrees to indemnify and hold harmless the Landlord from all claims. Landlord may enter premises with 24 hours notice. Security deposit is non-refundable for cleaning fees.'
   },
   {
     title: 'Software ToS',
-    emoji: '💻',
-    preview: 'See what data they collect',
+    icon: 'document',
+    preview: 'Evaluate data and privacy terms',
     text: 'We collect and share your data with third parties for advertising. You grant us a perpetual license to your content. We disclaim all warranties and limit liability to $100.'
   }
 ]
@@ -49,14 +49,14 @@ export default function InstantAnalysis() {
   }
 
   return (
-    <div className="bg-gradient-to-b from-paper-50 to-white py-16">
+    <div id="examples" className="bg-gradient-to-b from-paper-50 to-white py-16">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-            Try it Right Now
+            See It In Action
           </h2>
           <p className="text-lg text-ink-600 max-w-2xl mx-auto">
-            Click any example below for instant analysis. No signup, no waiting.
+            Click any example below to see instant professional analysis.
           </p>
         </div>
 
@@ -69,7 +69,28 @@ export default function InstantAnalysis() {
               disabled={analyzing === example.title}
               className="group relative p-6 bg-white border-2 border-border-200 rounded-xl hover:border-brand-blue hover:shadow-lg transition-all text-left disabled:opacity-50"
             >
-              <div className="text-4xl mb-3">{example.emoji}</div>
+              <div className="mb-3">
+                {example.icon === 'fitness' && (
+                  <svg className="w-12 h-12 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                {example.icon === 'phone' && (
+                  <svg className="w-12 h-12 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                )}
+                {example.icon === 'home' && (
+                  <svg className="w-12 h-12 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                )}
+                {example.icon === 'document' && (
+                  <svg className="w-12 h-12 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                )}
+              </div>
               <div className="font-bold text-ink-900 mb-2">{example.title}</div>
               <div className="text-sm text-ink-600 mb-4">{example.preview}</div>
               
