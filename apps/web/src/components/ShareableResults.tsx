@@ -4,7 +4,7 @@ import type { EnhancedAnalysisT } from '../lib/schemas'
 export default function ShareableResults({ analysis }: { analysis: EnhancedAnalysisT }) {
   const [copied, setCopied] = useState(false)
 
-  const shareText = `I just analyzed my contract with PaiperSum 🔍
+const shareText = `I just analyzed my contract with PaiperSum 🔍
 
 Risk Score: ${analysis.risk_score}/100
 Found: ${analysis.clauses.length} clauses
@@ -13,7 +13,7 @@ Potential savings: $${analysis.recommendation.cost_impact}
 
 Everyone should check their contracts before signing!
 
-Try it free: paipersum.com`
+Try it: paipersum.com`
 
   const copyShareText = async () => {
     try {

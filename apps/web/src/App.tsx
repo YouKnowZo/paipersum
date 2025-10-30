@@ -11,6 +11,7 @@ import EnhancedSummaryPage from './pages/EnhancedSummaryPage'
 import AccountPage from './pages/AccountPage'
 import { Card } from './components/Cards'
 import { analyzeText, analyzeFile, exportPDF } from './lib/api'
+import { createCheckoutSession } from './lib/stripe'
 import type { EnhancedAnalysisT } from './lib/schemas'
 
 // Simple auth types (localStorage-based for MVP)
@@ -101,7 +102,7 @@ export default function App() {
     
     // Check limits
     if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro for unlimited analyses!' : 'Free limit reached. Sign up to continue!')
+      setError(user ? 'Monthly limit reached. Upgrade to Pro for more analyses.' : 'Limit reached. Create an account to continue.')
       setShowAuth(true)
       return
     }
@@ -177,7 +178,7 @@ export default function App() {
 
   const handleFileSelect = async (file: File) => {
     if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro!' : 'Free limit reached. Sign up to continue!')
+      setError(user ? 'Monthly limit reached. Upgrade to Pro.' : 'Limit reached. Create an account to continue.')
       setShowAuth(true)
       return
     }
@@ -267,10 +268,10 @@ export default function App() {
         <div className="text-center mb-6">
           <Logo size="lg" />
           <h2 className="text-2xl font-bold text-ink-900 mt-4 mb-2">
-            {user ? 'Upgrade to Pro' : 'Create Free Account'}
+            {user ? 'Upgrade to Pro' : 'Create Account'}
           </h2>
           <p className="text-ink-600">
-            {user ? 'Get unlimited document analyses' : 'Continue analyzing your documents'}
+            {user ? 'Get more with unlimited analyses' : 'Continue analyzing your documents'}
           </p>
         </div>
 
@@ -304,7 +305,7 @@ export default function App() {
             </div>
             <div className="pt-2">
               <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
-                Create Free Account →
+                Create Account →
               </button>
               <button
                 type="button"
@@ -352,7 +353,10 @@ export default function App() {
                 </li>
               </ul>
             </div>
-            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+            <button
+              onClick={() => user && createCheckoutSession('price_PLACEHOLDER', user.email)}
+              className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition"
+            >
               Upgrade to Pro →
             </button>
             <button
@@ -366,6 +370,54 @@ export default function App() {
       </div>
     </div>
   )
+
+  // Account view
+  if (showAccount && user) {
+    const handleUpdateUser = (updated: User) => {
+      setUser(updated)
+      localStorage.setItem('paipersum_user', JSON.stringify(updated))
+    }
+    const handleExportData = () => {
+      const payload = {
+        user,
+        documentsAnalyzed,
+        totalSavings,
+        savedAnalyses,
+      }
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `paipersum-data-${Date.now()}.json`
+      a.click()
+      window.URL.revokeObjectURL(url)
+    }
+    const handleDeleteAccount = () => {
+      localStorage.removeItem('paipersum_user')
+      localStorage.removeItem('saved_analyses')
+      // Keep docs/savings for anonymous usage, but reset monthly counter
+      if (user && !user.isPro) {
+        localStorage.setItem('docs_analyzed', '0')
+      }
+      setUser(null)
+      setShowAccount(false)
+    }
+
+    return (
+      <AccountPage
+        user={user}
+        onUpdate={handleUpdateUser}
+        onCancel={() => setShowAccount(false)}
+        onUpgrade={() => setShowAuth(true)}
+        totalSavings={totalSavings}
+        documentsAnalyzed={documentsAnalyzed}
+        // @ts-expect-error: extended props handled in component
+        onExportData={handleExportData}
+        // @ts-expect-error: extended props handled in component
+        onDeleteAccount={handleDeleteAccount}
+      />
+    )
+  }
 
   // Landing page
   if (!showAnalyzer) {
@@ -409,10 +461,16 @@ export default function App() {
                       </div>
                     </div>
                     <button
+                      onClick={() => setShowAccount(true)}
+                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
+                    >
+                      Account
+                    </button>
+                    <button
                       onClick={handleLogout}
                       className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
                     >
-                      Logout
+                      Sign out
                     </button>
                     {!user.isPro && (
                       <button
@@ -424,12 +482,20 @@ export default function App() {
                     )}
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setShowAuth(true)}
-                    className="px-4 py-2 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
-                  >
-                    Sign Up Free
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setShowAuth(true)}
+                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
+                    >
+                      Sign in
+                    </button>
+                    <button
+                      onClick={() => setShowAuth(true)}
+                      className="px-4 py-2 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
+                    >
+                      Sign up
+                    </button>
+                  </div>
                 )}
                 
                 <button
@@ -515,7 +581,7 @@ export default function App() {
                   onClick={() => setShowAnalyzer(true)}
                   className="px-8 py-4 bg-white text-brand-blue rounded-xl font-bold text-lg hover:bg-gray-50 transition shadow-lg hover:shadow-xl hover:scale-105"
                 >
-                  Analyze Your First Document Free →
+                  Start Your First Analysis →
                 </button>
               </div>
             </div>

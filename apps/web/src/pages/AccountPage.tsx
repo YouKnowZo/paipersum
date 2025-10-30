@@ -18,6 +18,8 @@ interface AccountPageProps {
   onUpgrade: () => void
   totalSavings: number
   documentsAnalyzed: number
+  onExportData?: () => void
+  onDeleteAccount?: () => void
 }
 
 export default function AccountPage({ 
@@ -26,7 +28,9 @@ export default function AccountPage({
   onCancel, 
   onUpgrade,
   totalSavings,
-  documentsAnalyzed
+  documentsAnalyzed,
+  onExportData,
+  onDeleteAccount
 }: AccountPageProps) {
   const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -98,11 +102,11 @@ export default function AccountPage({
                       Pro Member
                     </>
                   ) : (
-                    <>
+                    <> 
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      Free Tier
+                      Standard
                     </>
                   )}
                 </div>
@@ -287,7 +291,7 @@ export default function AccountPage({
                   <div>
                     <h4 className="font-semibold text-ink-900">Current Plan</h4>
                     <p className="text-sm text-ink-600 mt-1">
-                      {user.isPro ? 'Pro - Unlimited analyses' : 'Free - 30 analyses per month'}
+                      {user.isPro ? 'Pro - Unlimited analyses' : 'Standard - 30 analyses per month'}
                     </p>
                   </div>
                   <div className="text-right">
@@ -327,6 +331,30 @@ export default function AccountPage({
                     </button>
                   </div>
                 )}
+              </div>
+            </Card>
+
+            {/* Data & Privacy */}
+            <Card title="🛡️ Data & Privacy">
+              <div className="space-y-3">
+                <button
+                  onClick={onExportData}
+                  className="w-full px-4 py-3 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
+                >
+                  Download your data (JSON)
+                </button>
+                <a
+                  href={`mailto:support@paipersum.com?subject=Data%20Request&body=Please%20send%20or%20delete%20my%20data%20for%20account%20${encodeURIComponent(user.email)}.`}
+                  className="block text-center w-full px-4 py-3 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition"
+                >
+                  Request data via email
+                </a>
+                <button
+                  onClick={onDeleteAccount}
+                  className="w-full px-4 py-3 border-2 border-red-500 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition"
+                >
+                  Delete account
+                </button>
               </div>
             </Card>
 
