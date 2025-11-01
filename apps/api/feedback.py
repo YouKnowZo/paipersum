@@ -7,9 +7,10 @@ import threading
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
+import os
 from typing import List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -18,6 +19,7 @@ DATA_DIR.mkdir(exist_ok=True)
 FEEDBACK_PATH = DATA_DIR / "feedback.json"
 
 _lock = threading.Lock()
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY")
 
 
 class FeedbackIn(BaseModel):
@@ -91,7 +93,14 @@ def _persist_feedback(records: List[FeedbackRecord]) -> None:
 router = APIRouter(prefix="/feedback", tags=["Feedback"])
 
 
-@router.get("", response_model=list[FeedbackOut])
+def require_admin(admin_key: str | None = Header(default=None, alias="x-admin-key")) -> None:
+    if not ADMIN_API_KEY:
+        raise HTTPException(status_code=503, detail="Admin API key not configured")
+    if not admin_key or admin_key != ADMIN_API_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+@router.get("", response_model=list[FeedbackOut], dependencies=[Depends(require_admin)])
 def list_feedback() -> List[FeedbackOut]:
     records = _load_feedback()
     # newest first

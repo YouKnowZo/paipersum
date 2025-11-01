@@ -1,0 +1,19 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">PaiperSum Auth0 Logo</title>
+  <desc id="desc">Rounded star inside a shield to use as Auth0 application logo</desc>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="50%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.75)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="#0f172a" />
+  <path d="M128 34c-40 0-78 16-94 50-16 34-5 75 22 105l72 74 72-74c27-30 38-71 22-105-16-34-54-50-94-50z" fill="url(#grad)" />
+  <path d="M128 78l18 37 41 6-30 29 7 41-36-19-36 19 7-41-30-29 41-6 18-37z" fill="#fdfcff" />
+  <path d="M128 48c-31 0-61 13-74 41-13 27-4 60 18 84l56 57 56-57c22-24 31-57 18-84-13-28-43-41-74-41z" fill="url(#glow)" />
+</svg>
