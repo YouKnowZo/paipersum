@@ -87,6 +87,15 @@ export const PipelineDocument = z.object({
   created_at: z.string()
 })
 
+export const FeedbackItem = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().nullable().optional(),
+  rating: z.number().int().min(1).max(5),
+  message: z.string(),
+  created_at: z.string()
+})
+
 export type ClauseT = z.infer<typeof Clause>
 export type RecommendationT = z.infer<typeof Recommendation>
 export type BenchmarkT = z.infer<typeof Benchmark>
@@ -97,3 +106,4 @@ export type PipelineIngestResponseT = z.infer<typeof PipelineIngestResponse>
 export type PipelineSourceT = z.infer<typeof PipelineSource>
 export type PipelineSummaryResponseT = z.infer<typeof PipelineSummaryResponse>
 export type PipelineDocumentT = z.infer<typeof PipelineDocument>
+export type FeedbackItemT = z.infer<typeof FeedbackItem>

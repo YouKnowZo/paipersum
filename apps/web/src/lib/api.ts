@@ -7,7 +7,9 @@ import {
   PipelineIngestResponse,
   type PipelineIngestResponseT,
   PipelineSummaryResponse,
-  type PipelineSummaryResponseT
+  type PipelineSummaryResponseT,
+  FeedbackItem,
+  type FeedbackItemT
 } from './schemas'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -148,6 +150,45 @@ export async function pipelineReset(): Promise<void> {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(error.response?.data?.detail || error.message || 'Failed to reset pipeline')
+    }
+    throw error
+  }
+}
+
+export async function fetchFeedback(): Promise<FeedbackItemT[]> {
+  try {
+    const res = await axios.get(`${API_URL}/feedback`)
+    const parsed = FeedbackItem.array().safeParse(res.data)
+    if (!parsed.success) {
+      throw new Error('Invalid feedback response')
+    }
+    return parsed.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || error.message || 'Unable to load feedback')
+    }
+    throw error
+  }
+}
+
+interface SubmitFeedbackPayload {
+  name: string
+  email?: string
+  rating: number
+  message: string
+}
+
+export async function submitFeedback(payload: SubmitFeedbackPayload): Promise<FeedbackItemT> {
+  try {
+    const res = await axios.post(`${API_URL}/feedback`, payload)
+    const parsed = FeedbackItem.safeParse(res.data)
+    if (!parsed.success) {
+      throw new Error('Invalid feedback submission response')
+    }
+    return parsed.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || error.message || 'Unable to submit feedback')
     }
     throw error
   }

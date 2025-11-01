@@ -8,6 +8,7 @@ import FloatingChatbot from './components/FloatingChatbot'
 import Consent from './components/Consent'
 import Upload from './components/Upload'
 import UniversalSummarizer from './components/UniversalSummarizer'
+import CommentSection from './components/CommentSection'
 import EnhancedSummaryPage from './pages/EnhancedSummaryPage'
 import AccountPage from './pages/AccountPage'
 import { Card } from './components/Cards'
@@ -514,6 +515,9 @@ export default function App() {
 
           {/* Testimonials */}
           <Testimonials />
+
+          {/* Community feedback */}
+          <CommentSection />
 
           {/* CTA section */}
           <div className="bg-gradient-to-br from-brand-blue to-blue-900 py-16">

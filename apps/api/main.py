@@ -14,6 +14,7 @@ from security import security_headers, rate_limit
 from ingest import pdf_text
 from report import build_report
 from pipeline.router import router as pipeline_router
+from feedback import router as feedback_router
 
 # Import decision engine
 from decision_engine import (
@@ -56,6 +57,7 @@ app.middleware('http')(security_headers)
 
 # Modular ingest → summarize pipeline
 app.include_router(pipeline_router)
+app.include_router(feedback_router)
 
 # Enhanced models
 class AnalyzeIn(BaseModel):
