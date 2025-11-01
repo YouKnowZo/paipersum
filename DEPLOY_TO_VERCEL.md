@@ -13,13 +13,23 @@
 3. Vercel will auto-detect it's a monorepo
 
 ### Step 3: Configure Build Settings
-```
-Framework Preset: Vite
-Root Directory: apps/web
-Build Command: npm run build
-Output Directory: dist
-Install Command: npm install --legacy-peer-deps
-```
+
+**IMPORTANT**: The `vercel.json` file in the repo root automatically configures these settings. However, you MUST ensure:
+
+1. **Root Directory**: Leave EMPTY (do NOT set to "frontend" or "apps/web")
+   - The vercel.json file handles the build paths automatically
+   - Setting a root directory will override vercel.json and cause errors
+
+2. Vercel will auto-detect these from vercel.json:
+   - Framework Preset: Vite
+   - Build Command: `cd apps/web && npm install && npm run build`
+   - Output Directory: `apps/web/dist`
+   - Install Command: `npm install --prefix apps/web`
+
+**If you see an error about "Root Directory 'frontend' does not exist"**, go to:
+- Project Settings → General → Root Directory
+- Clear the field (set to empty)
+- Save and redeploy
 
 ### Step 4: Deploy
 1. Click "Deploy"

@@ -62,11 +62,18 @@ git push -u origin main --force  # ⚠️ This OVERWRITES remote
 
 ### 2B: Configure Project
 
-**Framework Preset:** Vite  
-**Root Directory:** `apps/web`  
-**Build Command:** `npm run build`  
-**Output Directory:** `dist`  
-**Install Command:** `npm install`
+**IMPORTANT**: The `vercel.json` file automatically configures most settings. However:
+
+**Framework Preset:** Vite (auto-detected)  
+**Root Directory:** Leave EMPTY (⚠️ Do NOT set to "frontend" or "apps/web" - vercel.json handles paths automatically)  
+**Build Command:** Auto-detected from vercel.json  
+**Output Directory:** Auto-detected from vercel.json  
+**Install Command:** Auto-detected from vercel.json
+
+**If you see an error about "Root Directory 'frontend' does not exist"**:
+1. Go to Project Settings → General → Root Directory
+2. Clear the field (set to empty)
+3. Save and redeploy
 
 **Environment Variables:**
 ```
