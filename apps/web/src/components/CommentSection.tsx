@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import { fetchFeedback, submitFeedback } from '../lib/api'
-import type { FeedbackItemT } from '../lib/schemas'
+import { useState } from 'react'
+import { submitFeedback } from '../lib/api'
 
 interface FormState {
   name: string
@@ -17,25 +16,10 @@ const INITIAL_FORM: FormState = {
 }
 
 export default function CommentSection() {
-  const [feedback, setFeedback] = useState<FeedbackItemT[]>([])
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-
-  useEffect(() => {
-    void loadFeedback()
-  }, [])
-
-  const loadFeedback = async () => {
-    try {
-      const items = await fetchFeedback()
-      setFeedback(items)
-    } catch (err) {
-      console.error(err)
-      setError(err instanceof Error ? err.message : 'Unable to load comments')
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -58,7 +42,6 @@ export default function CommentSection() {
 
       setSuccess('Thanks for sharing your thoughts!')
       setForm(INITIAL_FORM)
-      await loadFeedback()
     } catch (err) {
       console.error(err)
       setError(err instanceof Error ? err.message : 'Submission failed. Please try again later.')
@@ -166,30 +149,10 @@ export default function CommentSection() {
               </div>
             </form>
 
-            <div className="mt-12">
-              <h3 className="text-xl font-semibold text-ink-900 mb-4">Recent community notes</h3>
-              {feedback.length === 0 ? (
-                <p className="text-sm text-ink-500">No comments yet. Be the first to share your experience!</p>
-              ) : (
-                <ul className="space-y-4">
-                  {feedback.map((item) => (
-                    <li key={item.id} className="p-5 bg-white border border-border-200 rounded-xl shadow-sm">
-                      <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <div>
-                          <p className="text-sm font-semibold text-ink-800">{item.name}</p>
-                          <p className="text-xs text-ink-500">
-                            {new Date(item.created_at).toLocaleString()} · Rated {item.rating}/5
-                          </p>
-                        </div>
-                        {item.email && (
-                          <span className="text-xs text-ink-400 truncate max-w-[200px]">{item.email}</span>
-                        )}
-                      </div>
-                      <p className="mt-3 text-sm leading-relaxed text-ink-700 whitespace-pre-line">{item.message}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
+            <div className="mt-10 p-4 bg-paper-50 border border-border-200 rounded-xl text-sm text-ink-600">
+              <p>
+                Our team reviews every message internally and may reach out if you include an email. We keep your thoughts private unless you explicitly allow us to share.
+              </p>
             </div>
           </div>
         </div>
