@@ -26,6 +26,9 @@ from decision_engine import (
 # Import Stripe routes
 from stripe_routes import create_checkout_session, handle_webhook, CheckoutSessionRequest
 
+# Import new summarization routes
+from routes.summarize import router as summarize_router
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("🚀 PaiperSum Enhanced API starting...")
@@ -327,6 +330,9 @@ def get_document_types():
             {"id": "general", "name": "General Contract", "emoji": "📄"}
         ]
     }
+
+# Include new summarization routes
+app.include_router(summarize_router, prefix="/api", tags=["summarization"])
 
 # Stripe Payment Endpoints
 @app.post('/create-checkout-session')

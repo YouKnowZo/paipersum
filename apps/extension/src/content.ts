@@ -141,7 +141,7 @@
           </div>
           <div>
             <div style="font-weight: bold; font-size: 18px;">PaiperSum</div>
-            <div style="font-size: 12px; opacity: 0.9;">Contract Protection</div>
+            <div style="font-size: 12px; opacity: 0.9;">Document Summarization</div>
           </div>
         </div>
         <button id="ps-close" style="
@@ -173,10 +173,10 @@
         <div style="text-align: center; padding: 40px 20px;">
           <div style="font-size: 48px; margin-bottom: 16px;">👋</div>
           <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: #333;">
-            I'm watching for Terms of Service
+            I'm watching for Terms of Service & Documents
           </div>
           <div style="font-size: 14px; color: #666; line-height: 1.6;">
-            When you see a "Terms of Service" or "Privacy Policy" popup, I'll automatically analyze it and tell you what you're agreeing to.
+            When you see a "Terms of Service" or "Privacy Policy" popup, I'll automatically analyze it and tell you what you're agreeing to. I can also summarize any document you upload!
           </div>
           <div style="margin-top: 20px; padding: 12px; background: #f0f7ff; border-radius: 8px; font-size: 13px; color: #0066cc;">
             💡 I'm always watching, but you won't see me unless there's something important.
@@ -285,7 +285,7 @@
     return fullText.slice(0, 50000)
   }
 
-  // Analyze ToS text
+  // Analyze ToS text (uses new universal summarization API)
   async function analyzeToS(text: string, elementId: string) {
     if (analyzedPopups.has(elementId)) return
     analyzedPopups.add(elementId)
@@ -318,19 +318,39 @@
     badge.textContent = '!'
 
     try {
-      const response = await fetch(`${API_URL}/analyze`, {
+      // Use new universal summarization API with legal mode
+      const formData = new FormData()
+      const blob = new Blob([text], { type: 'text/plain' })
+      formData.append('file', blob, 'tos.txt')
+      formData.append('mode', 'legal')
+      formData.append('style', 'tos-simplified')
+
+      const response = await fetch(`${API_URL}/api/summarize-file`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, doc_type: 'software_tos' })
+        body: formData
       })
 
-      if (!response.ok) throw new Error('Analysis failed')
+      if (!response.ok) {
+        // Fallback to old API if new one fails
+        const fallbackResponse = await fetch(`${API_URL}/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, doc_type: 'software_tos' })
+        })
+        
+        if (!fallbackResponse.ok) throw new Error('Analysis failed')
+        
+        const data = await fallbackResponse.json()
+        displayAnalysis(data)
+        badge.textContent = data.clauses.filter((c: any) => c.risk === 'red' || c.risk === 'yellow').length.toString()
+        return
+      }
 
-      const data = await response.json()
-      displayAnalysis(data)
+      const summaryData = await response.json()
+      displayUniversalSummary(summaryData)
       
       // Update badge
-      badge.textContent = data.clauses.filter((c: any) => c.risk === 'red' || c.risk === 'yellow').length.toString()
+      badge.textContent = '!'
       
     } catch (error) {
       content.innerHTML = `
@@ -354,6 +374,72 @@
         </div>
       `
     }
+  }
+
+  // Display universal summary (new format)
+  function displayUniversalSummary(data: any) {
+    const { summary, mode, style, sources_count } = data
+    
+    content.innerHTML = `
+      <div style="margin-bottom: 20px;">
+        <!-- Summary Header -->
+        <div style="
+          padding: 20px;
+          background: linear-gradient(135deg, #667eea15, #764ba208);
+          border-radius: 12px;
+          border: 2px solid #667eea40;
+          margin-bottom: 16px;
+        ">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <div style="font-size: 14px; font-weight: 600; color: #333;">
+              📄 Summary
+            </div>
+            <div style="
+              font-size: 12px;
+              color: #666;
+              padding: 4px 8px;
+              background: white;
+              border-radius: 4px;
+            ">${mode} • ${style}</div>
+          </div>
+          <div style="
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-wrap;
+          ">${summary}</div>
+        </div>
+
+        <!-- Source Info -->
+        <div style="
+          padding: 12px;
+          background: #f5f5f5;
+          border-radius: 8px;
+          font-size: 12px;
+          color: #666;
+          margin-bottom: 16px;
+        ">
+          Analyzed ${sources_count} sections from the document
+        </div>
+
+        <!-- Full Analysis Button -->
+        <a href="https://paipersum.com?ref=extension&mode=${mode}" target="_blank" style="
+          display: block;
+          margin-top: 16px;
+          padding: 14px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          text-align: center;
+          border-radius: 8px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 14px;
+          transition: transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+          Get Full Analysis & Export →
+        </a>
+      </div>
+    `
   }
 
   // Display analysis results
