@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 import Logo from './components/Logo'
 import Hero from './components/Hero'
 import InstantAnalysis from './components/InstantAnalysis'
@@ -34,6 +35,8 @@ interface SavedAnalysis {
 }
 
 export default function App() {
+  const { isAuthenticated, loginWithRedirect, logout, user: authUser, isLoading } = useAuth0()
+
   const [user, setUser] = useState<User | null>(null)
   const [showAuth, setShowAuth] = useState(false)
   const [showAccount, setShowAccount] = useState(false)
@@ -48,55 +51,65 @@ export default function App() {
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([])
   const [totalSavings, setTotalSavings] = useState(0)
 
-  // Load user and saved data on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('paipersum_user')
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser))
-      } catch (e) {
-        console.error('Failed to load user', e)
-      }
-    }
-    
     const count = parseInt(localStorage.getItem('docs_analyzed') || '0')
     setDocumentsAnalyzed(count)
-    
+
     const savings = parseInt(localStorage.getItem('total_savings') || '0')
     setTotalSavings(savings)
-    
+
     const saved = JSON.parse(localStorage.getItem('saved_analyses') || '[]')
     setSavedAnalyses(saved)
   }, [])
 
+  const profileStorageKey = useMemo(() => {
+    if (isAuthenticated && authUser?.sub) {
+      return `paipersum_profile_${authUser.sub}`
+    }
+    return null
+  }, [isAuthenticated, authUser?.sub])
+
+  useEffect(() => {
+    if (isAuthenticated && authUser) {
+      let profile: User | null = null
+      if (profileStorageKey) {
+        const stored = localStorage.getItem(profileStorageKey)
+        if (stored) {
+          try {
+            profile = JSON.parse(stored)
+          } catch (e) {
+            console.error('Failed to parse stored profile', e)
+          }
+        }
+      }
+
+      if (!profile) {
+        profile = {
+          email: authUser.email || '',
+          name: authUser.name || authUser.nickname || 'Member',
+          isPro: Boolean(authUser['https://paipersum.com/is_pro']),
+          docsThisMonth: 0,
+        }
+      }
+
+      setUser(profile)
+      if (profileStorageKey) {
+        localStorage.setItem(profileStorageKey, JSON.stringify(profile))
+      }
+    } else {
+      setUser(null)
+    }
+  }, [isAuthenticated, authUser, profileStorageKey])
+
   // Check free tier limit
   const canAnalyze = (): boolean => {
-    if (!user) {
-      // Not logged in - allow 5 free analyses
+    if (!isAuthenticated || !user) {
       return documentsAnalyzed < 5
     }
     if (user.isPro) {
-      return true // Unlimited
+      return true
     }
-    // Free tier - 30/month
     return user.docsThisMonth < 30
-  }
-
-  const handleLogin = (email: string, name: string) => {
-    const newUser: User = {
-      email,
-      name,
-      isPro: false,
-      docsThisMonth: 0
-    }
-    setUser(newUser)
-    localStorage.setItem('paipersum_user', JSON.stringify(newUser))
-    setShowAuth(false)
-  }
-
-  const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem('paipersum_user')
   }
 
   const handleAnalyzeText = async (textToAnalyze: string = text, name: string = documentName) => {
@@ -126,7 +139,9 @@ export default function App() {
       if (user) {
         const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
         setUser(updatedUser)
-        localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
+        if (profileStorageKey) {
+          localStorage.setItem(profileStorageKey, JSON.stringify(updatedUser))
+        }
       }
       
       // Track savings
@@ -201,7 +216,9 @@ export default function App() {
       if (user) {
         const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
         setUser(updatedUser)
-        localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
+        if (profileStorageKey) {
+          localStorage.setItem(profileStorageKey, JSON.stringify(updatedUser))
+        }
       }
       
       const newSavings = totalSavings + (result.recommendation.cost_impact || 0)
@@ -277,50 +294,28 @@ export default function App() {
           </p>
         </div>
 
-        {!user ? (
-          <form onSubmit={(e) => {
-            e.preventDefault()
-            const formData = new FormData(e.currentTarget)
-            const email = formData.get('email') as string
-            const name = formData.get('name') as string
-            if (email && name) handleLogin(email, name)
-          }} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-ink-700 mb-2">Name</label>
-              <input
-                type="text"
-                name="name"
-                required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                placeholder="Your name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-ink-700 mb-2">Email</label>
-              <input
-                type="email"
-                name="email"
-                required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div className="pt-2">
-              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
-                Continue →
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAuth(false)}
-                className="w-full mt-3 px-6 py-3 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition"
-              >
-                Cancel
-              </button>
-            </div>
-            <p className="text-xs text-center text-ink-500 mt-4">
-              By signing up, you agree to our Terms & Privacy Policy
+        {!isAuthenticated ? (
+          <div className="space-y-5">
+            <p className="text-sm text-ink-600 leading-relaxed">
+              Use your Auth0 account to access saved documents, personalized recommendations, and Pro upgrades. We never store passwords—authentication is handled securely by Auth0.
             </p>
-          </form>
+            <button
+              onClick={() => loginWithRedirect()}
+              className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition"
+            >
+              Continue with Auth0 →
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAuth(false)}
+              className="w-full px-6 py-3 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition"
+            >
+              Cancel
+            </button>
+            <p className="text-xs text-center text-ink-500">
+              By signing in you agree to our Terms of Service and Privacy Policy.
+            </p>
+          </div>
         ) : (
           <div className="space-y-4">
             <div className="p-4 bg-gradient-to-br from-brand-blue/10 to-green-50 rounded-lg border-2 border-brand-blue/20">
@@ -370,6 +365,17 @@ export default function App() {
     </div>
   )
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-paper-50">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-sm text-ink-500">Securing your session…</p>
+        </div>
+      </div>
+    )
+  }
+
   if (showUniversal) {
     return <UniversalSummarizer onClose={() => setShowUniversal(false)} />
   }
@@ -407,7 +413,7 @@ export default function App() {
                   </div>
                 )}
                 
-                {user ? (
+                {isAuthenticated && user ? (
                   <div className="flex items-center gap-3">
                     <div className="text-right hidden sm:block">
                       <div className="text-sm font-semibold text-ink-900">{user.name}</div>
@@ -422,7 +428,7 @@ export default function App() {
                       Account
                     </button>
                     <button
-                      onClick={handleLogout}
+                      onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
                       className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
                     >
                       Sign out
@@ -438,7 +444,10 @@ export default function App() {
                   </div>
                 ) : (
                   <button
-                    onClick={() => setShowAuth(true)}
+                    onClick={() => {
+                      setShowAuth(false)
+                      loginWithRedirect()
+                    }}
                     className="px-4 py-2 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
                   >
                     Sign in / Create account
@@ -601,13 +610,15 @@ export default function App() {
   }
 
   // Render Account page when selected
-  if (showAccount && user) {
+  if (showAccount && user && isAuthenticated) {
     return (
       <AccountPage
         user={user}
         onUpdate={(updated) => {
           setUser(updated)
-          localStorage.setItem('paipersum_user', JSON.stringify(updated))
+          if (profileStorageKey) {
+            localStorage.setItem(profileStorageKey, JSON.stringify(updated))
+          }
         }}
         onCancel={() => setShowAccount(false)}
         onUpgrade={() => setShowAuth(true)}
@@ -642,7 +653,7 @@ export default function App() {
 
             {/* Stats */}
             <div className="flex items-center gap-3">
-              {user && !user.isPro && (
+              {isAuthenticated && user && !user.isPro && (
                 <div className="text-right">
                   <div className="text-xs text-ink-500">Remaining</div>
                   <div className="text-sm font-bold text-brand-blue">{getRemainingAnalyses()}/30</div>
@@ -665,7 +676,7 @@ export default function App() {
                 )}
               </div>
               
-              {user && !user.isPro && (
+              {isAuthenticated && user && !user.isPro && (
                 <button
                   onClick={() => setShowAuth(true)}
                   className="px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-ink-900 rounded-lg font-semibold text-sm hover:shadow-lg transition"

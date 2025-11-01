@@ -13,6 +13,8 @@ from typing import List
 from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, EmailStr, Field
 
+from supabase_client import get_supabase_client
+
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -49,13 +51,19 @@ class FeedbackRecord:
 
 
 def _load_feedback() -> List[FeedbackRecord]:
-    if not FEEDBACK_PATH.exists():
-        return []
-
-    try:
-        data = json.loads(FEEDBACK_PATH.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=500, detail="Feedback store is corrupted")
+    client = get_supabase_client()
+    if client:
+        response = client.table("feedback").select("*").order("created_at", desc=True).execute()
+        if response.error:
+            raise HTTPException(status_code=500, detail=str(response.error))
+        data = response.data or []
+    else:
+        if not FEEDBACK_PATH.exists():
+            return []
+        try:
+            data = json.loads(FEEDBACK_PATH.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=500, detail="Feedback store is corrupted")
 
     records: List[FeedbackRecord] = []
     for item in data:
@@ -75,19 +83,31 @@ def _load_feedback() -> List[FeedbackRecord]:
     return records
 
 
-def _persist_feedback(records: List[FeedbackRecord]) -> None:
-    serialized = [
-        {
-            "id": record.id,
-            "name": record.name,
-            "email": record.email,
-            "rating": record.rating,
-            "message": record.message,
-            "created_at": record.created_at.isoformat(),
-        }
-        for record in records
-    ]
-    FEEDBACK_PATH.write_text(json.dumps(serialized, ensure_ascii=False, indent=2), encoding="utf-8")
+def _persist_feedback(record: FeedbackRecord) -> None:
+    payload = {
+        "id": record.id,
+        "name": record.name,
+        "email": record.email,
+        "rating": record.rating,
+        "message": record.message,
+        "created_at": record.created_at.isoformat(),
+    }
+
+    client = get_supabase_client()
+    if client:
+        response = client.table("feedback").insert(payload).execute()
+        if response.error:
+            raise HTTPException(status_code=500, detail=str(response.error))
+        return
+
+    existing = []
+    if FEEDBACK_PATH.exists():
+        try:
+            existing = json.loads(FEEDBACK_PATH.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=500, detail="Feedback store is corrupted")
+    existing.append(payload)
+    FEEDBACK_PATH.write_text(json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 router = APIRouter(prefix="/feedback", tags=["Feedback"])
@@ -121,8 +141,6 @@ def submit_feedback(payload: FeedbackIn) -> FeedbackOut:
     )
 
     with _lock:
-        records = _load_feedback()
-        records.append(new_record)
-        _persist_feedback(records)
+        _persist_feedback(new_record)
 
     return FeedbackOut(**asdict(new_record))
