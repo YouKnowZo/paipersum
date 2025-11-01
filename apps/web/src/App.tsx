@@ -7,6 +7,7 @@ import Testimonials from './components/Testimonials'
 import FloatingChatbot from './components/FloatingChatbot'
 import Consent from './components/Consent'
 import Upload from './components/Upload'
+import UniversalSummarizer from './components/UniversalSummarizer'
 import EnhancedSummaryPage from './pages/EnhancedSummaryPage'
 import AccountPage from './pages/AccountPage'
 import { Card } from './components/Cards'
@@ -39,6 +40,7 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showAnalyzer, setShowAnalyzer] = useState(false)
+  const [showUniversal, setShowUniversal] = useState(false)
   const [text, setText] = useState('')
   const [documentName, setDocumentName] = useState('')
   const [documentsAnalyzed, setDocumentsAnalyzed] = useState(0)
@@ -367,6 +369,10 @@ export default function App() {
     </div>
   )
 
+  if (showUniversal) {
+    return <UniversalSummarizer onClose={() => setShowUniversal(false)} />
+  }
+
   // Landing page
   if (!showAnalyzer) {
     return (
@@ -447,6 +453,15 @@ export default function App() {
                   </svg>
                   Analyze Document
                 </button>
+                <button
+                  onClick={() => {
+                    setShowAnalyzer(false)
+                    setShowUniversal(true)
+                  }}
+                  className="px-6 py-2.5 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
+                >
+                  Summarize Anything
+                </button>
               </div>
             </div>
           </nav>
@@ -522,6 +537,12 @@ export default function App() {
                   className="px-8 py-4 bg-white text-brand-blue rounded-xl font-bold text-lg hover:bg-gray-50 transition shadow-lg hover:shadow-xl hover:scale-105"
                 >
                   Analyze a Document →
+                </button>
+                <button
+                  onClick={() => setShowUniversal(true)}
+                  className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition"
+                >
+                  Summarize Anything →
                 </button>
               </div>
             </div>
@@ -648,6 +669,16 @@ export default function App() {
                   Upgrade
                 </button>
               )}
+
+              <button
+                onClick={() => {
+                  setShowAnalyzer(false)
+                  setShowUniversal(true)
+                }}
+                className="px-3 py-1.5 border border-brand-blue text-brand-blue rounded-lg text-sm font-semibold hover:bg-brand-blue hover:text-white transition"
+              >
+                Summarize Anything
+              </button>
             </div>
           </div>
         </nav>

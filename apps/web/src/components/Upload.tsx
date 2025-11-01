@@ -3,9 +3,10 @@ import { useState, useCallback } from 'react'
 interface UploadProps {
   onFileSelect: (file: File) => void
   loading?: boolean
+  accept?: string
 }
 
-export default function Upload({ onFileSelect, loading = false }: UploadProps) {
+export default function Upload({ onFileSelect, loading = false, accept = '.pdf,.doc,.docx,.txt' }: UploadProps) {
   const [dragActive, setDragActive] = useState(false)
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -56,7 +57,7 @@ export default function Upload({ onFileSelect, loading = false }: UploadProps) {
         id="file-upload"
         className="hidden"
         onChange={handleChange}
-        accept=".pdf,.doc,.docx,.txt"
+        accept={accept}
         disabled={loading}
       />
       

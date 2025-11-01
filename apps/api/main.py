@@ -13,6 +13,7 @@ from obs import install_handlers
 from security import security_headers, rate_limit
 from ingest import pdf_text
 from report import build_report
+from pipeline.router import router as pipeline_router
 
 # Import decision engine
 from decision_engine import (
@@ -52,6 +53,9 @@ app.add_middleware(
 install_handlers(app)
 app.middleware('http')(rate_limit)
 app.middleware('http')(security_headers)
+
+# Modular ingest → summarize pipeline
+app.include_router(pipeline_router)
 
 # Enhanced models
 class AnalyzeIn(BaseModel):

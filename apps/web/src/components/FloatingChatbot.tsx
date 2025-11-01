@@ -1,4 +1,15 @@
 import { useState } from 'react'
+import { pipelineSummarize } from '../lib/api'
+
+function formatSources(sources: { order: number; text: string }[]): string {
+  if (!sources.length) return ''
+  const snippets = sources.map((src) => {
+    const cleaned = src.text.replace(/\s+/g, ' ').trim()
+    const shortened = cleaned.length > 200 ? `${cleaned.slice(0, 200)}…` : cleaned
+    return `S${src.order}: ${shortened}`
+  })
+  return `\n\nSources:\n${snippets.join('\n')}`
+}
 
 const CANNED_RESPONSES: Record<string, string> = {
   'indemnification': 'Indemnification means YOU have to pay if something goes wrong - even if it\'s not your fault. It\'s one of the riskiest clauses.',
@@ -15,6 +26,7 @@ export default function FloatingChatbot() {
     { role: 'bot', text: '👋 Hi! I\'m here to explain legal jargon. Try asking about "indemnification" or "arbitration"!' }
   ])
   const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const quickQuestions = [
     'What is indemnification?',
@@ -23,14 +35,43 @@ export default function FloatingChatbot() {
     'Class action waiver?'
   ]
 
-  const handleSend = (text: string = input) => {
+  const handleSend = async (text: string = input) => {
     if (!text.trim()) return
 
     // Add user message
     setMessages(prev => [...prev, { role: 'user', text }])
     setInput('')
 
-    // Simple keyword matching for demo
+    setLoading(true)
+
+    try {
+      // Try the modular pipeline in legal mode for contextual answers
+      const legalResponse = await pipelineSummarize({
+        query: text,
+        mode: 'legal',
+        style: 'bulleted',
+        instructions: 'Explain Terms of Service or privacy language in simple wording. Keep it friendly and note risks.'
+      })
+
+      const normalized = legalResponse.summary?.trim()
+
+      if (normalized && !normalized.toLowerCase().includes('no documents have been ingested')) {
+        const sources = formatSources(legalResponse.sources)
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'bot',
+            text: `${normalized}${sources}`,
+          },
+        ])
+        setLoading(false)
+        return
+      }
+    } catch (err) {
+      console.error('Floating widget summarize failed', err)
+    }
+
+    // Fallback to keyword-based response
     const lowercaseText = text.toLowerCase()
     let response = 'I can explain: indemnification, arbitration, auto-renewal, class action waivers, liability limits, and warranties. What would you like to know about?'
 
@@ -41,10 +82,8 @@ export default function FloatingChatbot() {
       }
     }
 
-    // Add bot response with delay
-    setTimeout(() => {
-      setMessages(prev => [...prev, { role: 'bot', text: response }])
-    }, 500)
+    setMessages(prev => [...prev, { role: 'bot', text: response }])
+    setLoading(false)
   }
 
   return (
@@ -102,6 +141,13 @@ export default function FloatingChatbot() {
                 </div>
               </div>
             ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="max-w-[70%] px-3 py-2 rounded-2xl bg-white text-ink-500 border border-border-200 text-sm animate-pulse">
+                Analyzing terms…
+              </div>
+            </div>
+          )}
           </div>
 
           {/* Quick questions */}
@@ -113,7 +159,8 @@ export default function FloatingChatbot() {
                   <button
                     key={i}
                     onClick={() => handleSend(q)}
-                    className="text-xs px-3 py-1.5 bg-paper-100 hover:bg-brand-blue hover:text-white rounded-full transition"
+                    disabled={loading}
+                    className="text-xs px-3 py-1.5 bg-paper-100 hover:bg-brand-blue hover:text-white rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {q}
                   </button>
@@ -135,7 +182,7 @@ export default function FloatingChatbot() {
               />
               <button
                 onClick={() => handleSend()}
-                disabled={!input.trim()}
+                disabled={!input.trim() || loading}
                 className="px-4 py-3 bg-brand-blue text-white rounded-xl hover:bg-brand-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

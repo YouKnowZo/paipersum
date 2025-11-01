@@ -53,9 +53,47 @@ export const EnhancedAnalysis = z.object({
   share_image_url: z.string().optional()
 })
 
+export const PipelineIngestResponse = z.object({
+  document_id: z.string(),
+  filename: z.string(),
+  chunks_added: z.number().int().nonnegative(),
+  characters: z.number().int().nonnegative(),
+  mode: z.string(),
+  created_at: z.string().optional(),
+  preview: z.string().optional()
+})
+
+export const PipelineSource = z.object({
+  chunk_id: z.string(),
+  document_id: z.string(),
+  text: z.string(),
+  score: z.number(),
+  order: z.number().int().positive()
+})
+
+export const PipelineSummaryResponse = z.object({
+  mode: z.string(),
+  style: z.string(),
+  summary: z.string(),
+  sources: z.array(PipelineSource)
+})
+
+export const PipelineDocument = z.object({
+  document_id: z.string(),
+  filename: z.string(),
+  mode: z.string(),
+  characters: z.number().int().nonnegative(),
+  chunks: z.number().int().nonnegative(),
+  created_at: z.string()
+})
+
 export type ClauseT = z.infer<typeof Clause>
 export type RecommendationT = z.infer<typeof Recommendation>
 export type BenchmarkT = z.infer<typeof Benchmark>
 export type NegotiationPointT = z.infer<typeof NegotiationPoint>
 export type CostScenarioT = z.infer<typeof CostScenario>
 export type EnhancedAnalysisT = z.infer<typeof EnhancedAnalysis>
+export type PipelineIngestResponseT = z.infer<typeof PipelineIngestResponse>
+export type PipelineSourceT = z.infer<typeof PipelineSource>
+export type PipelineSummaryResponseT = z.infer<typeof PipelineSummaryResponse>
+export type PipelineDocumentT = z.infer<typeof PipelineDocument>
