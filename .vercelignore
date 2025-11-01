@@ -1,0 +1,43 @@
+# Vercel Ignore File
+# Exclude backend and other unnecessary files from Vercel build
+
+# Backend files
+apps/api/
+backend/
+server/
+
+# Config files
+docker-compose.yml
+railway.json
+railway.backup.json
+
+# Archive
+archive/
+
+# Tests
+test_app.py
+**/__pycache__/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+config.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
