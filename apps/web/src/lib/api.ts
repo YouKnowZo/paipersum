@@ -168,3 +168,106 @@ export async function clearSummarizationIndex(): Promise<void> {
     throw error
   }
 }
+
+// Document-specific chat
+export interface ChatMessage {
+  question: string
+  document_context?: string
+}
+
+export interface ChatResponse {
+  answer: string
+  sources: string[]
+  confidence: number
+}
+
+export async function chatWithDocument(message: ChatMessage): Promise<ChatResponse> {
+  try {
+    const res = await axios.post(`${API_URL}/api/chat`, message)
+    return res.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || error.message || 'Chat failed')
+    }
+    throw error
+  }
+}
+
+// Document comparison
+export interface ComparisonResult {
+  differences: Array<{ type: string; text: string }>
+  added_clauses: string[]
+  removed_clauses: string[]
+  changed_clauses: Array<{ old: string; new: string }>
+  summary: string
+}
+
+export async function compareDocuments(file1: File, file2: File): Promise<ComparisonResult> {
+  try {
+    const formData = new FormData()
+    formData.append('file1', file1)
+    formData.append('file2', file2)
+    
+    const res = await axios.post(`${API_URL}/api/compare`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    return res.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || error.message || 'Comparison failed')
+    }
+    throw error
+  }
+}
+
+// Visual highlighting
+export interface Highlight {
+  text: string
+  start: number
+  end: number
+  risk: 'red' | 'yellow' | 'green'
+  clause_type: string
+  explanation: string
+}
+
+export interface DocumentViewerData {
+  text: string
+  highlights: Highlight[]
+}
+
+export async function highlightDocument(text: string): Promise<DocumentViewerData> {
+  try {
+    const res = await axios.post(`${API_URL}/api/highlight`, { text })
+    return res.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || error.message || 'Highlighting failed')
+    }
+    throw error
+  }
+}
+
+// Notifications
+export interface Notification {
+  type: 'renewal' | 'cancellation' | 'payment' | 'deadline'
+  date: string
+  message: string
+  action_url?: string
+}
+
+export interface NotificationsResponse {
+  notifications: Notification[]
+  icalendar: string
+}
+
+export async function getNotifications(text: string): Promise<NotificationsResponse> {
+  try {
+    const res = await axios.post(`${API_URL}/api/notifications`, { text })
+    return res.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || error.message || 'Failed to extract notifications')
+    }
+    throw error
+  }
+}

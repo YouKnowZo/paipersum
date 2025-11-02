@@ -4,6 +4,8 @@ import Hero from './components/Hero'
 import InstantAnalysis from './components/InstantAnalysis'
 import Features from './components/Features'
 import Testimonials from './components/Testimonials'
+import OnePersonAIStory from './components/OnePersonAIStory'
+import CompetitiveAdvantages from './components/CompetitiveAdvantages'
 import FloatingChatbot from './components/FloatingChatbot'
 import Consent from './components/Consent'
 import Upload from './components/Upload'
@@ -526,6 +528,12 @@ export default function App() {
 
           {/* Features */}
           <Features />
+
+          {/* Competitive Advantages */}
+          <CompetitiveAdvantages />
+
+          {/* One Person + AI Story */}
+          <OnePersonAIStory />
 
           {/* Testimonials */}
           <Testimonials />

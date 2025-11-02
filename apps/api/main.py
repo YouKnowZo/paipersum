@@ -28,6 +28,10 @@ from stripe_routes import create_checkout_session, handle_webhook, CheckoutSessi
 
 # Import new summarization routes
 from routes.summarize import router as summarize_router
+from routes.chat import router as chat_router
+from routes.compare import router as compare_router
+from routes.visual import router as visual_router
+from routes.notifications import router as notifications_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -333,6 +337,10 @@ def get_document_types():
 
 # Include new summarization routes
 app.include_router(summarize_router, prefix="/api", tags=["summarization"])
+app.include_router(chat_router, prefix="/api", tags=["chat"])
+app.include_router(compare_router, prefix="/api", tags=["compare"])
+app.include_router(visual_router, prefix="/api", tags=["visual"])
+app.include_router(notifications_router, prefix="/api", tags=["notifications"])
 
 # Stripe Payment Endpoints
 @app.post('/create-checkout-session')
