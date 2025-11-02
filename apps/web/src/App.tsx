@@ -68,6 +68,11 @@ export default function App() {
     
     const saved = JSON.parse(localStorage.getItem('saved_analyses') || '[]')
     setSavedAnalyses(saved)
+
+    // Listen for openAnalyzer event
+    const handleOpenAnalyzer = () => setShowAnalyzer(true)
+    window.addEventListener('openAnalyzer', handleOpenAnalyzer)
+    return () => window.removeEventListener('openAnalyzer', handleOpenAnalyzer)
   }, [])
 
   // Check free tier limit
@@ -444,24 +449,24 @@ export default function App() {
                 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => { setMode('legal'); setShowAnalyzer(true) }}
-                    className={`px-4 py-2 rounded-lg font-semibold transition ${
+                    onClick={() => { setMode('legal'); setShowAnalyzer(true); setAnalysis(null); setUniversalSummary(null) }}
+                    className={`px-6 py-2.5 rounded-lg font-semibold transition-all ${
                       mode === 'legal' 
-                        ? 'bg-gradient-to-r from-brand-blue to-blue-600 text-white' 
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        ? 'bg-gradient-to-r from-brand-blue to-blue-600 text-white shadow-lg' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    ⚖️ Legal
+                    Legal Analysis
                   </button>
                   <button
-                    onClick={() => { setMode('universal'); setShowAnalyzer(true) }}
-                    className={`px-4 py-2 rounded-lg font-semibold transition ${
+                    onClick={() => { setMode('universal'); setShowAnalyzer(true); setAnalysis(null); setUniversalSummary(null) }}
+                    className={`px-6 py-2.5 rounded-lg font-semibold transition-all ${
                       mode === 'universal' 
-                        ? 'bg-gradient-to-r from-brand-blue to-blue-600 text-white' 
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        ? 'bg-gradient-to-r from-brand-blue to-blue-600 text-white shadow-lg' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    📄 Universal
+                    Universal Summarization
                   </button>
                 </div>
               </div>
@@ -469,7 +474,13 @@ export default function App() {
           </nav>
 
           {/* Hero section */}
-          <Hero onAnalyze={handleAnalyzeText} />
+          <Hero 
+            onAnalyze={() => setShowAnalyzer(true)} 
+            onExample={() => {
+              const examplesSection = document.getElementById('examples')
+              examplesSection?.scrollIntoView({ behavior: 'smooth' })
+            }}
+          />
 
           {/* Recent analyses */}
           {savedAnalyses.length > 0 && (
@@ -509,7 +520,9 @@ export default function App() {
           )}
 
           {/* Instant analysis examples */}
-          <InstantAnalysis />
+          <section id="examples">
+            <InstantAnalysis />
+          </section>
 
           {/* Features */}
           <Features />
@@ -557,24 +570,24 @@ export default function App() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-bold mb-4">Product</h4>
-                  <ul className="space-y-2 text-sm text-ink-300">
-                    <li><a href="#features" className="hover:text-white transition">Features</a></li>
-                    <li><a href="#examples" className="hover:text-white transition">Examples</a></li>
-                    <li><button onClick={() => setShowAnalyzer(true)} className="hover:text-white transition">Try Now</button></li>
+                  <h4 className="font-bold mb-4 text-yellow-400">Product</h4>
+                  <ul className="space-y-2 text-sm text-gray-300">
+                    <li><a href="#features" className="hover:text-white transition" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }) }}>Features</a></li>
+                    <li><a href="#examples" className="hover:text-white transition" onClick={(e) => { e.preventDefault(); document.getElementById('examples')?.scrollIntoView({ behavior: 'smooth' }) }}>Examples</a></li>
+                    <li><button onClick={() => setShowAnalyzer(true)} className="hover:text-white transition text-left">Try Now</button></li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-bold mb-4">Legal</h4>
-                  <ul className="space-y-2 text-sm text-ink-300">
+                  <h4 className="font-bold mb-4 text-yellow-400">Legal</h4>
+                  <ul className="space-y-2 text-sm text-gray-300">
                     <li><a href="/terms.html" target="_blank" className="hover:text-white transition">Terms of Service</a></li>
                     <li><a href="/privacy.html" target="_blank" className="hover:text-white transition">Privacy Policy</a></li>
-                    <li><a href="#disclaimer" className="hover:text-white transition">Disclaimer</a></li>
+                    <li><a href="#disclaimer" className="hover:text-white transition" onClick={(e) => { e.preventDefault(); document.getElementById('disclaimer')?.scrollIntoView({ behavior: 'smooth' }) }}>Disclaimer</a></li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-bold mb-4">Connect</h4>
-                  <ul className="space-y-2 text-sm text-ink-300">
+                  <h4 className="font-bold mb-4 text-yellow-400">Connect</h4>
+                  <ul className="space-y-2 text-sm text-gray-300">
                     <li><a href="https://twitter.com/paipersum" target="_blank" className="hover:text-white transition">Twitter/X</a></li>
                     <li><a href="https://linkedin.com/company/paipersum" target="_blank" className="hover:text-white transition">LinkedIn</a></li>
                     <li><a href="mailto:alonzolockett@paipersum.com" className="hover:text-white transition">General: alonzolockett@paipersum.com</a></li>
@@ -869,18 +882,20 @@ export default function App() {
                 </div>
               )}
 
-              <div className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <svg className="w-5 h-5 text-yellow-700" fill="currentColor" viewBox="0 0 20 20">
+              <div id="disclaimer" className="mt-6 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl">
+                <div className="flex items-start gap-3 mb-3">
+                  <svg className="w-6 h-6 text-yellow-700 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-bold text-yellow-900">Legal Disclaimer</span>
+                  <div>
+                    <h3 className="font-bold text-yellow-900 mb-2 text-lg">Legal Disclaimer</h3>
+                    <p className="text-sm text-yellow-800 leading-relaxed">
+                      This analysis is for informational purposes only and does not constitute legal advice. 
+                      Automated analysis may miss clauses or misinterpret language. Always consult a licensed 
+                      attorney for legal decisions. We are not responsible for any decisions made based on this analysis.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-yellow-800 leading-relaxed">
-                  This analysis is for informational purposes only and does not constitute legal advice. 
-                  Automated analysis may miss clauses or misinterpret language. Always consult a licensed 
-                  attorney for legal decisions. We are not responsible for any decisions made based on this analysis.
-                </p>
               </div>
             </div>
           </div>

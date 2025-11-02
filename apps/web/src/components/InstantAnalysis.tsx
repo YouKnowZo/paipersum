@@ -150,10 +150,16 @@ export default function InstantAnalysis() {
             </div>
 
             <div className="mt-6 pt-6 border-t text-center">
-              <p className="text-sm text-ink-600 mb-4">
+              <p className="text-sm text-gray-600 mb-4">
                 Want full analysis with citations and PDF export?
               </p>
-              <button className="px-6 py-3 bg-brand-blue text-white rounded-lg font-semibold hover:bg-brand-blue/90 transition">
+              <button 
+                onClick={() => {
+                  const event = new CustomEvent('openAnalyzer')
+                  window.dispatchEvent(event)
+                }}
+                className="px-6 py-3 bg-brand-blue text-white rounded-lg font-semibold hover:bg-brand-blue/90 transition shadow-lg hover:shadow-xl"
+              >
                 Analyze Your Own Document
               </button>
             </div>
