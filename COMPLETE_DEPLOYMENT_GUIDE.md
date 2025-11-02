@@ -124,7 +124,15 @@ Your backend is **MUCH LIGHTER** than the original requirements.txt suggested!
    - If already connected: Click on "paipersum" project
    - If not: Click "Add New..." → "Project" → Select `paipersum` repo
 
-3. **Add Environment Variable**
+3. **⚠️ CRITICAL: Fix Root Directory Setting**
+   - Go to **Settings** → **General**
+   - Find **Root Directory** field
+   - **Leave it EMPTY** (do NOT set to "frontend" or "apps/web")
+   - The `vercel.json` file handles build paths automatically
+   - Click **Save**
+   - If you see error "Root Directory 'frontend' does not exist", this fixes it
+
+4. **Add Environment Variable**
    - Go to Project Settings → Environment Variables
    - Add new variable:
      - Name: `VITE_API_URL`

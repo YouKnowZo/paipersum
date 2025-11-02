@@ -32,6 +32,14 @@ You need to deploy your app BEFORE configuring DNS. Pick one:
 
 ### Step 1: Deploy Frontend to Vercel
 
+**Option A: Using Vercel Dashboard (Recommended)**
+1. Go to https://vercel.com/dashboard
+2. Import project from GitHub
+3. **⚠️ IMPORTANT**: In Settings → General → Root Directory, leave it **EMPTY**
+4. The `vercel.json` file handles all build paths automatically
+5. Deploy
+
+**Option B: Using Vercel CLI**
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -44,6 +52,8 @@ vercel --prod
 
 **Vercel will give you a URL like:**
 - `https://paipersum-abc123.vercel.app`
+
+**Note**: If you see error "Root Directory 'frontend' does not exist", see `QUICK_FIX_ROOT_DIRECTORY.md`
 
 ### Step 2: Deploy Backend to Render
 
