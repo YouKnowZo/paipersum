@@ -9,9 +9,11 @@ import Consent from './components/Consent'
 import Upload from './components/Upload'
 import EnhancedSummaryPage from './pages/EnhancedSummaryPage'
 import AccountPage from './pages/AccountPage'
+import UniversalSummarizer from './components/UniversalSummarizer'
 import { Card } from './components/Cards'
 import { analyzeText, analyzeFile, exportPDF } from './lib/api'
 import type { EnhancedAnalysisT } from './lib/schemas'
+import type { SummarizeResponse } from './lib/api'
 
 // Simple auth types (localStorage-based for MVP)
 interface User {
@@ -44,6 +46,8 @@ export default function App() {
   const [documentsAnalyzed, setDocumentsAnalyzed] = useState(0)
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([])
   const [totalSavings, setTotalSavings] = useState(0)
+  const [mode, setMode] = useState<'legal' | 'universal'>('legal')
+  const [universalSummary, setUniversalSummary] = useState<SummarizeResponse | null>(null)
 
   // Load user and saved data on mount
   useEffect(() => {
@@ -438,15 +442,28 @@ export default function App() {
                   </button>
                 )}
                 
-                <button
-                  onClick={() => setShowAnalyzer(true)}
-                  className="px-6 py-2.5 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Analyze Document
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => { setMode('legal'); setShowAnalyzer(true) }}
+                    className={`px-4 py-2 rounded-lg font-semibold transition ${
+                      mode === 'legal' 
+                        ? 'bg-gradient-to-r from-brand-blue to-blue-600 text-white' 
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    ⚖️ Legal
+                  </button>
+                  <button
+                    onClick={() => { setMode('universal'); setShowAnalyzer(true) }}
+                    className={`px-4 py-2 rounded-lg font-semibold transition ${
+                      mode === 'universal' 
+                        ? 'bg-gradient-to-r from-brand-blue to-blue-600 text-white' 
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    📄 Universal
+                  </button>
+                </div>
               </div>
             </div>
           </nav>
@@ -772,7 +789,35 @@ export default function App() {
                 </div>
               )}
 
-              {!analysis ? (
+              {mode === 'universal' ? (
+                !universalSummary ? (
+                  <Card>
+                    <UniversalSummarizer onSummaryGenerated={setUniversalSummary} />
+                  </Card>
+                ) : (
+                  <Card>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold">Summary</h2>
+                        <button
+                          onClick={() => { setUniversalSummary(null); setAnalysis(null) }}
+                          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                        >
+                          New Summary
+                        </button>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-6">
+                        <pre className="whitespace-pre-wrap text-sm">{universalSummary.summary}</pre>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        <p>Mode: {universalSummary.mode}</p>
+                        <p>Style: {universalSummary.style}</p>
+                        <p>Sources analyzed: {universalSummary.sources_count}</p>
+                      </div>
+                    </div>
+                  </Card>
+                )
+              ) : !analysis ? (
                 <Card>
                   <div className="text-center py-16">
                     <div className="mb-6 inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-brand-blue/20 to-brand-blue/10 rounded-full">
