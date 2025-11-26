@@ -9,6 +9,7 @@ import Consent from './components/Consent'
 import Upload from './components/Upload'
 import EnhancedSummaryPage from './pages/EnhancedSummaryPage'
 import AccountPage from './pages/AccountPage'
+import AdminPage from './pages/AdminPage'
 import { Card } from './components/Cards'
 import { analyzeText, analyzeFile, exportPDF } from './lib/api'
 import type { EnhancedAnalysisT } from './lib/schemas'
@@ -35,6 +36,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null)
   const [showAuth, setShowAuth] = useState(false)
   const [showAccount, setShowAccount] = useState(false)
+  const [showAdmin, setShowAdmin] = useState(false)
   const [analysis, setAnalysis] = useState<EnhancedAnalysisT | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -44,6 +46,13 @@ export default function App() {
   const [documentsAnalyzed, setDocumentsAnalyzed] = useState(0)
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([])
   const [totalSavings, setTotalSavings] = useState(0)
+
+  // Check for admin route on mount
+  useEffect(() => {
+    if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
+      setShowAdmin(true)
+    }
+  }, [])
 
   // Load user and saved data on mount
   useEffect(() => {
@@ -367,6 +376,14 @@ export default function App() {
     </div>
   )
 
+  // Admin Portal
+  if (showAdmin) {
+    return <AdminPage onClose={() => {
+      setShowAdmin(false)
+      window.history.pushState({}, '', '/')
+    }} />
+  }
+
   // Landing page
   if (!showAnalyzer) {
     return (
@@ -565,8 +582,14 @@ export default function App() {
                   </ul>
                 </div>
               </div>
-              <div className="border-t border-ink-700 pt-8 text-center text-sm text-ink-400">
-                <p>© 2025 PaiperSum. Not legal advice. Automated analysis for informational purposes only. Always consult an attorney for legal decisions.</p>
+              <div className="border-t border-ink-700 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink-400">
+                <p>© 2025 PaiperSum. Not legal advice. Automated analysis for informational purposes only.</p>
+                <button 
+                  onClick={() => setShowAdmin(true)}
+                  className="text-ink-500 hover:text-white transition text-xs"
+                >
+                  Admin Portal
+                </button>
               </div>
             </div>
           </footer>

@@ -1,13 +1,44 @@
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <!-- Speech bubble tail -->
-  <path d="M15 85 L5 95 L15 75 Z" fill="#1e3a5f"/>
+  <!-- Main P shape with speech bubble -->
+  <path
+    d="M8 15 
+       C8 8, 15 5, 25 5
+       L55 5
+       C75 5, 85 15, 85 30
+       C85 45, 75 55, 55 55
+       L32 55
+       L32 75
+       C32 80, 28 82, 25 82
+       L20 82
+       C15 82, 12 80, 12 75
+       L12 55
+       L8 55
+       L8 15
+       Z"
+    fill="#1e3a5f"
+  />
   
-  <!-- Main P body - navy -->
-  <path d="M15 10 L15 75 L30 75 L30 55 L50 55 C50 55 70 55 70 37.5 C70 20 50 20 50 20 L30 20 L30 10 Z" fill="#1e3a5f"/>
+  <!-- Speech bubble pointer -->
+  <path
+    d="M8 70 L8 82 L0 95 L12 82 L12 70 Z"
+    fill="#1e3a5f"
+  />
   
   <!-- P inner cutout -->
-  <path d="M30 28 L30 47 L45 47 C45 47 58 47 58 37.5 C58 28 45 28 45 28 Z" fill="white"/>
+  <path
+    d="M32 20
+       L50 20
+       C62 20, 68 26, 68 35
+       C68 44, 62 50, 50 50
+       L32 50
+       L32 20
+       Z"
+    fill="white"
+  />
   
   <!-- Orange accent -->
-  <path d="M60 8 L92 8 L92 35 Z" fill="#f5a623"/>
+  <path
+    d="M60 0 L100 0 L100 40 Z"
+    fill="#f5a623"
+  />
 </svg>
