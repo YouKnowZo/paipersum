@@ -26,6 +26,9 @@ from decision_engine import (
 # Import Stripe routes
 from stripe_routes import create_checkout_session, handle_webhook, CheckoutSessionRequest
 
+# Import user management routes
+from users import router as users_router, auth0_router
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("🚀 PaiperSum Enhanced API starting...")
@@ -52,6 +55,10 @@ app.add_middleware(
 install_handlers(app)
 app.middleware('http')(rate_limit)
 app.middleware('http')(security_headers)
+
+# Include user management routes
+app.include_router(users_router)
+app.include_router(auth0_router)
 
 # Enhanced models
 class AnalyzeIn(BaseModel):

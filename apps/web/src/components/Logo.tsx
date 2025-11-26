@@ -1,13 +1,35 @@
 // PaiperSum branded logo component - matches official branding
-export default function Logo({ size = 'md', showText = true }: { size?: 'sm' | 'md' | 'lg'; showText?: boolean }) {
+interface LogoProps {
+  size?: 'sm' | 'md' | 'lg'
+  showText?: boolean
+  onClick?: () => void
+  href?: string
+}
+
+export default function Logo({ size = 'md', showText = true, onClick, href }: LogoProps) {
   const sizes = {
     sm: { icon: 'w-8 h-8', text: 'text-lg', tagline: 'text-[10px]' },
     md: { icon: 'w-10 h-10', text: 'text-xl', tagline: 'text-xs' },
     lg: { icon: 'w-14 h-14', text: 'text-2xl', tagline: 'text-sm' }
   }
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick()
+    } else if (href) {
+      window.location.href = href
+    } else {
+      // Default behavior: navigate to home
+      window.location.href = '/'
+    }
+  }
+
   return (
-    <div className="flex items-center gap-2.5">
+    <button 
+      onClick={handleClick}
+      className="flex items-center gap-2.5 hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-brand-navy/20 rounded-lg"
+      aria-label="PaiperSum - Go to Home"
+    >
       {/* PaiperSum P Icon - matches official logo */}
       <div className={`${sizes[size].icon} relative group cursor-pointer flex-shrink-0`}>
         <svg 
@@ -85,7 +107,7 @@ export default function Logo({ size = 'md', showText = true }: { size?: 'sm' | '
           <span className="text-brand-navy">perSum</span>
         </span>
       )}
-    </div>
+    </button>
   )
 }
 

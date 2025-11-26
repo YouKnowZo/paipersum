@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Logo from './components/Logo'
 import Hero from './components/Hero'
 import InstantAnalysis from './components/InstantAnalysis'
@@ -12,163 +12,76 @@ import AccountPage from './pages/AccountPage'
 import AdminPage from './pages/AdminPage'
 import { Card } from './components/Cards'
 import { analyzeText, analyzeFile, exportPDF } from './lib/api'
+import { useAuth, useCanAnalyze, useSavedAnalyses } from './lib/auth'
 import type { EnhancedAnalysisT } from './lib/schemas'
 
-// Simple auth types (localStorage-based for MVP)
-interface User {
-  email: string
-  name: string
-  isPro: boolean
-  docsThisMonth: number
-  address?: string
-  phone?: string
-  company?: string
-}
-
-interface SavedAnalysis {
-  id: string
-  name: string
-  date: string
-  analysis: EnhancedAnalysisT
-}
+// Route types
+type Route = 'home' | 'analyzer' | 'account' | 'admin'
 
 export default function App() {
-  const [user, setUser] = useState<User | null>(null)
-  const [showAuth, setShowAuth] = useState(false)
-  const [showAccount, setShowAccount] = useState(false)
-  const [showAdmin, setShowAdmin] = useState(false)
+  // Auth state from context
+  const { 
+    user, 
+    isAuthenticated, 
+    isLoading: authLoading,
+    login, 
+    loginWithAuth0,
+    logout, 
+    updateUser,
+    incrementDocsAnalyzed,
+    addSavings
+  } = useAuth()
+  
+  const { canAnalyze, remaining, reason } = useCanAnalyze()
+  const { analyses: savedAnalyses, saveAnalysis } = useSavedAnalyses()
+
+  // UI state
+  const [route, setRoute] = useState<Route>('home')
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const [analysis, setAnalysis] = useState<EnhancedAnalysisT | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [showAnalyzer, setShowAnalyzer] = useState(false)
   const [text, setText] = useState('')
   const [documentName, setDocumentName] = useState('')
-  const [documentsAnalyzed, setDocumentsAnalyzed] = useState(0)
-  const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([])
-  const [totalSavings, setTotalSavings] = useState(0)
 
   // Check for admin route on mount
   useEffect(() => {
-    if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
-      setShowAdmin(true)
+    const path = window.location.pathname
+    const hash = window.location.hash
+    
+    if (path === '/admin' || hash === '#admin') {
+      setRoute('admin')
+    } else if (path === '/account' || hash === '#account') {
+      setRoute('account')
+    } else if (path === '/analyze' || hash === '#analyze') {
+      setRoute('analyzer')
     }
   }, [])
 
-  // Load user and saved data on mount
-  useEffect(() => {
-    const savedUser = localStorage.getItem('paipersum_user')
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser))
-      } catch (e) {
-        console.error('Failed to load user', e)
-      }
+  // Navigation helpers
+  const navigate = useCallback((newRoute: Route) => {
+    setRoute(newRoute)
+    
+    // Update URL without page reload
+    const paths: Record<Route, string> = {
+      home: '/',
+      analyzer: '/analyze',
+      account: '/account',
+      admin: '/admin'
     }
-    
-    const count = parseInt(localStorage.getItem('docs_analyzed') || '0')
-    setDocumentsAnalyzed(count)
-    
-    const savings = parseInt(localStorage.getItem('total_savings') || '0')
-    setTotalSavings(savings)
-    
-    const saved = JSON.parse(localStorage.getItem('saved_analyses') || '[]')
-    setSavedAnalyses(saved)
+    window.history.pushState({}, '', paths[newRoute])
   }, [])
 
-  // Check free tier limit
-  const canAnalyze = (): boolean => {
-    if (!user) {
-      // Not logged in - allow 5 free analyses
-      return documentsAnalyzed < 5
-    }
-    if (user.isPro) {
-      return true // Unlimited
-    }
-    // Free tier - 30/month
-    return user.docsThisMonth < 30
-  }
-
-  const handleLogin = (email: string, name: string) => {
-    const newUser: User = {
-      email,
-      name,
-      isPro: false,
-      docsThisMonth: 0
-    }
-    setUser(newUser)
-    localStorage.setItem('paipersum_user', JSON.stringify(newUser))
-    setShowAuth(false)
-  }
-
-  const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem('paipersum_user')
-  }
-
-  const handleAnalyzeText = async (textToAnalyze: string = text, name: string = documentName) => {
-    if (!textToAnalyze.trim()) return
-    
-    // Check limits
-    if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro for unlimited analyses!' : 'Create an account to continue')
-      setShowAuth(true)
-      return
-    }
-    
+  const goHome = useCallback(() => {
+    navigate('home')
+    setAnalysis(null)
+    setText('')
+    setDocumentName('')
     setError('')
-    setLoading(true)
-    setShowAnalyzer(true)
-    
-    try {
-      const result = await analyzeText(textToAnalyze)
-      setAnalysis(result)
-      
-      // Track metrics
-      const newCount = documentsAnalyzed + 1
-      setDocumentsAnalyzed(newCount)
-      localStorage.setItem('docs_analyzed', newCount.toString())
-      
-      // Update user monthly count
-      if (user) {
-        const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
-        setUser(updatedUser)
-        localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
-      }
-      
-      // Track savings
-      const newSavings = totalSavings + (result.recommendation.cost_impact || 0)
-      setTotalSavings(newSavings)
-      localStorage.setItem('total_savings', newSavings.toString())
-      
-      // Save analysis
-      const savedAnalysis: SavedAnalysis = {
-        id: Date.now().toString(),
-        name: name || `Document ${newCount}`,
-        date: new Date().toISOString(),
-        analysis: result
-      }
-      const newSaved = [savedAnalysis, ...savedAnalyses].slice(0, 10)
-      setSavedAnalyses(newSaved)
-      localStorage.setItem('saved_analyses', JSON.stringify(newSaved))
-      
-      // Achievement notifications
-      if (newCount === 1) {
-        showAchievement('🎉 First Analysis Complete!', 'You\'re protecting yourself from hidden traps!')
-      } else if (newCount === 5) {
-        showAchievement('🏆 5 Documents Analyzed!', 'You\'re becoming a contract pro!')
-      } else if (newCount === 10) {
-        showAchievement('💎 Power User Unlocked!', `You've saved $${newSavings} total!`)
-      } else if (newSavings >= 1000) {
-        showAchievement('💰 $1,000+ Protected!', 'You\'ve avoided over $1,000 in potential costs!')
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Analysis failed')
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [navigate])
 
-  const showAchievement = (title: string, message: string) => {
+  // Show achievement notification
+  const showAchievement = useCallback((title: string, message: string) => {
     const toast = document.createElement('div')
     toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
     toast.innerHTML = `
@@ -182,56 +95,92 @@ export default function App() {
     `
     document.body.appendChild(toast)
     setTimeout(() => toast.remove(), 5000)
-  }
+  }, [])
 
-  const handleFileSelect = async (file: File) => {
-    if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro!' : 'Create an account to continue')
-      setShowAuth(true)
+  // Handle text analysis
+  const handleAnalyzeText = useCallback(async (textToAnalyze: string = text, name: string = documentName) => {
+    if (!textToAnalyze.trim()) {
+      navigate('analyzer')
+      return
+    }
+    
+    // Check limits
+    if (!canAnalyze) {
+      setError(reason || 'Please sign in to continue')
+      setShowAuthModal(true)
+      return
+    }
+    
+    setError('')
+    setLoading(true)
+    navigate('analyzer')
+    
+    try {
+      const result = await analyzeText(textToAnalyze)
+      setAnalysis(result)
+      
+      // Track metrics
+      incrementDocsAnalyzed()
+      
+      // Track savings
+      if (result.recommendation.cost_impact) {
+        addSavings(result.recommendation.cost_impact)
+      }
+      
+      // Save analysis
+      saveAnalysis(result, name || `Document ${Date.now()}`)
+      
+      // Check for achievements
+      const totalDocs = user?.totalDocsAnalyzed || 1
+      const totalSavings = user?.totalSavings || 0
+      
+      if (totalDocs === 1) {
+        showAchievement('🎉 First Analysis Complete!', 'You\'re protecting yourself from hidden traps!')
+      } else if (totalDocs === 5) {
+        showAchievement('🏆 5 Documents Analyzed!', 'You\'re becoming a contract pro!')
+      } else if (totalDocs === 10) {
+        showAchievement('💎 Power User Unlocked!', `You've saved $${totalSavings} total!`)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Analysis failed')
+    } finally {
+      setLoading(false)
+    }
+  }, [text, documentName, canAnalyze, reason, navigate, incrementDocsAnalyzed, addSavings, saveAnalysis, showAchievement, user])
+
+  // Handle file analysis
+  const handleFileSelect = useCallback(async (file: File) => {
+    if (!canAnalyze) {
+      setError(reason || 'Please sign in to continue')
+      setShowAuthModal(true)
       return
     }
     
     setDocumentName(file.name)
     setError('')
     setLoading(true)
-    setShowAnalyzer(true)
+    navigate('analyzer')
     
     try {
       const result = await analyzeFile(file)
       setAnalysis(result)
       
-      const newCount = documentsAnalyzed + 1
-      setDocumentsAnalyzed(newCount)
-      localStorage.setItem('docs_analyzed', newCount.toString())
+      incrementDocsAnalyzed()
       
-      if (user) {
-        const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
-        setUser(updatedUser)
-        localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
+      if (result.recommendation.cost_impact) {
+        addSavings(result.recommendation.cost_impact)
       }
       
-      const newSavings = totalSavings + (result.recommendation.cost_impact || 0)
-      setTotalSavings(newSavings)
-      localStorage.setItem('total_savings', newSavings.toString())
-      
-      const savedAnalysis: SavedAnalysis = {
-        id: Date.now().toString(),
-        name: file.name,
-        date: new Date().toISOString(),
-        analysis: result
-      }
-      const newSaved = [savedAnalysis, ...savedAnalyses].slice(0, 10)
-      setSavedAnalyses(newSaved)
-      localStorage.setItem('saved_analyses', JSON.stringify(newSaved))
-      
+      saveAnalysis(result, file.name)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'File analysis failed')
     } finally {
       setLoading(false)
     }
-  }
+  }, [canAnalyze, reason, navigate, incrementDocsAnalyzed, addSavings, saveAnalysis])
 
-  const handleExport = async () => {
+  // Handle PDF export
+  const handleExport = useCallback(async () => {
     if (!text.trim()) return
     
     try {
@@ -247,86 +196,110 @@ export default function App() {
     } catch (err) {
       setError('Export failed')
     }
-  }
+  }, [text, documentName, showAchievement])
 
-  const handleClear = () => {
-    setText('')
-    setDocumentName('')
-    setAnalysis(null)
-    setError('')
-    setShowAnalyzer(false)
-  }
-
-  const loadSavedAnalysis = (saved: SavedAnalysis) => {
+  // Load saved analysis
+  const loadSavedAnalysis = useCallback((saved: any) => {
     setAnalysis(saved.analysis)
     setDocumentName(saved.name)
-    setShowAnalyzer(true)
-  }
+    navigate('analyzer')
+  }, [navigate])
 
-  const getRemainingAnalyses = (): number => {
-    if (!user) return 5 - documentsAnalyzed
-    if (user.isPro) return 999999
-    return 30 - user.docsThisMonth
-  }
+  // Handle login form
+  const handleLoginSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email') as string
+    const name = formData.get('name') as string
+    
+    if (email && name) {
+      await login(email, name)
+      setShowAuthModal(false)
+    }
+  }, [login])
 
-  // Auth Modal
+  // Auth Modal Component
   const AuthModal = () => (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in">
       <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in slide-in-from-bottom-4">
         <div className="text-center mb-6">
-          <Logo size="lg" />
+          <Logo size="lg" onClick={() => {}} />
           <h2 className="text-2xl font-bold text-ink-900 mt-4 mb-2">
-            {user ? 'Upgrade to Pro' : 'Sign in or create an account'}
+            {isAuthenticated && user ? 'Upgrade to Pro' : 'Sign in or create an account'}
           </h2>
           <p className="text-ink-600">
-            {user ? 'Get unlimited document analyses' : 'Continue analyzing your documents'}
+            {isAuthenticated && user ? 'Get unlimited document analyses' : 'Continue analyzing your documents'}
           </p>
         </div>
 
-        {!user ? (
-          <form onSubmit={(e) => {
-            e.preventDefault()
-            const formData = new FormData(e.currentTarget)
-            const email = formData.get('email') as string
-            const name = formData.get('name') as string
-            if (email && name) handleLogin(email, name)
-          }} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-ink-700 mb-2">Name</label>
-              <input
-                type="text"
-                name="name"
-                required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy"
-                placeholder="Your name"
-              />
+        {!isAuthenticated ? (
+          <>
+            {/* Auth0 Login Button */}
+            <button
+              onClick={() => {
+                loginWithAuth0()
+                setShowAuthModal(false)
+              }}
+              className="w-full mb-4 px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition flex items-center justify-center gap-3"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+              </svg>
+              Continue with Auth0
+            </button>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border-200" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-white px-4 text-ink-500 font-medium">OR USE EMAIL</span>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-ink-700 mb-2">Email</label>
-              <input
-                type="email"
-                name="email"
-                required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div className="pt-2">
-              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition">
-                Continue →
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAuth(false)}
-                className="w-full mt-3 px-6 py-3 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition"
-              >
-                Cancel
-              </button>
-            </div>
-            <p className="text-xs text-center text-ink-500 mt-4">
-              By signing up, you agree to our Terms & Privacy Policy
-            </p>
-          </form>
+
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-ink-700 mb-2">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy focus:border-brand-navy transition"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-ink-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy focus:border-brand-navy transition"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div className="pt-2">
+                <button 
+                  type="submit" 
+                  className="w-full px-6 py-4 bg-paper-100 text-ink-900 rounded-xl font-bold hover:bg-paper-200 transition border-2 border-border-200"
+                >
+                  Continue with Email →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAuthModal(false)}
+                  className="w-full mt-3 px-6 py-3 text-ink-500 font-semibold hover:text-ink-700 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+              <p className="text-xs text-center text-ink-500 mt-4">
+                By signing up, you agree to our{' '}
+                <a href="/terms.html" target="_blank" className="text-brand-navy hover:underline">Terms</a> &{' '}
+                <a href="/privacy.html" target="_blank" className="text-brand-navy hover:underline">Privacy Policy</a>
+              </p>
+            </form>
+          </>
         ) : (
           <div className="space-y-4">
             <div className="p-4 bg-gradient-to-br from-brand-navy/10 to-brand-orange/10 rounded-lg border-2 border-brand-navy/20">
@@ -335,37 +308,21 @@ export default function App() {
                 <div className="text-sm text-ink-600">per month</div>
               </div>
               <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-brand-green" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>Unlimited analyses</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-brand-green" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>Save all document history</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-brand-green" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>Priority support</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-brand-green" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>Share with family (5 accounts)</span>
-                </li>
+                {['Unlimited analyses', 'Save all document history', 'Priority support', 'Share with family (5 accounts)'].map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-brand-green flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
             <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition">
               Upgrade to Pro →
             </button>
             <button
-              onClick={() => setShowAuth(false)}
+              onClick={() => setShowAuthModal(false)}
               className="w-full px-6 py-3 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition"
             >
               Maybe Later
@@ -376,40 +333,79 @@ export default function App() {
     </div>
   )
 
+  // Show loading state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4">
+            <svg className="animate-spin w-full h-full text-brand-navy" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          </div>
+          <Logo size="lg" onClick={() => {}} />
+        </div>
+      </div>
+    )
+  }
+
   // Admin Portal
-  if (showAdmin) {
-    return <AdminPage onClose={() => {
-      setShowAdmin(false)
-      window.history.pushState({}, '', '/')
-    }} />
+  if (route === 'admin') {
+    return <AdminPage onClose={goHome} />
+  }
+
+  // Account Page
+  if (route === 'account' && user) {
+    return (
+      <AccountPage
+        user={{
+          email: user.email,
+          name: user.name,
+          isPro: user.isPro,
+          docsThisMonth: user.docsThisMonth,
+          address: user.address,
+          phone: user.phone,
+          company: user.company
+        }}
+        onUpdate={(updated) => {
+          updateUser(updated)
+        }}
+        onCancel={goHome}
+        onUpgrade={() => setShowAuthModal(true)}
+        totalSavings={user.totalSavings}
+        documentsAnalyzed={user.totalDocsAnalyzed}
+      />
+    )
   }
 
   // Landing page
-  if (!showAnalyzer) {
+  if (route === 'home') {
     return (
       <>
         <Consent />
         <FloatingChatbot />
-        {showAuth && <AuthModal />}
+        {showAuthModal && <AuthModal />}
         
         <div className="min-h-screen bg-white">
           {/* Navigation */}
           <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-border-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-              <Logo size="md" />
+              <Logo size="md" onClick={goHome} />
               
               <div className="flex items-center gap-4">
-                {documentsAnalyzed > 0 && (
+                {/* Stats badge */}
+                {user && user.totalDocsAnalyzed > 0 && (
                   <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-navy/10 to-brand-orange/10 rounded-lg border border-brand-navy/20">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-brand-navy">{documentsAnalyzed}</div>
+                      <div className="text-2xl font-bold text-brand-navy">{user.totalDocsAnalyzed}</div>
                       <div className="text-xs text-ink-600">analyzed</div>
                     </div>
-                    {totalSavings > 0 && (
+                    {user.totalSavings > 0 && (
                       <>
                         <div className="w-px h-8 bg-border-200"></div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-brand-green">${totalSavings.toLocaleString()}</div>
+                          <div className="text-2xl font-bold text-brand-green">${user.totalSavings.toLocaleString()}</div>
                           <div className="text-xs text-ink-600">protected</div>
                         </div>
                       </>
@@ -417,29 +413,29 @@ export default function App() {
                   </div>
                 )}
                 
-                {user ? (
+                {isAuthenticated && user ? (
                   <div className="flex items-center gap-3">
                     <div className="text-right hidden sm:block">
                       <div className="text-sm font-semibold text-ink-900">{user.name}</div>
                       <div className="text-xs text-ink-500">
-                        {user.isPro ? 'Pro' : `${getRemainingAnalyses()} left this month`}
+                        {user.isPro ? 'Pro' : `${remaining} left this month`}
                       </div>
                     </div>
                     <button
-                      onClick={() => setShowAccount(true)}
-                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
+                      onClick={() => navigate('account')}
+                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition font-medium"
                     >
                       Account
                     </button>
                     <button
-                      onClick={handleLogout}
-                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition"
+                      onClick={logout}
+                      className="px-4 py-2 text-sm border rounded-lg hover:bg-paper-50 transition font-medium"
                     >
                       Sign out
                     </button>
                     {!user.isPro && (
                       <button
-                        onClick={() => setShowAuth(true)}
+                        onClick={() => setShowAuthModal(true)}
                         className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-ink-900 rounded-lg font-semibold text-sm hover:shadow-lg transition"
                       >
                         Upgrade
@@ -448,7 +444,7 @@ export default function App() {
                   </div>
                 ) : (
                   <button
-                    onClick={() => setShowAuth(true)}
+                    onClick={() => setShowAuthModal(true)}
                     className="px-4 py-2 border-2 border-brand-navy text-brand-navy rounded-lg font-semibold hover:bg-brand-navy hover:text-white transition"
                   >
                     Sign in / Create account
@@ -456,7 +452,7 @@ export default function App() {
                 )}
                 
                 <button
-                  onClick={() => setShowAnalyzer(true)}
+                  onClick={() => navigate('analyzer')}
                   className="px-6 py-2.5 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -477,7 +473,7 @@ export default function App() {
               <div className="max-w-7xl mx-auto px-4">
                 <h2 className="text-2xl font-bold text-ink-900 mb-6">📚 Your Recent Analyses</h2>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {savedAnalyses.slice(0, 6).map((saved) => (
+                  {savedAnalyses.slice(0, 6).map((saved: any) => (
                     <button
                       key={saved.id}
                       onClick={() => loadSavedAnalysis(saved)}
@@ -524,18 +520,11 @@ export default function App() {
                 Ready to Stop Getting Scammed?
               </h2>
               <p className="text-xl text-blue-100 mb-6">
-                Join {Math.max(5000, documentsAnalyzed * 50).toLocaleString()}+ people who analyze before they sign
+                Join {Math.max(5000, (user?.totalDocsAnalyzed || 0) * 50).toLocaleString()}+ people who analyze before they sign
               </p>
-              {totalSavings > 0 && (
-                <div className="inline-block mb-6 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
-                  <span className="text-brand-orange font-bold text-lg">
-                    Our community has saved ${(totalSavings * 50).toLocaleString()}+ collectively!
-                  </span>
-                </div>
-              )}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
-                  onClick={() => setShowAnalyzer(true)}
+                  onClick={() => navigate('analyzer')}
                   className="px-8 py-4 bg-brand-orange text-brand-navy-dark rounded-xl font-bold text-lg hover:bg-brand-orange-light transition shadow-lg hover:shadow-xl hover:scale-105"
                 >
                   Analyze a Document →
@@ -550,7 +539,7 @@ export default function App() {
               <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                 <div>
                   <div className="mb-4">
-                    <Logo size="md" />
+                    <Logo size="md" onClick={goHome} />
                   </div>
                   <p className="text-sm text-ink-300 leading-relaxed">
                     Understand legal documents in plain English. Stop getting screwed by fine print.
@@ -561,7 +550,7 @@ export default function App() {
                   <ul className="space-y-2 text-sm text-ink-300">
                     <li><a href="#features" className="hover:text-white transition">Features</a></li>
                     <li><a href="#examples" className="hover:text-white transition">Examples</a></li>
-                    <li><button onClick={() => setShowAnalyzer(true)} className="hover:text-white transition">Try Now</button></li>
+                    <li><button onClick={() => navigate('analyzer')} className="hover:text-white transition">Try Now</button></li>
                   </ul>
                 </div>
                 <div>
@@ -585,7 +574,7 @@ export default function App() {
               <div className="border-t border-ink-700 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink-400">
                 <p>© 2025 PaiperSum. Not legal advice. Automated analysis for informational purposes only.</p>
                 <button 
-                  onClick={() => setShowAdmin(true)}
+                  onClick={() => navigate('admin')}
                   className="text-ink-500 hover:text-white transition text-xs"
                 >
                   Admin Portal
@@ -598,36 +587,19 @@ export default function App() {
     )
   }
 
-  // Render Account page when selected
-  if (showAccount && user) {
-    return (
-      <AccountPage
-        user={user}
-        onUpdate={(updated) => {
-          setUser(updated)
-          localStorage.setItem('paipersum_user', JSON.stringify(updated))
-        }}
-        onCancel={() => setShowAccount(false)}
-        onUpgrade={() => setShowAuth(true)}
-        totalSavings={totalSavings}
-        documentsAnalyzed={documentsAnalyzed}
-      />
-    )
-  }
-
   // Analyzer view
   return (
     <>
       <Consent />
       <FloatingChatbot />
-      {showAuth && <AuthModal />}
+      {showAuthModal && <AuthModal />}
       
       <div className="min-h-screen bg-paper-50">
         {/* Top bar with stats */}
         <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b shadow-sm">
           <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <button
-              onClick={handleClear}
+              onClick={goHome}
               className="text-ink-600 hover:text-ink-900 flex items-center gap-2 transition"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,36 +608,38 @@ export default function App() {
               <span className="font-semibold">Home</span>
             </button>
 
-            <Logo size="sm" />
+            <Logo size="sm" onClick={goHome} />
 
             {/* Stats */}
             <div className="flex items-center gap-3">
-              {user && !user.isPro && (
+              {isAuthenticated && user && !user.isPro && (
                 <div className="text-right">
                   <div className="text-xs text-ink-500">Remaining</div>
-                  <div className="text-sm font-bold text-brand-navy">{getRemainingAnalyses()}/30</div>
+                  <div className="text-sm font-bold text-brand-navy">{remaining}/30</div>
                 </div>
               )}
               
-              <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-navy/10 to-brand-orange/10 rounded-lg border border-brand-navy/20">
-                <div className="text-center">
-                  <div className="text-lg font-bold text-brand-navy">{documentsAnalyzed}</div>
-                  <div className="text-xs text-ink-600">docs</div>
+              {user && (
+                <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-navy/10 to-brand-orange/10 rounded-lg border border-brand-navy/20">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-brand-navy">{user.totalDocsAnalyzed}</div>
+                    <div className="text-xs text-ink-600">docs</div>
+                  </div>
+                  {user.totalSavings > 0 && (
+                    <>
+                      <div className="w-px h-6 bg-border-200"></div>
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-brand-green">${user.totalSavings.toLocaleString()}</div>
+                        <div className="text-xs text-ink-600">saved</div>
+                      </div>
+                    </>
+                  )}
                 </div>
-                {totalSavings > 0 && (
-                  <>
-                    <div className="w-px h-6 bg-border-200"></div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-brand-green">${totalSavings.toLocaleString()}</div>
-                      <div className="text-xs text-ink-600">saved</div>
-                    </div>
-                  </>
-                )}
-              </div>
+              )}
               
-              {user && !user.isPro && (
+              {isAuthenticated && user && !user.isPro && (
                 <button
-                  onClick={() => setShowAuth(true)}
+                  onClick={() => setShowAuthModal(true)}
                   className="px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-ink-900 rounded-lg font-semibold text-sm hover:shadow-lg transition"
                 >
                   Upgrade
@@ -748,7 +722,7 @@ export default function App() {
               {savedAnalyses.length > 0 && (
                 <Card title="📚 Recent">
                   <div className="space-y-2">
-                    {savedAnalyses.slice(0, 5).map((saved) => (
+                    {savedAnalyses.slice(0, 5).map((saved: any) => (
                       <button
                         key={saved.id}
                         onClick={() => loadSavedAnalysis(saved)}
@@ -810,30 +784,14 @@ export default function App() {
                       Paste text or upload a file to get instant analysis with:
                     </p>
                     <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto text-sm">
-                      <div className="flex items-center gap-2 text-left">
-                        <svg className="w-5 h-5 text-brand-orange flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <span>Clear recommendation</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-left">
-                        <svg className="w-5 h-5 text-brand-orange flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <span>$ impact calculation</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-left">
-                        <svg className="w-5 h-5 text-brand-orange flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <span>Negotiation templates</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-left">
-                        <svg className="w-5 h-5 text-brand-orange flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <span>Calendar reminders</span>
-                      </div>
+                      {['Clear recommendation', '$ impact calculation', 'Negotiation templates', 'Calendar reminders'].map((item) => (
+                        <div key={item} className="flex items-center gap-2 text-left">
+                          <svg className="w-5 h-5 text-brand-orange flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          <span>{item}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </Card>
