@@ -40,40 +40,47 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false }));
 
-// Remove Auth0 middleware for dev
-// const { auth } = require('express-openid-connect');
-// Auth0 Configuration (with enhanced security)
-// const authConfig = {
-//   authRequired: false,
-//   auth0Logout: true,
-//   secret: process.env.AUTH0_SECRET,
-//   baseURL: process.env.BASE_URL,
-//   clientID: process.env.AUTH0_CLIENT_ID,
-//   clientSecret: process.env.AUTH0_CLIENT_SECRET, // Added for client_secret_basic
-//   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-//   authorizationParams: {
-//     response_type: 'code',
-//     audience: process.env.AUTH0_AUDIENCE,
-//     scope: 'openid profile email'
-//   },
-//   routes: {
-//     callback: '/api/auth/callback', // Explicit callback path
-//     login: false // Disable default login route
-//   },
-//   session: {
-//     cookie: {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === 'production',
-//       sameSite: "Lax" // Capital L, as required by express-openid-connect
-//     }
-//   }
-// };
+// Auth0 Configuration
+const { auth } = require('express-openid-connect');
 
-// if (process.env.NODE_ENV === 'production') {
-//   authConfig.session.cookie.domain = process.env.COOKIE_DOMAIN;
-// }
+const authConfig = {
+  authRequired: false, // Routes opt-in to auth via protect middleware
+  auth0Logout: true,
+  secret: process.env.AUTH0_SECRET || 'dev-secret-change-in-production-' + Math.random().toString(36),
+  baseURL: process.env.BASE_URL || 'http://localhost:5000',
+  clientID: process.env.AUTH0_CLIENT_ID || '',
+  clientSecret: process.env.AUTH0_CLIENT_SECRET || '',
+  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL || '',
+  authorizationParams: {
+    response_type: 'code',
+    audience: process.env.AUTH0_AUDIENCE,
+    scope: 'openid profile email'
+  },
+  routes: {
+    callback: '/api/auth/callback',
+    login: '/api/auth/login',
+    logout: '/api/auth/logout'
+  },
+  session: {
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax'
+    }
+  },
+  // Allow unauthenticated access for public endpoints
+  afterCallback: (req, res, session) => {
+    return session;
+  }
+};
 
-// app.use(auth(authConfig));
+// Only enable Auth0 if credentials are provided
+if (process.env.AUTH0_CLIENT_ID && process.env.AUTH0_ISSUER_BASE_URL) {
+  app.use(auth(authConfig));
+  console.log('✅ Auth0 authentication enabled');
+} else {
+  console.warn('⚠️  Auth0 not configured - using development mode');
+}
 
 // API Routes (with versioning and improved routing)
 const apiRouter = express.Router();
@@ -94,6 +101,14 @@ routes.forEach(route => {
     // Consider more robust error handling here, like a custom error middleware
   }
 });
+
+// Add users route
+try {
+  const usersRoute = require('./routes/users');
+  apiRouter.use('/users', usersRoute);
+} catch (error) {
+  console.error('Failed to load users route:', error);
+}
 
 app.use('/api/v1', apiRouter);
 

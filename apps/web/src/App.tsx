@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useAuth0Safe } from './hooks/useAuth0Safe'
 import Logo from './components/Logo'
 import Hero from './components/Hero'
 import InstantAnalysis from './components/InstantAnalysis'
@@ -12,17 +13,22 @@ import AccountPage from './pages/AccountPage'
 import AdminPage from './pages/AdminPage'
 import { Card } from './components/Cards'
 import { analyzeText, analyzeFile, exportPDF } from './lib/api'
+import { syncUser, getUserStats, type User as BackendUser } from './lib/auth'
 import type { EnhancedAnalysisT } from './lib/schemas'
 
-// Simple auth types (localStorage-based for MVP)
+// User type - supports both Auth0 backend user and localStorage fallback
 interface User {
   email: string
   name: string
   isPro: boolean
   docsThisMonth: number
+  totalDocsAnalyzed?: number
+  totalSavings?: number
   address?: string
   phone?: string
   company?: string
+  picture?: string
+  id?: string
 }
 
 interface SavedAnalysis {
@@ -32,7 +38,19 @@ interface SavedAnalysis {
   analysis: EnhancedAnalysisT
 }
 
-export default function App() {
+function AppContent() {
+  // Auth0 integration (safe hook that handles missing provider)
+  const auth0Configured = !!import.meta.env.VITE_AUTH0_DOMAIN && !!import.meta.env.VITE_AUTH0_CLIENT_ID
+  
+  const {
+    isAuthenticated: auth0Authenticated,
+    isLoading: auth0Loading,
+    user: auth0User,
+    loginWithRedirect,
+    logout: auth0Logout,
+    getAccessTokenSilently
+  } = useAuth0Safe()
+
   const [user, setUser] = useState<User | null>(null)
   const [showAuth, setShowAuth] = useState(false)
   const [showAccount, setShowAccount] = useState(false)
@@ -46,6 +64,7 @@ export default function App() {
   const [documentsAnalyzed, setDocumentsAnalyzed] = useState(0)
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([])
   const [totalSavings, setTotalSavings] = useState(0)
+  const [syncingUser, setSyncingUser] = useState(false)
 
   // Check for admin route on mount
   useEffect(() => {
@@ -54,8 +73,57 @@ export default function App() {
     }
   }, [])
 
-  // Load user and saved data on mount
+  // Sync Auth0 user with backend
   useEffect(() => {
+    const syncAuth0User = async () => {
+      if (!auth0Configured || !auth0Authenticated || !auth0User || syncingUser) return
+
+      try {
+        setSyncingUser(true)
+        const token = await getAccessTokenSilently()
+        const backendUser = await syncUser()
+        
+        // Convert backend user to app user format
+        setUser({
+          email: backendUser.email,
+          name: backendUser.name,
+          isPro: backendUser.subscriptionTier !== 'free',
+          docsThisMonth: backendUser.docsThisMonth,
+          totalDocsAnalyzed: backendUser.totalDocsAnalyzed,
+          totalSavings: backendUser.totalSavings,
+          picture: backendUser.picture,
+          id: backendUser.id
+        })
+        
+        setDocumentsAnalyzed(backendUser.totalDocsAnalyzed)
+        setTotalSavings(backendUser.totalSavings)
+      } catch (err) {
+        console.error('Failed to sync Auth0 user:', err)
+        // Fallback to Auth0 user data
+        if (auth0User) {
+          setUser({
+            email: auth0User.email || '',
+            name: auth0User.name || auth0User.nickname || '',
+            isPro: false,
+            docsThisMonth: 0,
+            picture: auth0User.picture,
+            id: auth0User.sub
+          })
+        }
+      } finally {
+        setSyncingUser(false)
+      }
+    }
+
+    if (auth0Configured && !auth0Loading) {
+      syncAuth0User()
+    }
+  }, [auth0Authenticated, auth0User, auth0Loading, auth0Configured, getAccessTokenSilently, syncingUser])
+
+  // Load localStorage user (fallback when Auth0 not configured)
+  useEffect(() => {
+    if (auth0Configured) return // Skip if Auth0 is configured
+
     const savedUser = localStorage.getItem('paipersum_user')
     if (savedUser) {
       try {
@@ -73,7 +141,7 @@ export default function App() {
     
     const saved = JSON.parse(localStorage.getItem('saved_analyses') || '[]')
     setSavedAnalyses(saved)
-  }, [])
+  }, [auth0Configured])
 
   // Check free tier limit
   const canAnalyze = (): boolean => {
@@ -88,21 +156,41 @@ export default function App() {
     return user.docsThisMonth < 30
   }
 
-  const handleLogin = (email: string, name: string) => {
-    const newUser: User = {
-      email,
-      name,
-      isPro: false,
-      docsThisMonth: 0
+  const handleLogin = async (email?: string, name?: string) => {
+    if (auth0Configured) {
+      // Use Auth0 login
+      await loginWithRedirect({
+        appState: {
+          returnTo: window.location.pathname
+        }
+      })
+    } else {
+      // Fallback: localStorage login
+      if (email && name) {
+        const newUser: User = {
+          email,
+          name,
+          isPro: false,
+          docsThisMonth: 0
+        }
+        setUser(newUser)
+        localStorage.setItem('paipersum_user', JSON.stringify(newUser))
+        setShowAuth(false)
+      }
     }
-    setUser(newUser)
-    localStorage.setItem('paipersum_user', JSON.stringify(newUser))
-    setShowAuth(false)
   }
 
-  const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem('paipersum_user')
+  const handleLogout = async () => {
+    if (auth0Configured) {
+      await auth0Logout({
+        logoutParams: {
+          returnTo: window.location.origin
+        }
+      })
+    } else {
+      setUser(null)
+      localStorage.removeItem('paipersum_user')
+    }
   }
 
   const handleAnalyzeText = async (textToAnalyze: string = text, name: string = documentName) => {
@@ -130,9 +218,24 @@ export default function App() {
       
       // Update user monthly count
       if (user) {
-        const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
+        const updatedUser = { 
+          ...user, 
+          docsThisMonth: user.docsThisMonth + 1,
+          totalDocsAnalyzed: (user.totalDocsAnalyzed || 0) + 1,
+          totalSavings: (user.totalSavings || 0) + (result.recommendation.cost_impact || 0)
+        }
         setUser(updatedUser)
-        localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
+        
+        // Update backend if Auth0 is configured
+        if (auth0Configured && user.id) {
+          try {
+            await getUserStats() // This will sync with backend
+          } catch (err) {
+            console.error('Failed to sync stats:', err)
+          }
+        } else {
+          localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
+        }
       }
       
       // Track savings
@@ -284,12 +387,16 @@ export default function App() {
         </div>
 
         {!user ? (
-          <form onSubmit={(e) => {
+          <form onSubmit={async (e) => {
             e.preventDefault()
-            const formData = new FormData(e.currentTarget)
-            const email = formData.get('email') as string
-            const name = formData.get('name') as string
-            if (email && name) handleLogin(email, name)
+            if (auth0Configured) {
+              await handleLogin()
+            } else {
+              const formData = new FormData(e.currentTarget)
+              const email = formData.get('email') as string
+              const name = formData.get('name') as string
+              if (email && name) await handleLogin(email, name)
+            }
           }} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-ink-700 mb-2">Name</label>
@@ -312,9 +419,19 @@ export default function App() {
               />
             </div>
             <div className="pt-2">
-              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition">
-                Continue →
-              </button>
+              {auth0Configured ? (
+                <button 
+                  type="button"
+                  onClick={() => handleLogin()}
+                  className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition"
+                >
+                  Sign in with Auth0 →
+                </button>
+              ) : (
+                <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition">
+                  Continue →
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setShowAuth(false)}
@@ -396,7 +513,7 @@ export default function App() {
           {/* Navigation */}
           <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-border-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-              <Logo size="md" />
+              <Logo size="md" onClick={() => { setShowAnalyzer(false); setAnalysis(null); window.scrollTo(0, 0) }} />
               
               <div className="flex items-center gap-4">
                 {documentsAnalyzed > 0 && (
@@ -636,7 +753,7 @@ export default function App() {
               <span className="font-semibold">Home</span>
             </button>
 
-            <Logo size="sm" />
+            <Logo size="sm" onClick={handleClear} />
 
             {/* Stats */}
             <div className="flex items-center gap-3">
@@ -866,4 +983,9 @@ export default function App() {
       </div>
     </>
   )
+}
+
+// Export App component
+export default function App() {
+  return <AppContent />
 }
