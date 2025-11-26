@@ -274,7 +274,9 @@ export default function App() {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in slide-in-from-bottom-4">
         <div className="text-center mb-6">
-          <Logo size="lg" />
+          <div className="inline-block">
+            <Logo size="lg" />
+          </div>
           <h2 className="text-2xl font-bold text-ink-900 mt-4 mb-2">
             {user ? 'Upgrade to Pro' : 'Sign in or create an account'}
           </h2>
@@ -396,7 +398,7 @@ export default function App() {
           {/* Navigation */}
           <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-border-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-              <Logo size="md" />
+              <Logo size="md" onClick={handleClear} />
               
               <div className="flex items-center gap-4">
                 {documentsAnalyzed > 0 && (
@@ -636,7 +638,7 @@ export default function App() {
               <span className="font-semibold">Home</span>
             </button>
 
-            <Logo size="sm" />
+            <Logo size="sm" onClick={handleClear} />
 
             {/* Stats */}
             <div className="flex items-center gap-3">

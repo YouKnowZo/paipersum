@@ -1,5 +1,5 @@
 // PaiperSum branded logo component - matches official branding
-export default function Logo({ size = 'md', showText = true }: { size?: 'sm' | 'md' | 'lg'; showText?: boolean }) {
+export default function Logo({ size = 'md', showText = true, onClick }: { size?: 'sm' | 'md' | 'lg'; showText?: boolean; onClick?: () => void }) {
   const sizes = {
     sm: { icon: 'w-8 h-8', text: 'text-lg', tagline: 'text-[10px]' },
     md: { icon: 'w-10 h-10', text: 'text-xl', tagline: 'text-xs' },
@@ -7,7 +7,11 @@ export default function Logo({ size = 'md', showText = true }: { size?: 'sm' | '
   }
 
   return (
-    <div className="flex items-center gap-2.5">
+    <button 
+      onClick={onClick}
+      className="flex items-center gap-2.5 hover:opacity-80 transition-opacity cursor-pointer"
+      aria-label="Go to home"
+    >
       {/* PaiperSum P Icon - matches official logo */}
       <div className={`${sizes[size].icon} relative group cursor-pointer flex-shrink-0`}>
         <svg 
@@ -85,7 +89,7 @@ export default function Logo({ size = 'md', showText = true }: { size?: 'sm' | '
           <span className="text-brand-navy">perSum</span>
         </span>
       )}
-    </div>
+    </button>
   )
 }
 
