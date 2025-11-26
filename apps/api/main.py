@@ -1,13 +1,25 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Request, Header
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
 from typing import List, Literal, Optional
+from collections import Counter
 import re
 import os
 import tempfile
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
+
+from state import (
+    record_analysis,
+    get_analyses,
+    get_config,
+    update_config,
+    get_billing,
+    get_customers,
+    get_threat_events,
+    upsert_threat_events
+)
 
 # Import existing modules
 from obs import install_handlers
@@ -39,6 +51,15 @@ app = FastAPI(
     description="Useful document analysis with actionable recommendations",
     lifespan=lifespan
 )
+
+ADMIN_API_KEY = os.getenv('ADMIN_API_KEY')
+
+def require_admin(x_admin_key: str = Header(None)):
+    if not ADMIN_API_KEY:
+        raise HTTPException(status_code=500, detail="Admin API key not configured")
+    if x_admin_key != ADMIN_API_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return True
 
 allowed_origins = [origin.strip() for origin in os.getenv('ALLOWED_ORIGINS', '*').split(',') if origin.strip()]
 if not allowed_origins:
@@ -141,6 +162,76 @@ class ThreatDashboard(BaseModel):
     integrations: List[IntegrationStatus]
     last_updated: str
 
+class RiskBreakdown(BaseModel):
+    level: Literal['low', 'medium', 'high']
+    percent: float
+
+class UsageKPI(BaseModel):
+    label: str
+    value: str
+    trend: float
+    detail: str
+
+class UsageSummary(BaseModel):
+    total_documents: int
+    documents_today: int
+    average_risk: float
+    top_doc_types: List[str]
+    risk_breakdown: List[RiskBreakdown]
+    kpis: List[UsageKPI]
+
+class Invoice(BaseModel):
+    id: str
+    amount: int
+    status: Literal['paid', 'due', 'past_due']
+    due_date: str
+
+class BillingSnapshot(BaseModel):
+    plan: str
+    plan_price: int
+    currency: str
+    seats_included: int
+    seats_used: int
+    mrr: int
+    renews_on: str
+    invoices: List[Invoice]
+
+class HealthCheck(BaseModel):
+    name: str
+    status: Literal['ok', 'warning', 'critical']
+    detail: str
+
+class SystemHealth(BaseModel):
+    uptime: str
+    incidents_open: int
+    avg_latency_ms: int
+    queue_depth: int
+    checks: List[HealthCheck]
+
+class ConfigSettings(BaseModel):
+    rate_limit_window: int
+    rate_limit_limit: int
+    maintenance_mode: bool
+    allowed_admin_ips: List[str]
+
+class ConfigUpdate(BaseModel):
+    rate_limit_window: Optional[int] = None
+    rate_limit_limit: Optional[int] = None
+    maintenance_mode: Optional[bool] = None
+    allowed_admin_ips: Optional[List[str]] = None
+
+class AdminDashboard(BaseModel):
+    stats: List[ThreatStat]
+    events: List[ThreatEvent]
+    watchlist: List[str]
+    recommendations: List[str]
+    integrations: List[IntegrationStatus]
+    last_updated: str
+    usage: UsageSummary
+    billing: BillingSnapshot
+    system_health: SystemHealth
+    config: ConfigSettings
+
 # Analysis rules with impact
 RULES = [
     (r"indemnif(y|ication)", "Indemnification", "You must defend and pay for the other party if something goes wrong.", 'red', "Unlimited liability"),
@@ -159,16 +250,20 @@ RULES = [
 
 RISK_WEIGHTS = {'red': 30, 'yellow': 12, 'green': 4}
 
-THREAT_EVENTS: List[dict] = []
-
 def _iso(dt: datetime) -> str:
     return dt.replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
-def _seed_threat_events() -> None:
-    """Populate in-memory threat events for the admin portal."""
-    if THREAT_EVENTS:
-        return
-    
+def _parse_iso(ts: str) -> datetime:
+    if ts.endswith('Z'):
+        ts = ts.replace('Z', '+00:00')
+    return datetime.fromisoformat(ts)
+
+def _seed_threat_events() -> List[dict]:
+    """Populate stored threat events for the admin portal."""
+    existing = get_threat_events()
+    if existing:
+        return existing
+
     now = datetime.now(timezone.utc)
     base = [
         {
@@ -231,10 +326,143 @@ def _seed_threat_events() -> None:
     for idx, event in enumerate(base):
         event_copy = event.copy()
         event_copy["timestamp"] = _iso(now - timedelta(minutes=idx * 11))
-        THREAT_EVENTS.append(event_copy)
+        existing.append(event_copy)
+
+    upsert_threat_events(existing)
+    return existing
 
 def _get_threat_event(event_id: str) -> Optional[dict]:
-    return next((event for event in THREAT_EVENTS if event["id"] == event_id), None)
+    events = get_threat_events()
+    return next((event for event in events if event["id"] == event_id), None)
+
+def _ensure_service_available():
+    config = get_config()
+    if config.get('maintenance_mode'):
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable (maintenance)")
+
+def build_admin_dashboard() -> AdminDashboard:
+    events = _seed_threat_events()
+    analyses = get_analyses()
+    billing = get_billing()
+    config = get_config()
+    
+    blocked_attempts = sum(event["attempts"] for event in events if event["status"] == "blocked")
+    
+    stats = [
+        ThreatStat(label="Blocked requests (24h)", value=f"{blocked_attempts:,}", change=12.4, is_positive=True),
+        ThreatStat(label="Credential stuffing attempts", value="11,248", change=-4.1, is_positive=True),
+        ThreatStat(label="Incident-free days", value="218", change=1.0, is_positive=True),
+        ThreatStat(label="Patch window", value="Next window in 6h", change=0.0, is_positive=True)
+    ]
+    
+    watchlist = [
+        "CVE-2024-7583 (OpenSSL DTLS) — patch scheduled",
+        "Okta session token replay — monitor expired tokens",
+        "Chrome extension supply chain — review upcoming publish"
+    ]
+    
+    recommendations = [
+        "Rotate API keys older than 90 days (12 keys flagged)",
+        "Expand WAF rule PS-992 to include /account/exports",
+        "Ship weekly trust digest to enterprise customers"
+    ]
+    
+    integrations = [
+        IntegrationStatus(name="Slack", status="ok", detail="Sending hourly digests to #trust-and-safety"),
+        IntegrationStatus(name="Teams", status="warning", detail="Connector token expires in 3 days"),
+        IntegrationStatus(name="PagerDuty", status="ok", detail="Mapped to Critical-Atlas service"),
+        IntegrationStatus(name="Notion", status="ok", detail="Playbooks synced to Trust Hub space")
+    ]
+    
+    total_docs = len(analyses)
+    today = datetime.now(timezone.utc).date()
+    documents_today = sum(1 for entry in analyses if "timestamp" in entry and _parse_iso(entry["timestamp"]).date() == today)
+    avg_risk = round(sum(entry.get('risk_score', 0) for entry in analyses) / total_docs, 2) if total_docs else 0.0
+    
+    doc_type_counts = Counter(entry.get('doc_type', 'general') for entry in analyses)
+    top_doc_types = [doc for doc, _ in doc_type_counts.most_common(3)]
+    
+    risk_buckets = {'low': 0, 'medium': 0, 'high': 0}
+    for entry in analyses:
+        score = entry.get('risk_score', 0)
+        if score >= 70:
+            risk_buckets['high'] += 1
+        elif score >= 40:
+            risk_buckets['medium'] += 1
+        else:
+            risk_buckets['low'] += 1
+    risk_breakdown = [
+        RiskBreakdown(level=level, percent=round((count / total_docs) * 100, 1) if total_docs else 0.0)
+        for level, count in risk_buckets.items()
+    ]
+    
+    negotiation_total = sum(1 for entry in analyses if entry.get('decision') in {'negotiate', 'walk_away'})
+    cost_protected = sum(max(0, entry.get('cost_impact', 0)) for entry in analyses)
+    
+    kpis = [
+        UsageKPI(label="Negotiations triggered", value=str(negotiation_total), trend=3.2, detail="Docs flagged negotiate/walk"),
+        UsageKPI(label="Cost protected", value=f"${cost_protected:,.0f}", trend=5.1, detail="Projected exposure avoided"),
+        UsageKPI(label="Docs analyzed (7d)", value=str(min(total_docs, 120)), trend=1.4, detail="Completed this week")
+    ]
+    
+    usage = UsageSummary(
+        total_documents=total_docs,
+        documents_today=documents_today,
+        average_risk=avg_risk,
+        top_doc_types=top_doc_types,
+        risk_breakdown=risk_breakdown,
+        kpis=kpis
+    )
+    
+    invoices = [
+        Invoice(id="INV-2025-005", amount=billing['plan_price'] * billing['seats_used'], status='paid', due_date=billing['renews_on']),
+        Invoice(id="INV-2025-004", amount=billing['plan_price'] * billing['seats_used'], status='paid', due_date="2025-11-01"),
+        Invoice(id="INV-2025-003", amount=billing['plan_price'] * billing['seats_used'], status='paid', due_date="2025-10-01")
+    ]
+    
+    billing_snapshot = BillingSnapshot(
+        plan=billing['plan'],
+        plan_price=billing['plan_price'],
+        currency=billing['currency'],
+        seats_included=billing['seats_included'],
+        seats_used=billing['seats_used'],
+        mrr=billing['mrr'],
+        renews_on=billing['renews_on'],
+        invoices=invoices
+    )
+    
+    system_health = SystemHealth(
+        uptime="99.985%",
+        incidents_open=1,
+        avg_latency_ms=182,
+        queue_depth=3,
+        checks=[
+            HealthCheck(name="API", status="ok", detail="All pods responding"),
+            HealthCheck(name="Workers", status="ok", detail="3 consumers active"),
+            HealthCheck(name="Browser extension", status="warning", detail="Chrome review pending"),
+            HealthCheck(name="Webhook delivery", status="ok", detail="p95 320ms")
+        ]
+    )
+    
+    config_settings = ConfigSettings(
+        rate_limit_window=int(config.get('rate_limit_window', 10)),
+        rate_limit_limit=int(config.get('rate_limit_limit', 30)),
+        maintenance_mode=bool(config.get('maintenance_mode', False)),
+        allowed_admin_ips=list(config.get('allowed_admin_ips', []))
+    )
+    
+    return AdminDashboard(
+        stats=stats,
+        events=[ThreatEvent(**event) for event in events],
+        watchlist=watchlist,
+        recommendations=recommendations,
+        integrations=integrations,
+        last_updated=_iso(datetime.now(timezone.utc)),
+        usage=usage,
+        billing=billing_snapshot,
+        system_health=system_health,
+        config=config_settings
+    )
 
 def _extract_sentence(text: str, idx: int) -> str:
     start = max(0, text.rfind('.', 0, idx) + 1)
@@ -289,6 +517,8 @@ async def analyze(inp: AnalyzeIn):
     
     if len(text) > 500000:
         raise HTTPException(status_code=400, detail="Text too long (max 500KB)")
+
+    _ensure_service_available()
     
     # Auto-detect document type if not provided
     doc_type: str = inp.doc_type if inp.doc_type and inp.doc_type != 'general' else detect_document_type(text)
@@ -357,7 +587,7 @@ async def analyze(inp: AnalyzeIn):
     doc_hash = hashlib.md5(text[:100].encode()).hexdigest()[:8]
     share_url = f"https://paipersum.com/share/{doc_hash}"
     
-    return EnhancedAnalysis(
+    analysis_payload = EnhancedAnalysis(
         risk_score=risk_score,
         clauses=found,
         confidence=confidence,
@@ -369,11 +599,24 @@ async def analyze(inp: AnalyzeIn):
         share_image_url=f"{share_url}/image"
     )
 
+    record_analysis({
+        "id": doc_hash,
+        "timestamp": _iso(datetime.now(timezone.utc)),
+        "doc_type": doc_type,
+        "risk_score": risk_score,
+        "decision": recommendation.decision,
+        "cost_impact": recommendation.cost_impact
+    })
+    
+    return analysis_payload
+
 @app.post('/analyze-file', response_model=EnhancedAnalysis)
 async def analyze_file(file: UploadFile = File(...)):
     """Enhanced file analysis"""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
+    
+    _ensure_service_available()
     
     content = await file.read()
     if len(content) > 10 * 1024 * 1024:
@@ -413,6 +656,8 @@ async def export_pdf(inp: AnalyzeIn):
     if not inp.text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty")
     
+    _ensure_service_available()
+    
     analysis = await analyze(inp)
     
     try:
@@ -441,51 +686,12 @@ def get_document_types():
         ]
     }
 
-@app.get('/threat-feed', response_model=ThreatDashboard)
-def threat_feed():
-    """Return live-ish threat intel for the admin portal."""
-    _seed_threat_events()
-    
-    blocked_attempts = sum(event["attempts"] for event in THREAT_EVENTS if event["status"] == "blocked")
-    
-    stats = [
-        ThreatStat(label="Blocked requests (24h)", value=f"{blocked_attempts:,}", change=12.4, is_positive=True),
-        ThreatStat(label="Credential stuffing attempts", value="11,248", change=-4.1, is_positive=True),
-        ThreatStat(label="Incident-free days", value="218", change=1.0, is_positive=True),
-        ThreatStat(label="Patch window", value="Next window in 6h", change=0.0, is_positive=True)
-    ]
-    
-    watchlist = [
-        "CVE-2024-7583 (OpenSSL DTLS) — patch scheduled",
-        "Okta session token replay — monitor expired tokens",
-        "Chrome extension supply chain — review upcoming publish"
-    ]
-    
-    recommendations = [
-        "Rotate API keys older than 90 days (12 keys flagged)",
-        "Expand WAF rule PS-992 to include /account/exports",
-        "Ship weekly trust digest to enterprise customers"
-    ]
-    
-    integrations = [
-        IntegrationStatus(name="Slack", status="ok", detail="Sending hourly digests to #trust-and-safety"),
-        IntegrationStatus(name="Teams", status="warning", detail="Connector token expires in 3 days"),
-        IntegrationStatus(name="PagerDuty", status="ok", detail="Mapped to Critical-Atlas service"),
-        IntegrationStatus(name="Notion", status="ok", detail="Playbooks synced to Trust Hub space")
-    ]
-    
-    events = [ThreatEvent(**event) for event in THREAT_EVENTS]
-    
-    return ThreatDashboard(
-        stats=stats,
-        events=events,
-        watchlist=watchlist,
-        recommendations=recommendations,
-        integrations=integrations,
-        last_updated=_iso(datetime.now(timezone.utc))
-    )
+@app.get('/admin/dashboard', response_model=AdminDashboard, dependencies=[Depends(require_admin)])
+def admin_dashboard():
+    """Return business + security telemetry for the admin portal."""
+    return build_admin_dashboard()
 
-@app.post('/threats/{event_id}/acknowledge', response_model=ThreatEvent)
+@app.post('/threats/{event_id}/acknowledge', response_model=ThreatEvent, dependencies=[Depends(require_admin)])
 def acknowledge_threat(event_id: str):
     """Mark a threat event as mitigated/acknowledged."""
     _seed_threat_events()
@@ -497,7 +703,29 @@ def acknowledge_threat(event_id: str):
     if "acknowledged" not in event["notes"]:
         event["notes"] = f'{event["notes"]} | acknowledged via admin portal'
     
+    events = get_threat_events()
+    for idx, entry in enumerate(events):
+        if entry["id"] == event_id:
+            events[idx] = event
+            break
+    upsert_threat_events(events)
+    
     return ThreatEvent(**event)
+
+@app.patch('/admin/config', response_model=ConfigSettings, dependencies=[Depends(require_admin)])
+def update_admin_config(payload: ConfigUpdate):
+    """Update runtime limits and maintenance toggles."""
+    updates = {k: v for k, v in payload.dict(exclude_unset=True).items() if v is not None}
+    if not updates:
+        return ConfigSettings(**get_config())
+    
+    config = update_config(updates)
+    return ConfigSettings(
+        rate_limit_window=int(config.get('rate_limit_window', 10)),
+        rate_limit_limit=int(config.get('rate_limit_limit', 30)),
+        maintenance_mode=bool(config.get('maintenance_mode', False)),
+        allowed_admin_ips=list(config.get('allowed_admin_ips', []))
+    )
 
 # Stripe Payment Endpoints
 @app.post('/create-checkout-session')

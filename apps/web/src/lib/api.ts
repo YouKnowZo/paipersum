@@ -1,7 +1,17 @@
 import axios from 'axios'
-import { EnhancedAnalysis, ThreatDashboard, ThreatEvent, type EnhancedAnalysisT, type ThreatDashboardT, type ThreatEventT } from './schemas'
+import { EnhancedAnalysis, ThreatEvent, AdminDashboard, ConfigSettings, type EnhancedAnalysisT, type AdminDashboardT, type ThreatEventT, type ConfigSettingsT } from './schemas'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+let adminPortalKey: string | null = null
+
+export function setAdminPortalKey(key: string | null) {
+  adminPortalKey = key
+}
+
+function adminHeaders() {
+  return adminPortalKey ? { 'X-Admin-Key': adminPortalKey } : {}
+}
 
 export async function analyzeText(text: string, docType: string = 'general'): Promise<EnhancedAnalysisT> {
   try {
@@ -62,17 +72,21 @@ export async function exportPDF(text: string): Promise<Blob> {
   }
 }
 
-export async function fetchThreatFeed(): Promise<ThreatDashboardT> {
+export async function fetchAdminDashboard(): Promise<AdminDashboardT> {
   try {
-    const res = await axios.get(`${API_URL}/threat-feed`)
-    const parsed = ThreatDashboard.safeParse(res.data)
+    const res = await axios.get(`${API_URL}/admin/dashboard`, {
+      headers: {
+        ...adminHeaders()
+      }
+    })
+    const parsed = AdminDashboard.safeParse(res.data)
     if (!parsed.success) {
-      throw new Error('Invalid threat feed response')
+      throw new Error('Invalid admin dashboard response')
     }
     return parsed.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data?.detail || 'Threat feed unavailable')
+      throw new Error(error.response?.data?.detail || 'Admin dashboard unavailable')
     }
     throw error
   }
@@ -80,7 +94,11 @@ export async function fetchThreatFeed(): Promise<ThreatDashboardT> {
 
 export async function acknowledgeThreat(eventId: string): Promise<ThreatEventT> {
   try {
-    const res = await axios.post(`${API_URL}/threats/${eventId}/acknowledge`)
+    const res = await axios.post(`${API_URL}/threats/${eventId}/acknowledge`, undefined, {
+      headers: {
+        ...adminHeaders()
+      }
+    })
     const parsed = ThreatEvent.safeParse(res.data)
     if (!parsed.success) {
       throw new Error('Invalid acknowledgment response')
@@ -89,6 +107,26 @@ export async function acknowledgeThreat(eventId: string): Promise<ThreatEventT> 
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(error.response?.data?.detail || 'Failed to acknowledge threat')
+    }
+    throw error
+  }
+}
+
+export async function updateAdminConfig(payload: Partial<ConfigSettingsT>): Promise<ConfigSettingsT> {
+  try {
+    const res = await axios.patch(`${API_URL}/admin/config`, payload, {
+      headers: {
+        ...adminHeaders()
+      }
+    })
+    const parsed = ConfigSettings.safeParse(res.data)
+    if (!parsed.success) {
+      throw new Error('Invalid config response')
+    }
+    return parsed.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Failed to update config')
     }
     throw error
   }

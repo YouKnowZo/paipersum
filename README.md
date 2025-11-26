@@ -232,6 +232,7 @@ STRIPE_SECRET=sk_test_xxx
 STRIPE_WEBHOOK_SECRET=whsec_xxx
 SENTRY_DSN=https://xxx@sentry.io/xxx
 ALLOWED_ORIGINS=*
+ADMIN_API_KEY=replace-with-strong-passphrase
 
 # Web Configuration
 VITE_API_URL=http://localhost:8000
@@ -257,6 +258,13 @@ RISK_WEIGHTS = {'red': 30, 'yellow': 12, 'green': 4}
 WINDOW = 10  # seconds
 LIMIT = 30   # requests per window
 ```
+
+## 🧑‍💼 Admin Portal
+
+- Set `ADMIN_API_KEY` in `apps/api/.env` and redeploy. All `/admin/*` routes expect this passcode via the `X-Admin-Key` header.
+- The web console (“Security Portal” button) prompts for the passcode locally (stored only in `sessionStorage`) and then pulls the dashboard via FastAPI.
+- Telemetry and config changes persist to `apps/api/data/state.json` so threat timelines, usage analytics, and rate-limit settings survive restarts. Swap this file for Postgres/Redis as you scale.
+- Admins can adjust rate limits, toggle maintenance mode, manage allowed admin IPs, and acknowledge threats directly from the UI.
 
 ---
 

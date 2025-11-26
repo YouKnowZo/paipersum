@@ -4,10 +4,12 @@ from fastapi.responses import Response
 from time import time
 from collections import defaultdict
 
+from state import get_config
+
 # Simple in-memory rate limiting (use Redis in production)
-_BUCKET = defaultdict(lambda: {'t': 0, 'c': 0})
-WINDOW = 10  # seconds
-LIMIT = 30   # requests per window
+_BUCKET = defaultdict(lambda: {'start': 0, 'count': 0})
+DEFAULT_WINDOW = 10  # seconds
+DEFAULT_LIMIT = 30   # requests per window
 
 async def rate_limit(request: Request, call_next):
     """Rate limit requests per IP"""
@@ -16,25 +18,28 @@ async def rate_limit(request: Request, call_next):
     
     ip = request.client.host
     b = _BUCKET[ip]
-    now = int(time())
+    now = time()
     
-    # Reset bucket if in new window
-    if now != b['t']:
-        b['t'] = now
-        b['c'] = 0
+    config = get_config()
+    window = int(config.get('rate_limit_window', DEFAULT_WINDOW))
+    limit = int(config.get('rate_limit_limit', DEFAULT_LIMIT))
     
-    b['c'] += 1
+    if now - b['start'] >= window:
+        b['start'] = now
+        b['count'] = 0
     
-    if b['c'] > LIMIT:
+    b['count'] += 1
+    
+    if b['count'] > limit:
         return Response(
             'Too Many Requests - Rate limit exceeded',
             status_code=429,
-            headers={'Retry-After': '10'}
+            headers={'Retry-After': str(window)}
         )
     
     response = await call_next(request)
-    response.headers['X-RateLimit-Limit'] = str(LIMIT)
-    response.headers['X-RateLimit-Remaining'] = str(max(0, LIMIT - b['c']))
+    response.headers['X-RateLimit-Limit'] = str(limit)
+    response.headers['X-RateLimit-Remaining'] = str(max(0, limit - b['count']))
     
     return response
 
