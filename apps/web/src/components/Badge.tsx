@@ -1,8 +1,8 @@
 export function RiskDot({ risk }: { risk: 'green' | 'yellow' | 'red' }) {
   const colors = {
-    green: 'bg-brand-green',
-    yellow: 'bg-brand-yellow',
-    red: 'bg-brand-red'
+    green: 'bg-success-500',
+    yellow: 'bg-warning-500',
+    red: 'bg-danger-500'
   }
   
   const labels = {
@@ -22,10 +22,15 @@ export function RiskDot({ risk }: { risk: 'green' | 'yellow' | 'red' }) {
 
 export function ConfidenceBadge({ confidence }: { confidence: number }) {
   const pct = Math.round(confidence * 100)
-  const color = pct >= 75 ? 'bg-brand-green/10 text-brand-green' : pct >= 50 ? 'bg-brand-yellow/10 text-brand-yellow' : 'bg-brand-red/10 text-brand-red'
+  
+  const getVariant = () => {
+    if (pct >= 75) return 'badge-success'
+    if (pct >= 50) return 'badge-warning'
+    return 'badge-danger'
+  }
   
   return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${color}`}>
+    <span className={`badge ${getVariant()}`}>
       <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
       </svg>

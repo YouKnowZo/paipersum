@@ -45,7 +45,7 @@ export default function PersonalizedWelcome({ userName, docsAnalyzed, totalSavin
           {/* Animated avatar */}
           <div className="relative">
             <div className="w-12 h-12 bg-gradient-to-br from-brand-blue to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold animate-glow">
-              {userName ? userName[0].toUpperCase() : '👋'}
+              {userName?.[0]?.toUpperCase() ?? '👋'}
             </div>
             {docsAnalyzed > 0 && (
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-brand-green rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">

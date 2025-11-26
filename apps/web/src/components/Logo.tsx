@@ -1,36 +1,58 @@
-// Professional animated logo component
-export default function Logo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+interface LogoProps {
+  size?: 'sm' | 'md' | 'lg'
+  showText?: boolean
+}
+
+export default function Logo({ size = 'md', showText = true }: LogoProps) {
   const sizes = {
-    sm: 'w-8 h-8',
-    md: 'w-12 h-12',
-    lg: 'w-16 h-16'
+    sm: { icon: 'w-8 h-8', text: 'text-lg', tagline: 'text-[10px]' },
+    md: { icon: 'w-10 h-10', text: 'text-xl', tagline: 'text-xs' },
+    lg: { icon: 'w-12 h-12', text: 'text-2xl', tagline: 'text-sm' },
   }
 
   return (
     <div className="flex items-center gap-3">
-      {/* Animated icon */}
-      <div className={`${sizes[size]} relative group cursor-pointer`}>
-        {/* Background glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-blue to-brand-green rounded-xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity"></div>
+      {/* Icon mark */}
+      <div className={`${sizes[size].icon} relative group`}>
+        {/* Glow effect on hover */}
+        <div className="absolute inset-0 bg-brand-teal/20 rounded-xl blur-lg opacity-0 
+                       group-hover:opacity-100 transition-opacity duration-300" />
         
-        {/* Icon */}
-        <div className="relative w-full h-full bg-gradient-to-br from-brand-blue to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all group-hover:scale-105">
-          <svg className="w-2/3 h-2/3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" className="text-brand-green" />
+        {/* Icon container */}
+        <div className="relative w-full h-full bg-brand-navy rounded-xl flex items-center justify-center 
+                       shadow-md group-hover:shadow-lg transition-all duration-300">
+          {/* Document icon with checkmark */}
+          <svg 
+            className="w-[60%] h-[60%] text-white" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
+            />
           </svg>
+          
+          {/* Teal accent dot */}
+          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-brand-teal rounded-full 
+                         border-2 border-white shadow-sm" />
         </div>
       </div>
 
-      {/* Text logo */}
-      {size !== 'sm' && (
+      {/* Text */}
+      {showText && (
         <div className="flex flex-col">
-          <span className="font-bold text-xl leading-none bg-gradient-to-r from-brand-blue to-blue-600 bg-clip-text text-transparent">
+          <span className={`${sizes[size].text} font-display font-bold tracking-tight text-slate-900`}>
             PaiperSum
           </span>
-          <span className="text-xs text-ink-500 leading-none mt-0.5">
-            Legal, Simplified
-          </span>
+          {size !== 'sm' && (
+            <span className={`${sizes[size].tagline} text-slate-500 -mt-0.5`}>
+              Legal, Simplified
+            </span>
+          )}
         </div>
       )}
     </div>

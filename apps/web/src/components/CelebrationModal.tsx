@@ -125,22 +125,6 @@ export default function CelebrationModal({ show, type, amount, milestone, onClos
         </p>
       </div>
 
-      <style jsx>{`
-        @keyframes confetti {
-          0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(100vh) rotate(720deg);
-            opacity: 0;
-          }
-        }
-        
-        .animate-confetti {
-          animation: confetti 3s ease-out forwards;
-        }
-      `}</style>
     </div>
   )
 }

@@ -42,6 +42,7 @@ export const createCheckoutSession = async (priceId: string, userEmail: string) 
       throw new Error('Stripe failed to load')
     }
     
+    // @ts-expect-error - Stripe types may not include redirectToCheckout
     const { error } = await stripe.redirectToCheckout({ sessionId })
     
     if (error) {

@@ -59,3 +59,6 @@ export type BenchmarkT = z.infer<typeof Benchmark>
 export type NegotiationPointT = z.infer<typeof NegotiationPoint>
 export type CostScenarioT = z.infer<typeof CostScenario>
 export type EnhancedAnalysisT = z.infer<typeof EnhancedAnalysis>
+
+// Alias for backward compatibility
+export type AnalysisT = EnhancedAnalysisT
