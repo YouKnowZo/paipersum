@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,9 +10,9 @@
     --color-scheme: light;
     
     /* Premium color palette */
-    --premium-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --trust-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --premium-gradient: linear-gradient(135deg, #0f2242 0%, #070f21 100%);
+    --trust-gradient: linear-gradient(135deg, #f5b544 0%, #e59623 100%);
+    --success-gradient: linear-gradient(135deg, #23b5bd 0%, #7fe1eb 100%);
     
     /* Shadows for depth */
     --shadow-soft: 0 2px 8px rgba(0,0,0,0.04);
@@ -19,8 +21,8 @@
     --shadow-extra: 0 20px 60px rgba(0,0,0,0.15);
     
     /* Premium glassmorphism */
-    --glass-light: rgba(255, 255, 255, 0.7);
-    --glass-dark: rgba(0, 0, 0, 0.05);
+    --glass-light: rgba(255, 247, 237, 0.8);
+    --glass-dark: rgba(15, 34, 66, 0.08);
   }
   
   * {
@@ -50,7 +52,7 @@
   
   /* Focus states for accessibility */
   *:focus-visible {
-    @apply outline-none ring-4 ring-brand-blue/20 ring-offset-2;
+    @apply outline-none ring-4 ring-brand-gold/30 ring-offset-2;
   }
   
   /* Smooth scrolling */
@@ -141,16 +143,16 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-gradient-to-b from-brand-blue to-purple-600 rounded-full;
+    @apply bg-gradient-to-b from-brand-gold to-brand-blue rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply from-purple-600 to-brand-blue;
+    @apply bg-gradient-to-b from-brand-blue to-brand-gold;
   }
   
   /* Selection color */
   ::selection {
-    @apply bg-brand-blue/20 text-ink-900;
+    @apply bg-brand-gold/30 text-ink-900;
   }
   
   /* Premium gradients */

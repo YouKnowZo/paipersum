@@ -5,30 +5,36 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          blue: '#0f4c81',
-          green: '#2e7d32',
-          yellow: '#f9a825',
-          red: '#c62828'
+          blue: '#0f2242',
+          'blue-dark': '#070f21',
+          'blue-soft': '#1e2f4f',
+          green: '#23b5bd',
+          yellow: '#f5b544',
+          gold: '#e59623',
+          cream: '#fff7ed',
+          sand: '#f3e5d0',
+          red: '#c25028'
         },
         ink: {
-          900: '#0b1324',
-          700: '#1f2937',
-          600: '#4b5563',
-          500: '#6b7280',
-          300: '#9ca3af'
+          900: '#050914',
+          700: '#141c2f',
+          600: '#2d3a55',
+          500: '#4f5e7c',
+          300: '#8c95ad'
         },
         paper: {
           0: '#ffffff',
-          50: '#f9fafb',
-          100: '#f3f4f6'
+          50: '#fdf9f4',
+          100: '#f6efe5'
         },
         border: {
-          200: '#e5e7eb'
+          200: '#e5d8c8'
         }
       },
       fontFamily: {
         ui: ['Inter', 'system-ui', 'sans-serif'],
-        legal: ['Source Serif Pro', 'Georgia', 'serif']
+        legal: ['Source Serif Pro', 'Georgia', 'serif'],
+        signature: ['"Pacifico"', 'cursive']
       },
       borderRadius: {
         xs: '6px',

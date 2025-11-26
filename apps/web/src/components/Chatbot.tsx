@@ -62,7 +62,7 @@ export default function Chatbot() {
               </div>
               <div>
                 <div className="font-semibold">PaiperSum AI</div>
-                <div className="text-xs text-blue-100">Always here to help</div>
+                <div className="text-xs text-brand-cream">Always here to help</div>
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="hover:bg-white/10 p-1 rounded">

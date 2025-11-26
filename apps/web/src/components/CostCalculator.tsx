@@ -40,7 +40,7 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
             key={i}
             className={`p-4 rounded-lg border-2 transition ${
               scenario.is_best 
-                ? 'border-green-300 bg-green-50' 
+                ? 'border-brand-green/40 bg-brand-cream' 
                 : scenario.warning
                 ? 'border-red-300 bg-red-50'
                 : 'border-border-200 bg-paper-50'
@@ -51,7 +51,7 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-bold text-ink-900">{scenario.name}</h4>
                   {scenario.is_best && (
-                    <span className="px-2 py-0.5 bg-green-500 text-white text-xs rounded-full font-bold">
+                    <span className="px-2 py-0.5 bg-brand-green text-white text-xs rounded-full font-bold">
                       BEST CASE
                     </span>
                   )}
@@ -65,7 +65,7 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
               </div>
               <div className="text-right">
                 <div className={`text-2xl font-bold ${
-                  scenario.is_best ? 'text-green-700' :
+                  scenario.is_best ? 'text-brand-green' :
                   scenario.warning ? 'text-red-700' :
                   'text-ink-900'
                 }`}>
@@ -122,7 +122,7 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
 
       <div className="mt-6 space-y-4">
         {points.map((point, i) => (
-          <div key={i} className="border-2 border-brand-blue/20 rounded-lg p-4 bg-gradient-to-br from-white to-blue-50/30">
+          <div key={i} className="border-2 border-brand-blue/20 rounded-lg p-4 bg-gradient-to-br from-white to-brand-cream/50">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h4 className="font-bold text-ink-900 mb-1">{point.clause_title}</h4>
@@ -132,7 +132,7 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
                     <span className="text-ink-600">Currently: {point.current_term}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-green-600">✓</span>
+                    <span className="text-brand-green">✓</span>
                     <span className="text-ink-600">Suggest: {point.suggested_term}</span>
                   </div>
                 </div>
@@ -156,19 +156,19 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
               
               <div className="mt-3 p-3 bg-ink-900 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-green-400 font-mono">Email Preview:</span>
+                  <span className="text-xs text-brand-green font-mono">Email Preview:</span>
                   <button
                     onClick={() => copyToClipboard(point.email_template, i + 100)}
                     className={`px-2 py-1 rounded text-xs font-bold transition ${
                       copied === i + 100
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-brand-green text-white'
                         : 'bg-white/10 text-white hover:bg-white/20'
                     }`}
                   >
                     {copied === i + 100 ? '✓ Copied' : 'Copy'}
                   </button>
                 </div>
-                <pre className="text-xs text-green-400 font-mono whitespace-pre-wrap overflow-x-auto">
+                <pre className="text-xs text-brand-green font-mono whitespace-pre-wrap overflow-x-auto">
 {point.email_template}
                 </pre>
               </div>

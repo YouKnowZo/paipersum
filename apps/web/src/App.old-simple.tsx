@@ -167,7 +167,7 @@ export default function App() {
           <SummaryPage analysis={analysis} onExport={handleExport} />
         )}
 
-        <footer className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <footer className="mt-8 p-4 bg-brand-cream border border-brand-gold/40 rounded-lg">
           <p className="text-xs text-ink-600 text-center">
             <strong>Legal Disclaimer:</strong> This tool provides automated summaries for informational purposes only and does not constitute legal advice. 
             Automated analysis may miss important clauses or misinterpret legal language. Always consult a licensed attorney for legal decisions.

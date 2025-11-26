@@ -18,8 +18,8 @@ export default function NegotiationTemplates({ points }: { points: NegotiationPo
 
   const importanceConfig = {
     critical: { label: 'Must Negotiate', color: 'bg-red-100 text-red-700', icon: '🚨' },
-    important: { label: 'Should Negotiate', color: 'bg-yellow-100 text-yellow-700', icon: '⚠️' },
-    nice_to_have: { label: 'Worth Asking', color: 'bg-blue-100 text-blue-700', icon: '💡' }
+    important: { label: 'Should Negotiate', color: 'bg-brand-gold/10 text-brand-gold', icon: '⚠️' },
+    nice_to_have: { label: 'Worth Asking', color: 'bg-brand-cream text-brand-blue', icon: '💡' }
   }
 
   return (
@@ -102,9 +102,9 @@ export default function NegotiationTemplates({ points }: { points: NegotiationPo
       </div>
 
       {/* Tips */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h4 className="font-semibold text-blue-900 mb-2">💡 Negotiation Tips:</h4>
-        <ul className="text-sm text-blue-800 space-y-1">
+      <div className="mt-6 p-4 bg-brand-cream border border-brand-gold/40 rounded-lg">
+        <h4 className="font-semibold text-brand-blue mb-2">💡 Negotiation Tips:</h4>
+        <ul className="text-sm text-brand-blue space-y-1">
           <li>• Be polite but firm - you're a customer, not asking for a favor</li>
           <li>• Reference market standards - they want your business</li>
           <li>• Be ready to walk away - best negotiation leverage</li>

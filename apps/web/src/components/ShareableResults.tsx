@@ -46,7 +46,7 @@ Try it free: paipersum.com`
   }
 
   return (
-    <div className="bg-gradient-to-br from-brand-blue/5 to-green-50 border-2 border-brand-blue/20 rounded-xl p-6 shadow-sm">
+    <div className="bg-gradient-to-br from-brand-gold/5 to-brand-cream border-2 border-brand-blue/20 rounded-xl p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
         <span className="text-2xl">📤</span>
         <h3 className="text-xl font-bold text-ink-900">Share Your Findings</h3>
@@ -89,7 +89,7 @@ Try it free: paipersum.com`
           onClick={copyShareText}
           className={`px-4 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
             copied
-              ? 'bg-green-500 text-white'
+              ? 'bg-brand-green text-white'
               : 'bg-paper-100 text-ink-900 hover:bg-paper-200'
           }`}
         >

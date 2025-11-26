@@ -29,7 +29,7 @@ export default function BenchmarkComparison({ benchmarks }: { benchmarks: Benchm
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                   isGood ? 'bg-green-100 text-green-700' :
                   isBad ? 'bg-red-100 text-red-700' :
-                  'bg-yellow-100 text-yellow-700'
+                  'bg-brand-cream text-brand-gold'
                 }`}>
                   {isGood ? '✓ Good Deal' : isBad ? '✗ Above Average' : '≈ Average'}
                 </span>
@@ -52,7 +52,7 @@ export default function BenchmarkComparison({ benchmarks }: { benchmarks: Benchm
                   <span>Better</span>
                   <span>Worse</span>
                 </div>
-                <div className="h-3 bg-gradient-to-r from-green-200 via-yellow-200 to-red-200 rounded-full overflow-hidden">
+                <div className="h-3 bg-gradient-to-r from-brand-green/30 via-brand-gold/40 to-red-200 rounded-full overflow-hidden">
                   <div 
                     className="h-3 flex items-center justify-end pr-1"
                     style={{ width: `${percentile}%` }}
