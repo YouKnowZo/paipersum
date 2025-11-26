@@ -1,16 +1,16 @@
-import React from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App'
+import App from './App_v2'
 import './styles.css'
 
-const root = document.getElementById('root')
-
-if (!root) {
-  throw new Error('Root element not found')
+// Performance monitoring
+if (import.meta.env.PROD) {
+  // Initialize analytics (add Google Analytics, Plausible, etc.)
+  console.log('PaiperSum V2 - Production Mode')
 }
 
-createRoot(root).render(
-  <React.StrictMode>
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>,
 )
