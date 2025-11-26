@@ -1,15 +1,20 @@
-export default function Hero({ onAnalyze }: { onAnalyze?: (text: string, name: string) => void }) {
+interface HeroProps {
+  onStartAnalyzer?: () => void
+  onSeeExample?: () => void
+}
+
+export default function Hero({ onStartAnalyzer, onSeeExample }: HeroProps) {
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-brand-navy via-brand-navy-dark to-brand-navy">
       {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-20">
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-brand-orange rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
         <div className="absolute top-0 -right-4 w-72 h-72 bg-brand-orange-light rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-white rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
       </div>
       
       {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 opacity-5" style={{
+      <div className="absolute inset-0 opacity-5 pointer-events-none" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
 
@@ -33,12 +38,15 @@ export default function Hero({ onAnalyze }: { onAnalyze?: (text: string, name: s
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <button 
-              onClick={() => onAnalyze?.('', '')}
+              onClick={() => onStartAnalyzer?.()}
               className="px-8 py-4 bg-brand-orange text-brand-navy-dark rounded-xl font-bold text-lg hover:bg-brand-orange-light transition-all shadow-lg hover:shadow-xl hover:scale-105"
             >
               Analyze a Document →
             </button>
-            <button className="px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-xl font-semibold text-lg hover:bg-white/20 transition-all">
+            <button 
+              onClick={() => onSeeExample?.() ?? onStartAnalyzer?.()}
+              className="px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-xl font-semibold text-lg hover:bg-white/20 transition-all"
+            >
               See an Example
             </button>
           </div>

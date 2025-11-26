@@ -18,6 +18,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-oauth2-jwt-bearer": "^1.7.1",
     "express-openid-connect": "^2.18.1",
     "express-rate-limit": "^6.11.2",
     "express-slow-down": "^1.6.0",

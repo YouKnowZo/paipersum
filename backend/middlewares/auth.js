@@ -1,19 +1,29 @@
-const rateLimit = require('express-rate-limit');
+const { auth } = require('express-oauth2-jwt-bearer');
 
-// Authentication middleware (DISABLED for development)
-const protect = (req, res, next) => {
-  // Skip authentication for all requests
-  next();
-};
+const requiredEnv = ['AUTH0_AUDIENCE', 'AUTH0_ISSUER_BASE_URL'];
+const hasAuth0Config = requiredEnv.every((key) => Boolean(process.env[key]));
+let hasWarned = false;
 
-// Rate limiting middleware
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  message: {
-    success: false,
-    error: 'Too many requests from this IP, please try again later'
-  }
-});
+const protect = hasAuth0Config
+  ? auth({
+      audience: process.env.AUTH0_AUDIENCE,
+      issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+      tokenSigningAlg: 'RS256'
+    })
+  : (req, res, next) => {
+      if (!hasWarned && process.env.NODE_ENV !== 'production') {
+        console.warn('Auth0 is not configured. Requests are not authenticated.');
+        hasWarned = true;
+      }
 
-module.exports = { protect, apiLimiter };
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(500).json({
+          success: false,
+          error: 'Auth0 is not configured on the server.'
+        });
+      }
+
+      return next();
+    };
+
+module.exports = { protect };

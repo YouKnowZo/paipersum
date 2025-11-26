@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Card } from '../components/Cards'
 
 interface User {
+  id?: string
   email: string
   name: string
   isPro: boolean
@@ -18,6 +19,8 @@ interface AccountPageProps {
   onUpgrade: () => void
   totalSavings: number
   documentsAnalyzed: number
+  onExportData: () => void
+  onDeleteData: () => void
 }
 
 export default function AccountPage({ 
@@ -26,7 +29,9 @@ export default function AccountPage({
   onCancel, 
   onUpgrade,
   totalSavings,
-  documentsAnalyzed
+  documentsAnalyzed,
+  onExportData,
+  onDeleteData
 }: AccountPageProps) {
   const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -338,34 +343,13 @@ export default function AccountPage({
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
-                    onClick={() => {
-                      const payload = {
-                        user,
-                        savedAnalyses: JSON.parse(localStorage.getItem('saved_analyses') || '[]'),
-                        docsAnalyzed: parseInt(localStorage.getItem('docs_analyzed') || '0'),
-                        totalSavings: parseInt(localStorage.getItem('total_savings') || '0'),
-                      }
-                      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement('a')
-                      a.href = url
-                      a.download = `paipersum-data-${new Date().toISOString()}.json`
-                      a.click()
-                      URL.revokeObjectURL(url)
-                    }}
+                    onClick={onExportData}
                     className="px-4 py-2 bg-white border-2 border-brand-navy text-brand-navy rounded-lg font-semibold hover:bg-brand-navy hover:text-white transition"
                   >
                     Export my data
                   </button>
                   <button
-                    onClick={() => {
-                      if (!confirm('This will delete your account data on this device. Continue?')) return
-                      localStorage.removeItem('paipersum_user')
-                      localStorage.removeItem('saved_analyses')
-                      localStorage.removeItem('docs_analyzed')
-                      localStorage.removeItem('total_savings')
-                      window.location.href = '/'
-                    }}
+                    onClick={onDeleteData}
                     className="px-4 py-2 border-2 border-red-500 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition"
                   >
                     Delete my account & data

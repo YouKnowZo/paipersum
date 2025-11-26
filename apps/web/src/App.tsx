@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 import Logo from './components/Logo'
 import Hero from './components/Hero'
 import InstantAnalysis from './components/InstantAnalysis'
@@ -16,6 +17,7 @@ import type { EnhancedAnalysisT } from './lib/schemas'
 
 // Simple auth types (localStorage-based for MVP)
 interface User {
+  id: string
   email: string
   name: string
   isPro: boolean
@@ -32,6 +34,119 @@ interface SavedAnalysis {
   analysis: EnhancedAnalysisT
 }
 
+const PROFILES_KEY = 'paipersum_profiles'
+const getStatsKey = (userId?: string) => userId ? `paipersum_stats_${userId}` : 'paipersum_stats_guest'
+const getSavedKey = (userId?: string) => userId ? `paipersum_saved_${userId}` : 'paipersum_saved_guest'
+
+const safeParse = <T,>(value: string | null, fallback: T): T => {
+  if (!value) return fallback
+  try {
+    return JSON.parse(value) as T
+  } catch {
+    return fallback
+  }
+}
+
+const demoAnalysis: EnhancedAnalysisT = {
+  risk_score: 62,
+  confidence: 0.78,
+  clauses: [
+    {
+      title: 'Automatic Renewal Trap',
+      summary: 'Contract renews for 24 months unless you cancel in writing 90 days before the term ends.',
+      risk: 'red',
+      citation: 'Section 5.2',
+      impact: '$1,200/yr if forgotten'
+    },
+    {
+      title: 'One-Sided Liability Cap',
+      summary: 'Provider can only be liable up to 1x monthly fees while you have unlimited liability.',
+      risk: 'yellow',
+      citation: 'Section 8.1'
+    },
+    {
+      title: 'Mandatory Arbitration',
+      summary: 'Disputes must be handled privately in Delaware, limiting your ability to join class actions.',
+      risk: 'yellow',
+      citation: 'Section 9.4'
+    }
+  ],
+  recommendation: {
+    decision: 'negotiate',
+    confidence: 0.82,
+    reasoning: 'Key clauses create long-term financial risk. Negotiate renewal and liability before signing.',
+    action_items: [
+      'Shorten renewal to month-to-month after the first term',
+      'Cap your liability at fees paid in the last 12 months',
+      'Add mutual termination rights for service degradation'
+    ],
+    cost_impact: 1800
+  },
+  benchmarks: [
+    {
+      metric: 'Cancellation Notice',
+      your_value: '90 days',
+      average_value: '30 days',
+      percentile: 12,
+      is_good: false
+    },
+    {
+      metric: 'Liability Cap',
+      your_value: 'Unlimited',
+      average_value: '12 months of fees',
+      percentile: 8,
+      is_good: false
+    },
+    {
+      metric: 'Price Increase Clause',
+      your_value: 'Provider can raise 12%',
+      average_value: '5%',
+      percentile: 34,
+      is_good: false
+    }
+  ],
+  negotiation_points: [
+    {
+      clause_title: 'Automatic Renewal',
+      current_term: 'Renews for 24 months unless cancelled 90 days prior',
+      suggested_term: 'Renews monthly with 30-day written notice',
+      success_rate: 0.67,
+      email_template: 'We need flexibility beyond the first year. Please update Section 5.2 so it renews monthly with a 30-day notice.',
+      importance: 'high'
+    },
+    {
+      clause_title: 'Liability Cap',
+      current_term: 'Your liability is unlimited while ours is capped to 1 month of fees',
+      suggested_term: 'Both parties capped at the higher of 12 months of fees or direct damages',
+      success_rate: 0.58,
+      email_template: 'Let’s align liability caps. Update Section 8.1 so both parties are capped at fees paid in the prior 12 months.',
+      importance: 'medium'
+    }
+  ],
+  cost_scenarios: [
+    {
+      name: 'Best Case',
+      cost: 0,
+      description: 'You cancel on time and never trigger liability issues.',
+      is_best: true
+    },
+    {
+      name: 'Expected Case',
+      cost: 1200,
+      description: 'You miss the renewal window once and pay for an extra quarter.',
+      is_best: false
+    },
+    {
+      name: 'Worst Case',
+      cost: 5000,
+      description: 'You breach the SLA and provider enforces unlimited liability.',
+      is_best: false,
+      warning: 'Uncapped liability puts your business at serious risk.'
+    }
+  ],
+  share_url: 'https://demo.paipersum.com/share/lease-analysis'
+}
+
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
   const [showAuth, setShowAuth] = useState(false)
@@ -46,34 +161,75 @@ export default function App() {
   const [documentsAnalyzed, setDocumentsAnalyzed] = useState(0)
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([])
   const [totalSavings, setTotalSavings] = useState(0)
+  const {
+    loginWithRedirect,
+    logout: authLogout,
+    isAuthenticated,
+    isLoading,
+    user: auth0User,
+    getAccessTokenSilently
+  } = useAuth0()
+
+  const statsKey = useMemo(() => getStatsKey(user?.id), [user?.id])
+  const savedKey = useMemo(() => getSavedKey(user?.id), [user?.id])
 
   // Check for admin route on mount
   useEffect(() => {
+    if (typeof window === 'undefined') return
     if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
       setShowAdmin(true)
     }
   }, [])
 
-  // Load user and saved data on mount
+  // Hydrate Auth0 user profile into local storage so we can track docs/stats per account
   useEffect(() => {
-    const savedUser = localStorage.getItem('paipersum_user')
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser))
-      } catch (e) {
-        console.error('Failed to load user', e)
-      }
+    if (typeof window === 'undefined') return
+    if (!isAuthenticated || !auth0User?.sub) {
+      setUser(null)
+      return
     }
-    
-    const count = parseInt(localStorage.getItem('docs_analyzed') || '0')
-    setDocumentsAnalyzed(count)
-    
-    const savings = parseInt(localStorage.getItem('total_savings') || '0')
-    setTotalSavings(savings)
-    
-    const saved = JSON.parse(localStorage.getItem('saved_analyses') || '[]')
+
+    const profiles = safeParse<Record<string, User>>(localStorage.getItem(PROFILES_KEY), {})
+    const existingProfile = profiles[auth0User.sub]
+    const auth0Claims = auth0User as Record<string, unknown>
+    const rolesClaim = auth0Claims['https://paipersum.com/roles'] as string[] | undefined
+    const metadataIsPro = Boolean(
+      rolesClaim?.includes('pro') || auth0Claims['https://paipersum.com/isPro']
+    )
+
+    const normalizedProfile: User = {
+      id: auth0User.sub,
+      email: auth0User.email || existingProfile?.email || '',
+      name: auth0User.name || auth0User.nickname || existingProfile?.name || 'PaiperSum user',
+      isPro: existingProfile?.isPro ?? metadataIsPro,
+      docsThisMonth: existingProfile?.docsThisMonth ?? 0,
+      address: existingProfile?.address,
+      phone: existingProfile?.phone,
+      company: existingProfile?.company
+    }
+
+    if (metadataIsPro && !normalizedProfile.isPro) {
+      normalizedProfile.isPro = true
+    }
+
+    profiles[normalizedProfile.id] = normalizedProfile
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles))
+    setUser(normalizedProfile)
+  }, [auth0User, isAuthenticated])
+
+  // Reload stats/saved analyses when the active identity changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const stats = safeParse<{ documentsAnalyzed: number; totalSavings: number }>(
+      localStorage.getItem(statsKey),
+      { documentsAnalyzed: 0, totalSavings: 0 }
+    )
+    setDocumentsAnalyzed(stats.documentsAnalyzed || 0)
+    setTotalSavings(stats.totalSavings || 0)
+
+    const saved = safeParse<SavedAnalysis[]>(localStorage.getItem(savedKey), [])
     setSavedAnalyses(saved)
-  }, [])
+  }, [savedKey, statsKey])
 
   // Check free tier limit
   const canAnalyze = (): boolean => {
@@ -88,21 +244,62 @@ export default function App() {
     return user.docsThisMonth < 30
   }
 
-  const handleLogin = (email: string, name: string) => {
-    const newUser: User = {
-      email,
-      name,
-      isPro: false,
-      docsThisMonth: 0
+  const persistProfile = (updatedUser: User) => {
+    setUser(updatedUser)
+    if (typeof window === 'undefined') return
+    const profiles = safeParse<Record<string, User>>(localStorage.getItem(PROFILES_KEY), {})
+    profiles[updatedUser.id] = updatedUser
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles))
+  }
+
+  const persistStats = (docs: number, savings: number) => {
+    setDocumentsAnalyzed(docs)
+    setTotalSavings(savings)
+    if (typeof window === 'undefined') return
+    localStorage.setItem(statsKey, JSON.stringify({
+      documentsAnalyzed: docs,
+      totalSavings: savings
+    }))
+  }
+
+  const persistSaved = (items: SavedAnalysis[]) => {
+    setSavedAnalyses(items)
+    if (typeof window === 'undefined') return
+    localStorage.setItem(savedKey, JSON.stringify(items))
+  }
+
+  const fetchAuthToken = async (): Promise<string | undefined> => {
+    if (!isAuthenticated) return undefined
+    try {
+      return await getAccessTokenSilently()
+    } catch (tokenError) {
+      console.warn('Failed to fetch Auth0 token', tokenError)
+      return undefined
     }
-    setUser(newUser)
-    localStorage.setItem('paipersum_user', JSON.stringify(newUser))
-    setShowAuth(false)
+  }
+
+  const openAnalyzer = () => {
+    setShowAnalyzer(true)
+    setShowAccount(false)
+    setShowAdmin(false)
+  }
+
+  const scrollToTop = () => {
+    if (typeof window === 'undefined') return
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleLogoClick = () => {
+    setShowAnalyzer(false)
+    setShowAccount(false)
+    setShowAdmin(false)
+    scrollToTop()
   }
 
   const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem('paipersum_user')
+    setShowAccount(false)
+    setShowAuth(false)
+    authLogout({ logoutParams: { returnTo: window.location.origin } })
   }
 
   const handleAnalyzeText = async (textToAnalyze: string = text, name: string = documentName) => {
@@ -117,28 +314,23 @@ export default function App() {
     
     setError('')
     setLoading(true)
-    setShowAnalyzer(true)
+    openAnalyzer()
     
     try {
-      const result = await analyzeText(textToAnalyze)
+      const token = await fetchAuthToken()
+      const result = await analyzeText(textToAnalyze, 'general', token)
       setAnalysis(result)
       
       // Track metrics
       const newCount = documentsAnalyzed + 1
-      setDocumentsAnalyzed(newCount)
-      localStorage.setItem('docs_analyzed', newCount.toString())
+      const newSavings = totalSavings + (result.recommendation.cost_impact || 0)
+      persistStats(newCount, newSavings)
       
       // Update user monthly count
       if (user) {
         const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
-        setUser(updatedUser)
-        localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
+        persistProfile(updatedUser)
       }
-      
-      // Track savings
-      const newSavings = totalSavings + (result.recommendation.cost_impact || 0)
-      setTotalSavings(newSavings)
-      localStorage.setItem('total_savings', newSavings.toString())
       
       // Save analysis
       const savedAnalysis: SavedAnalysis = {
@@ -148,8 +340,7 @@ export default function App() {
         analysis: result
       }
       const newSaved = [savedAnalysis, ...savedAnalyses].slice(0, 10)
-      setSavedAnalyses(newSaved)
-      localStorage.setItem('saved_analyses', JSON.stringify(newSaved))
+      persistSaved(newSaved)
       
       // Achievement notifications
       if (newCount === 1) {
@@ -194,25 +385,21 @@ export default function App() {
     setDocumentName(file.name)
     setError('')
     setLoading(true)
-    setShowAnalyzer(true)
+    openAnalyzer()
     
     try {
-      const result = await analyzeFile(file)
+      const token = await fetchAuthToken()
+      const result = await analyzeFile(file, token)
       setAnalysis(result)
       
       const newCount = documentsAnalyzed + 1
-      setDocumentsAnalyzed(newCount)
-      localStorage.setItem('docs_analyzed', newCount.toString())
+      const newSavings = totalSavings + (result.recommendation.cost_impact || 0)
+      persistStats(newCount, newSavings)
       
       if (user) {
         const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
-        setUser(updatedUser)
-        localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
+        persistProfile(updatedUser)
       }
-      
-      const newSavings = totalSavings + (result.recommendation.cost_impact || 0)
-      setTotalSavings(newSavings)
-      localStorage.setItem('total_savings', newSavings.toString())
       
       const savedAnalysis: SavedAnalysis = {
         id: Date.now().toString(),
@@ -221,8 +408,7 @@ export default function App() {
         analysis: result
       }
       const newSaved = [savedAnalysis, ...savedAnalyses].slice(0, 10)
-      setSavedAnalyses(newSaved)
-      localStorage.setItem('saved_analyses', JSON.stringify(newSaved))
+      persistSaved(newSaved)
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'File analysis failed')
@@ -231,11 +417,22 @@ export default function App() {
     }
   }
 
+  const handleLoadDemoAnalysis = () => {
+    setError('')
+    setText(`Sample rental agreement excerpt:
+
+Landlord may raise rent with 15 days notice and automatically renews for two years unless the tenant cancels in writing 90 days prior. Tenant assumes liability for any damages, regardless of cause.`)
+    setDocumentName('Sample Lease Agreement')
+    setAnalysis(demoAnalysis)
+    openAnalyzer()
+  }
+
   const handleExport = async () => {
     if (!text.trim()) return
     
     try {
-      const blob = await exportPDF(text)
+      const token = await fetchAuthToken()
+      const blob = await exportPDF(text, token)
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -249,24 +446,59 @@ export default function App() {
     }
   }
 
+  const handleExportData = () => {
+    if (typeof window === 'undefined') return
+    const payload = {
+      user,
+      savedAnalyses,
+      documentsAnalyzed,
+      totalSavings
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `paipersum-data-${new Date().toISOString()}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const handleDeleteData = () => {
+    if (!user || typeof window === 'undefined') return
+    if (!confirm('This will delete your saved analyses and stats on this device. Continue?')) return
+
+    localStorage.removeItem(statsKey)
+    localStorage.removeItem(savedKey)
+    const profiles = safeParse<Record<string, User>>(localStorage.getItem(PROFILES_KEY), {})
+    delete profiles[user.id]
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles))
+
+    setSavedAnalyses([])
+    setDocumentsAnalyzed(0)
+    setTotalSavings(0)
+    setShowAccount(false)
+    authLogout({ logoutParams: { returnTo: window.location.origin } })
+  }
+
   const handleClear = () => {
     setText('')
     setDocumentName('')
     setAnalysis(null)
     setError('')
     setShowAnalyzer(false)
+    scrollToTop()
   }
 
   const loadSavedAnalysis = (saved: SavedAnalysis) => {
     setAnalysis(saved.analysis)
     setDocumentName(saved.name)
-    setShowAnalyzer(true)
+    openAnalyzer()
   }
 
   const getRemainingAnalyses = (): number => {
-    if (!user) return 5 - documentsAnalyzed
+    if (!user) return Math.max(0, 5 - documentsAnalyzed)
     if (user.isPro) return 999999
-    return 30 - user.docsThisMonth
+    return Math.max(0, 30 - user.docsThisMonth)
   }
 
   // Auth Modal
@@ -276,57 +508,39 @@ export default function App() {
         <div className="text-center mb-6">
           <Logo size="lg" />
           <h2 className="text-2xl font-bold text-ink-900 mt-4 mb-2">
-            {user ? 'Upgrade to Pro' : 'Sign in or create an account'}
+            {isAuthenticated ? 'Upgrade to Pro' : 'Sign in or create an account'}
           </h2>
           <p className="text-ink-600">
-            {user ? 'Get unlimited document analyses' : 'Continue analyzing your documents'}
+            {isAuthenticated ? 'Get unlimited document analyses' : 'Use Auth0 for a persistent account across devices'}
           </p>
         </div>
 
-        {!user ? (
-          <form onSubmit={(e) => {
-            e.preventDefault()
-            const formData = new FormData(e.currentTarget)
-            const email = formData.get('email') as string
-            const name = formData.get('name') as string
-            if (email && name) handleLogin(email, name)
-          }} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-ink-700 mb-2">Name</label>
-              <input
-                type="text"
-                name="name"
-                required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy"
-                placeholder="Your name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-ink-700 mb-2">Email</label>
-              <input
-                type="email"
-                name="email"
-                required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div className="pt-2">
-              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition">
-                Continue →
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAuth(false)}
-                className="w-full mt-3 px-6 py-3 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition"
-              >
-                Cancel
-              </button>
-            </div>
-            <p className="text-xs text-center text-ink-500 mt-4">
-              By signing up, you agree to our Terms & Privacy Policy
+        {isLoading ? (
+          <div className="py-12 text-center text-ink-500">
+            Checking your session...
+          </div>
+        ) : !isAuthenticated ? (
+          <div className="space-y-4">
+            <button
+              onClick={() => loginWithRedirect()}
+              className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
+              </svg>
+              Continue with Auth0 Secure Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAuth(false)}
+              className="w-full px-6 py-3 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition"
+            >
+              Maybe later
+            </button>
+            <p className="text-xs text-center text-ink-500 mt-2">
+              You'll be redirected to Auth0. Accounts persist across devices and sessions.
             </p>
-          </form>
+          </div>
         ) : (
           <div className="space-y-4">
             <div className="p-4 bg-gradient-to-br from-brand-navy/10 to-brand-orange/10 rounded-lg border-2 border-brand-navy/20">
@@ -370,11 +584,26 @@ export default function App() {
             >
               Maybe Later
             </button>
+            <button
+              onClick={handleLogout}
+              className="w-full px-6 py-3 border border-border-200 text-ink-600 rounded-lg font-semibold hover:bg-paper-50 transition"
+            >
+              Sign out
+            </button>
           </div>
         )}
       </div>
     </div>
   )
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white text-ink-600 gap-4">
+        <Logo size="md" />
+        <p className="text-sm">Loading your session...</p>
+      </div>
+    )
+  }
 
   // Admin Portal
   if (showAdmin) {
@@ -396,7 +625,7 @@ export default function App() {
           {/* Navigation */}
           <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-border-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-              <Logo size="md" />
+              <Logo size="md" onClick={handleLogoClick} ariaLabel="PaiperSum home" />
               
               <div className="flex items-center gap-4">
                 {documentsAnalyzed > 0 && (
@@ -456,7 +685,7 @@ export default function App() {
                 )}
                 
                 <button
-                  onClick={() => setShowAnalyzer(true)}
+                  onClick={openAnalyzer}
                   className="px-6 py-2.5 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -469,7 +698,7 @@ export default function App() {
           </nav>
 
           {/* Hero section */}
-          <Hero onAnalyze={handleAnalyzeText} />
+          <Hero onStartAnalyzer={openAnalyzer} onSeeExample={handleLoadDemoAnalysis} />
 
           {/* Recent analyses */}
           {savedAnalyses.length > 0 && (
@@ -535,7 +764,7 @@ export default function App() {
               )}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
-                  onClick={() => setShowAnalyzer(true)}
+                  onClick={openAnalyzer}
                   className="px-8 py-4 bg-brand-orange text-brand-navy-dark rounded-xl font-bold text-lg hover:bg-brand-orange-light transition shadow-lg hover:shadow-xl hover:scale-105"
                 >
                   Analyze a Document →
@@ -561,7 +790,7 @@ export default function App() {
                   <ul className="space-y-2 text-sm text-ink-300">
                     <li><a href="#features" className="hover:text-white transition">Features</a></li>
                     <li><a href="#examples" className="hover:text-white transition">Examples</a></li>
-                    <li><button onClick={() => setShowAnalyzer(true)} className="hover:text-white transition">Try Now</button></li>
+                    <li><button onClick={openAnalyzer} className="hover:text-white transition">Try Now</button></li>
                   </ul>
                 </div>
                 <div>
@@ -604,13 +833,14 @@ export default function App() {
       <AccountPage
         user={user}
         onUpdate={(updated) => {
-          setUser(updated)
-          localStorage.setItem('paipersum_user', JSON.stringify(updated))
+          persistProfile(updated)
         }}
         onCancel={() => setShowAccount(false)}
         onUpgrade={() => setShowAuth(true)}
         totalSavings={totalSavings}
         documentsAnalyzed={documentsAnalyzed}
+        onExportData={handleExportData}
+        onDeleteData={handleDeleteData}
       />
     )
   }
@@ -636,7 +866,7 @@ export default function App() {
               <span className="font-semibold">Home</span>
             </button>
 
-            <Logo size="sm" />
+            <Logo size="sm" onClick={handleClear} ariaLabel="Back to home" />
 
             {/* Stats */}
             <div className="flex items-center gap-3">

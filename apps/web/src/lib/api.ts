@@ -2,10 +2,15 @@ import axios from 'axios'
 import { EnhancedAnalysis, type EnhancedAnalysisT } from './schemas'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const withAuth = (token?: string) => (token ? { Authorization: `Bearer ${token}` } : {})
 
-export async function analyzeText(text: string, docType: string = 'general'): Promise<EnhancedAnalysisT> {
+export async function analyzeText(text: string, docType: string = 'general', token?: string): Promise<EnhancedAnalysisT> {
   try {
-    const res = await axios.post(`${API_URL}/analyze`, { text, doc_type: docType })
+    const res = await axios.post(
+      `${API_URL}/analyze`,
+      { text, doc_type: docType },
+      { headers: { ...withAuth(token) } }
+    )
     const parsed = EnhancedAnalysis.safeParse(res.data)
     
     if (!parsed.success) {
@@ -22,13 +27,16 @@ export async function analyzeText(text: string, docType: string = 'general'): Pr
   }
 }
 
-export async function analyzeFile(file: File): Promise<EnhancedAnalysisT> {
+export async function analyzeFile(file: File, token?: string): Promise<EnhancedAnalysisT> {
   try {
     const formData = new FormData()
     formData.append('file', file)
     
     const res = await axios.post(`${API_URL}/analyze-file`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 
+        'Content-Type': 'multipart/form-data',
+        ...withAuth(token)
+      }
     })
     
     const parsed = EnhancedAnalysis.safeParse(res.data)
@@ -47,11 +55,14 @@ export async function analyzeFile(file: File): Promise<EnhancedAnalysisT> {
   }
 }
 
-export async function exportPDF(text: string): Promise<Blob> {
+export async function exportPDF(text: string, token?: string): Promise<Blob> {
   try {
     const res = await axios.post(`${API_URL}/export/pdf`, 
       { text }, 
-      { responseType: 'blob' }
+      { 
+        responseType: 'blob',
+        headers: { ...withAuth(token) }
+      }
     )
     return res.data
   } catch (error) {

@@ -1,6 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const { protect } = require('../middlewares/auth');
+
 const router = express.Router();
 
 // Configure multer for file uploads
@@ -15,7 +17,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // POST /api/upload
-router.post('/', upload.single('document-upload'), (req, res) => {
+router.post('/', protect, upload.single('document-upload'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }

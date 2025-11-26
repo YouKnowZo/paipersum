@@ -1,15 +1,41 @@
 // PaiperSum branded logo component - matches official branding
-export default function Logo({ size = 'md', showText = true }: { size?: 'sm' | 'md' | 'lg'; showText?: boolean }) {
+interface LogoProps {
+  size?: 'sm' | 'md' | 'lg'
+  showText?: boolean
+  onClick?: () => void
+  className?: string
+  ariaLabel?: string
+}
+
+export default function Logo({ 
+  size = 'md', 
+  showText = true,
+  onClick,
+  className = '',
+  ariaLabel
+}: LogoProps) {
   const sizes = {
     sm: { icon: 'w-8 h-8', text: 'text-lg', tagline: 'text-[10px]' },
     md: { icon: 'w-10 h-10', text: 'text-xl', tagline: 'text-xs' },
     lg: { icon: 'w-14 h-14', text: 'text-2xl', tagline: 'text-sm' }
   }
 
-  return (
-    <div className="flex items-center gap-2.5">
+  const Wrapper = onClick ? 'button' : 'div'
+  const wrapperProps = onClick
+    ? {
+        type: 'button' as const,
+        onClick,
+        'aria-label': ariaLabel || 'Go to home',
+        className: `flex items-center gap-2.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-orange/70 rounded-lg transition-shadow ${className}`
+      }
+    : {
+        className: `flex items-center gap-2.5 ${className}`
+      }
+
+  const logoContent = (
+    <>
       {/* PaiperSum P Icon - matches official logo */}
-      <div className={`${sizes[size].icon} relative group cursor-pointer flex-shrink-0`}>
+      <div className={`${sizes[size].icon} relative group ${onClick ? 'cursor-pointer' : ''} flex-shrink-0`}>
         <svg 
           viewBox="0 0 100 100" 
           className="w-full h-full"
@@ -85,7 +111,13 @@ export default function Logo({ size = 'md', showText = true }: { size?: 'sm' | '
           <span className="text-brand-navy">perSum</span>
         </span>
       )}
-    </div>
+    </>
+  )
+
+  return (
+    <Wrapper {...wrapperProps}>
+      {logoContent}
+    </Wrapper>
   )
 }
 
