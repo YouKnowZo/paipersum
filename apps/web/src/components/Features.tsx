@@ -2,51 +2,45 @@ export default function Features() {
   const features = [
     {
       icon: '⚡',
-      title: 'Instant Analysis',
-      description: 'Upload a document and get results quickly. Clear, action‑oriented summaries.',
-      highlight: 'Fast turnaround'
+      title: 'Universal Analysis',
+      description: 'Analyze any content type: documents, code, articles, emails, research papers, and more.',
+    },
+    {
+      icon: '🤖',
+      title: 'AI-Powered Insights',
+      description: 'Advanced AI summarization with key points, sentiment analysis, and topic extraction.',
     },
     {
       icon: '🎯',
-      title: '14 Risk Types',
-      description: 'Detects hidden fees, auto-renewals, arbitration clauses, and more.',
-      highlight: 'Comprehensive'
-    },
-    {
-      icon: '📊',
-      title: 'Visual Risk Score',
-      description: 'See your risk at a glance with color-coded scores and plain English.',
-      highlight: 'Easy to understand'
+      title: 'Actionable Results',
+      description: 'Get clear recommendations and next steps tailored to your content type.',
     },
     {
       icon: '🔒',
-      title: '100% Private',
-      description: 'Your documents are analyzed and immediately deleted. Zero storage.',
-      highlight: 'Your data, your privacy'
+      title: 'Enterprise Security',
+      description: 'Bank-level encryption, threat monitoring, and comprehensive security logging.',
     },
     {
-      icon: '📄',
-      title: 'PDF Export',
-      description: 'Download professional reports with citations you can share.',
-      highlight: 'Professional output'
+      icon: '⚡',
+      title: 'Lightning Fast',
+      description: 'Get results in seconds. Optimized for speed without compromising accuracy.',
     },
     {
-      icon: '👤',
-      title: 'Designed for People',
-      description: 'Friendly experience that respects your time and privacy.',
-      highlight: 'Human‑centered'
+      icon: '💼',
+      title: 'Professional Grade',
+      description: 'Built for professionals who need reliable, accurate analysis at scale.',
     }
   ]
 
   return (
-    <div className="py-16 bg-white">
+    <div className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-            Everything You Need to Stay Safe
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            Why Choose PaiperSum
           </h2>
-          <p className="text-lg text-ink-600 max-w-2xl mx-auto">
-            Stop signing documents blindly. Know exactly what you're agreeing to.
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            Professional AI analysis that works with any content type. Fast, accurate, secure.
           </p>
         </div>
 
@@ -54,25 +48,15 @@ export default function Features() {
           {features.map((feature, i) => (
             <div 
               key={i}
-              className="group relative p-6 bg-gradient-to-br from-white to-paper-50 border border-border-200 rounded-xl hover:border-brand-blue hover:shadow-lg transition-all"
+              className="group p-8 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl hover:border-blue-500 hover:shadow-xl transition-all"
             >
-              {/* Icon */}
-              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">
+              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">
                 {feature.icon}
               </div>
-
-              {/* Title */}
-              <h3 className="text-xl font-bold text-ink-900 mb-2">
+              <h3 className="text-xl font-bold text-slate-900 mb-3">
                 {feature.title}
               </h3>
-
-              {/* Highlight */}
-              <div className="inline-block px-3 py-1 bg-brand-blue/10 text-brand-blue text-xs font-semibold rounded-full mb-3">
-                {feature.highlight}
-              </div>
-
-              {/* Description */}
-              <p className="text-ink-600 leading-relaxed">
+              <p className="text-slate-600 leading-relaxed">
                 {feature.description}
               </p>
             </div>

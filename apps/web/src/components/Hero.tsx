@@ -1,52 +1,58 @@
-export default function Hero() {
-  return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-brand-blue to-blue-900">
-      {/* Animated background */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-white rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-        <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-green-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
-      </div>
+interface HeroProps {
+  onAnalyze?: (text: string) => void
+}
 
-      <div className="relative max-w-7xl mx-auto px-4 py-24">
+export default function Hero({ onAnalyze }: HeroProps) {
+  return (
+    <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
+
+      <div className="relative max-w-7xl mx-auto px-4 py-20 md:py-32">
         <div className="text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Understand Legal Documents<br />
-            <span className="text-yellow-300">in Plain English</span>
+          <div className="inline-block px-4 py-2 bg-blue-500/20 border border-blue-400/30 rounded-full text-blue-300 text-sm font-medium mb-6 backdrop-blur-sm">
+            AI-Powered Content Analysis
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            Analyze Anything.<br />
+            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              Understand Everything.
+            </span>
           </h1>
           
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            AI-powered analysis instantly identifies risks and explains complex legal jargon 
-            in contracts, Terms of Service, and agreements.
+          <p className="text-xl md:text-2xl text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+            Professional AI analyzer for documents, code, articles, emails, and more. 
+            Get instant insights, summaries, and actionable recommendations.
           </p>
 
-          <div className="flex gap-4 justify-center">
-            <button className="px-8 py-4 bg-white text-brand-blue rounded-lg font-semibold text-lg hover:bg-gray-100 transition shadow-lg">
-              Analyze a Document
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <button 
+              onClick={() => onAnalyze?.('')}
+              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-cyan-700 transition shadow-xl hover:shadow-2xl hover:scale-105"
+            >
+              Start Analyzing
             </button>
-            <button className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-semibold text-lg hover:bg-white/10 transition">
-              See an Example
+            <button className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-lg font-semibold text-lg hover:bg-white/20 transition">
+              View Examples
             </button>
           </div>
 
-          <div className="mt-12 flex justify-center items-center gap-8 text-sm text-blue-200">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm-2 7a2 2 0 114 0 2 2 0 01-4 0z" clipRule="evenodd" />
-              </svg>
-              <span>Human‑friendly summaries</span>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-sm">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white mb-1">10K+</div>
+              <div className="text-slate-400">Documents Analyzed</div>
             </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 3h14a1 1 0 011 1v8a1 1 0 01-1 1H7l-4 4V4a1 1 0 010-1z" clipRule="evenodd" />
-              </svg>
-              <span>Fast, clear results</span>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white mb-1">99.9%</div>
+              <div className="text-slate-400">Uptime</div>
             </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              <span>Not legal advice</span>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white mb-1">&lt;2s</div>
+              <div className="text-slate-400">Avg Response</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-white mb-1">100%</div>
+              <div className="text-slate-400">Secure</div>
             </div>
           </div>
         </div>

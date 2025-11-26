@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: paipersum-api
+    env: python
+    buildCommand: cd apps/api && pip install -r requirements.txt
+    startCommand: cd apps/api && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: ALLOWED_ORIGINS
+        value: https://paipersum.com,https://www.paipersum.com
+      - key: ADMIN_SECRET
+        generateValue: true
+    healthCheckPath: /health
+
+  - type: web
+    name: paipersum-web
+    env: static
+    buildCommand: cd apps/web && npm install && npm run build
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://paipersum-api.onrender.com

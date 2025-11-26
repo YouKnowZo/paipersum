@@ -4,6 +4,7 @@ import Hero from './components/Hero'
 import InstantAnalysis from './components/InstantAnalysis'
 import Features from './components/Features'
 import Testimonials from './components/Testimonials'
+import Pricing from './components/Pricing'
 import FloatingChatbot from './components/FloatingChatbot'
 import Consent from './components/Consent'
 import Upload from './components/Upload'
@@ -452,7 +453,7 @@ export default function App() {
           </nav>
 
           {/* Hero section */}
-          <Hero onAnalyze={handleAnalyzeText} />
+          <Hero onAnalyze={() => setShowAnalyzer(true)} />
 
           {/* Recent analyses */}
           {savedAnalyses.length > 0 && (
@@ -496,6 +497,15 @@ export default function App() {
 
           {/* Features */}
           <Features />
+
+          {/* Pricing */}
+          <Pricing onSelectPlan={(planId) => {
+            if (planId !== 'free') {
+              setShowAuth(true)
+            } else {
+              setShowAnalyzer(true)
+            }
+          }} />
 
           {/* Testimonials */}
           <Testimonials />

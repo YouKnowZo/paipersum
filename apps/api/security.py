@@ -10,13 +10,14 @@ WINDOW = 10  # seconds
 LIMIT = 30   # requests per window
 
 async def rate_limit(request: Request, call_next):
-    """Rate limit requests per IP"""
+    """Rate limit requests per IP with security logging"""
     if not request.client:
         return await call_next(request)
     
     ip = request.client.host
     b = _BUCKET[ip]
     now = int(time())
+    user_agent = request.headers.get('user-agent', 'unknown')
     
     # Reset bucket if in new window
     if now != b['t']:
@@ -26,6 +27,21 @@ async def rate_limit(request: Request, call_next):
     b['c'] += 1
     
     if b['c'] > LIMIT:
+        # Log rate limit violation
+        try:
+            from admin_security import log_security_event, RATE_LIMIT_VIOLATIONS
+            RATE_LIMIT_VIOLATIONS[ip] += 1
+            log_security_event(
+                event_type='rate_limit_exceeded',
+                severity='medium',
+                ip_address=ip,
+                user_agent=user_agent,
+                details={'count': b['c'], 'limit': LIMIT},
+                blocked=True
+            )
+        except:
+            pass  # Don't fail if admin module not available
+        
         return Response(
             'Too Many Requests - Rate limit exceeded',
             status_code=429,

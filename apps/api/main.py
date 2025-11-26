@@ -23,6 +23,12 @@ from decision_engine import (
     calculate_cost_scenarios
 )
 
+# Import universal analyzer
+from analyzer_engine import analyze_content, ContentAnalysis
+
+# Import admin security portal
+from admin_security import router as admin_router, log_security_event
+
 # Import Stripe routes
 from stripe_routes import create_checkout_session, handle_webhook, CheckoutSessionRequest
 
@@ -33,11 +39,14 @@ async def lifespan(app: FastAPI):
     print("👋 PaiperSum Enhanced API shutting down...")
 
 app = FastAPI(
-    title="PaiperSum Enhanced API",
-    version="2.0.0",
-    description="Useful document analysis with actionable recommendations",
+    title="PaiperSum AI Analyzer",
+    version="3.0.0",
+    description="Top-tier AI analyzer and summarizer for any content type",
     lifespan=lifespan
 )
+
+# Include admin router
+app.include_router(admin_router)
 
 # CORS middleware
 app.add_middleware(
@@ -149,38 +158,72 @@ def detect_document_type(text: str) -> str:
 @app.get('/')
 def root():
     return {
-        "name": "PaiperSum Enhanced API",
-        "version": "2.0.0",
+        "name": "PaiperSum AI Analyzer",
+        "version": "3.0.0",
         "status": "operational",
-        "new_features": [
-            "Clear recommendations (Sign/Negotiate/Walk Away)",
-            "Benchmarking vs similar contracts",
-            "Negotiation email templates",
-            "Cost scenario calculator",
-            "Document type detection"
+        "description": "Top-tier AI analyzer and summarizer for any content",
+        "features": [
+            "Universal content analysis (documents, code, articles, emails, etc.)",
+            "AI-powered summarization with key insights",
+            "Sentiment analysis and topic extraction",
+            "Actionable recommendations",
+            "Security monitoring and threat detection",
+            "Professional API with comprehensive documentation"
         ],
-        "docs": "/docs"
+        "docs": "/docs",
+        "admin": "/admin/dashboard"
     }
 
 @app.get('/health')
 def health():
-    return {"status": "healthy", "version": "2.0.0"}
+    return {"status": "healthy", "version": "3.0.0", "service": "PaiperSum AI Analyzer"}
 
 @app.post('/analyze', response_model=EnhancedAnalysis)
-async def analyze(inp: AnalyzeIn):
-    """Enhanced analysis with actionable recommendations"""
+async def analyze(inp: AnalyzeIn, request: Request):
+    """Universal AI analysis - handles any content type"""
     text = inp.text or ''
     
+    # Security logging
+    client_ip = request.client.host if request.client else 'unknown'
+    user_agent = request.headers.get('user-agent', 'unknown')
+    
     if not text.strip():
+        log_security_event(
+            event_type='invalid_request',
+            severity='low',
+            ip_address=client_ip,
+            user_agent=user_agent,
+            details={'error': 'empty_text'}
+        )
         raise HTTPException(status_code=400, detail="Text cannot be empty")
     
     if len(text) > 500000:
+        log_security_event(
+            event_type='oversized_request',
+            severity='medium',
+            ip_address=client_ip,
+            user_agent=user_agent,
+            details={'size': len(text)}
+        )
         raise HTTPException(status_code=400, detail="Text too long (max 500KB)")
+    
+    # Universal content analysis
+    try:
+        content_analysis = analyze_content(text, use_ai=True)
+    except Exception as e:
+        log_security_event(
+            event_type='analysis_error',
+            severity='medium',
+            ip_address=client_ip,
+            user_agent=user_agent,
+            details={'error': str(e)}
+        )
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
     
     # Auto-detect document type if not provided
     doc_type: str = inp.doc_type if inp.doc_type and inp.doc_type != 'general' else detect_document_type(text)
     
-    # Original analysis
+    # Legal document analysis (if applicable)
     found: List[Clause] = []
     total = 0
     seen_titles = set()
@@ -244,10 +287,23 @@ async def analyze(inp: AnalyzeIn):
     doc_hash = hashlib.md5(text[:100].encode()).hexdigest()[:8]
     share_url = f"https://paipersum.com/share/{doc_hash}"
     
+    # Log successful analysis
+    log_security_event(
+        event_type='analysis_complete',
+        severity='low',
+        ip_address=client_ip,
+        user_agent=user_agent,
+        details={
+            'content_type': content_analysis.content_type,
+            'word_count': content_analysis.word_count,
+            'doc_type': doc_type
+        }
+    )
+    
     return EnhancedAnalysis(
         risk_score=risk_score,
         clauses=found,
-        confidence=confidence,
+        confidence=max(confidence, content_analysis.confidence),
         recommendation=Recommendation(**recommendation.__dict__),
         benchmarks=benchmark_models,
         negotiation_points=negotiation_models,
@@ -257,18 +313,43 @@ async def analyze(inp: AnalyzeIn):
     )
 
 @app.post('/analyze-file', response_model=EnhancedAnalysis)
-async def analyze_file(file: UploadFile = File(...)):
-    """Enhanced file analysis"""
+async def analyze_file(file: UploadFile = File(...), request: Request = Request):
+    """Universal file analysis - supports any file type"""
+    # Security logging
+    client_ip = request.client.host if request.client else 'unknown'
+    user_agent = request.headers.get('user-agent', 'unknown')
+    
     if not file.filename:
+        log_security_event(
+            event_type='invalid_file_upload',
+            severity='low',
+            ip_address=client_ip,
+            user_agent=user_agent,
+            details={'error': 'no_filename'}
+        )
         raise HTTPException(status_code=400, detail="No filename provided")
     
     content = await file.read()
     if len(content) > 10 * 1024 * 1024:
+        log_security_event(
+            event_type='oversized_file',
+            severity='medium',
+            ip_address=client_ip,
+            user_agent=user_agent,
+            details={'size': len(content), 'filename': file.filename}
+        )
         raise HTTPException(status_code=400, detail="File too large (max 10MB)")
     
-    allowed_extensions = {'.pdf', '.txt', '.doc', '.docx'}
+    allowed_extensions = {'.pdf', '.txt', '.doc', '.docx', '.md', '.json', '.csv', '.py', '.js', '.ts', '.html', '.css'}
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in allowed_extensions:
+        log_security_event(
+            event_type='unsupported_file_type',
+            severity='low',
+            ip_address=client_ip,
+            user_agent=user_agent,
+            details={'extension': ext, 'filename': file.filename}
+        )
         raise HTTPException(
             status_code=400,
             detail=f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}"
