@@ -41,8 +41,8 @@ export default function Upload({ onFileSelect, loading = false }: UploadProps) {
         relative border-2 border-dashed rounded-xl p-8
         transition-all duration-200
         ${dragActive 
-          ? 'border-brand-blue bg-brand-blue/5' 
-          : 'border-border-200 hover:border-brand-blue/50'
+          ? 'border-brand-navy bg-brand-navy/5' 
+          : 'border-border-200 hover:border-brand-navy/50'
         }
         ${loading ? 'opacity-50 pointer-events-none' : ''}
       `}

@@ -67,14 +67,14 @@ export default function InstantAnalysis() {
               key={example.title}
               onClick={() => handleQuickAnalysis(example)}
               disabled={analyzing === example.title}
-              className="group relative p-6 bg-white border-2 border-border-200 rounded-xl hover:border-brand-blue hover:shadow-lg transition-all text-left disabled:opacity-50"
+              className="group relative p-6 bg-white border-2 border-border-200 rounded-xl hover:border-brand-navy hover:shadow-lg transition-all text-left disabled:opacity-50"
             >
               <div className="text-4xl mb-3">{example.emoji}</div>
               <div className="font-bold text-ink-900 mb-2">{example.title}</div>
               <div className="text-sm text-ink-600 mb-4">{example.preview}</div>
               
               {analyzing === example.title ? (
-                <div className="flex items-center gap-2 text-sm text-brand-blue font-medium">
+                <div className="flex items-center gap-2 text-sm text-brand-navy font-medium">
                   <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -82,7 +82,7 @@ export default function InstantAnalysis() {
                   <span>Analyzing...</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-sm text-brand-blue font-medium group-hover:gap-3 transition-all">
+                <div className="flex items-center gap-2 text-sm text-brand-navy font-medium group-hover:gap-3 transition-all">
                   <span>Analyze Now</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -95,7 +95,7 @@ export default function InstantAnalysis() {
 
         {/* Quick result */}
         {result && (
-          <div className="bg-white border-2 border-brand-blue rounded-xl p-6 shadow-xl animate-in slide-in-from-bottom-4">
+          <div className="bg-white border-2 border-brand-navy rounded-xl p-6 shadow-xl animate-in slide-in-from-bottom-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-ink-900">
                 {result.example} Analysis
@@ -153,7 +153,7 @@ export default function InstantAnalysis() {
               <p className="text-sm text-ink-600 mb-4">
                 Want full analysis with citations and PDF export?
               </p>
-              <button className="px-6 py-3 bg-brand-blue text-white rounded-lg font-semibold hover:bg-brand-blue/90 transition">
+              <button className="px-6 py-3 bg-brand-navy text-white rounded-lg font-semibold hover:bg-brand-navy/90 transition">
                 Analyze Your Own Document
               </button>
             </div>

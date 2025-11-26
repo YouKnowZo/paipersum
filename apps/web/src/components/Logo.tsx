@@ -1,38 +1,112 @@
-// Professional animated logo component
-export default function Logo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+// PaiperSum branded logo component
+export default function Logo({ size = 'md', showText = true }: { size?: 'sm' | 'md' | 'lg'; showText?: boolean }) {
   const sizes = {
-    sm: 'w-8 h-8',
-    md: 'w-12 h-12',
-    lg: 'w-16 h-16'
+    sm: { icon: 'w-8 h-8', text: 'text-lg', tagline: 'text-[10px]' },
+    md: { icon: 'w-10 h-10', text: 'text-xl', tagline: 'text-xs' },
+    lg: { icon: 'w-14 h-14', text: 'text-2xl', tagline: 'text-sm' }
   }
 
   return (
-    <div className="flex items-center gap-3">
-      {/* Animated icon */}
-      <div className={`${sizes[size]} relative group cursor-pointer`}>
-        {/* Background glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-blue to-brand-green rounded-xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity"></div>
+    <div className="flex items-center gap-2.5">
+      {/* PaiperSum P Icon - stylized speech bubble P with orange accent */}
+      <div className={`${sizes[size].icon} relative group cursor-pointer flex-shrink-0`}>
+        <svg 
+          viewBox="0 0 100 100" 
+          className="w-full h-full"
+          fill="none"
+        >
+          {/* Speech bubble tail / pointer */}
+          <path
+            d="M15 85 L5 95 L15 75 Z"
+            fill="#1e3a5f"
+          />
+          
+          {/* Main P body - navy blue */}
+          <path
+            d="M15 10 L15 75 L30 75 L30 55 L50 55 C50 55 70 55 70 37.5 C70 20 50 20 50 20 L30 20 L30 10 Z"
+            fill="#1e3a5f"
+          />
+          
+          {/* P inner cutout - white space */}
+          <path
+            d="M30 28 L30 47 L45 47 C45 47 58 47 58 37.5 C58 28 45 28 45 28 Z"
+            fill="white"
+          />
+          
+          {/* Orange accent - top right corner fold */}
+          <path
+            d="M55 10 L85 10 L85 40 C85 40 85 10 55 10 Z"
+            fill="#f5a623"
+          />
+          
+          {/* Orange accent triangle */}
+          <path
+            d="M60 8 L92 8 L92 35 Z"
+            fill="#f5a623"
+          />
+        </svg>
         
-        {/* Icon */}
-        <div className="relative w-full h-full bg-gradient-to-br from-brand-blue to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all group-hover:scale-105">
-          <svg className="w-2/3 h-2/3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" className="text-brand-green" />
-          </svg>
-        </div>
+        {/* Hover glow effect */}
+        <div className="absolute inset-0 bg-brand-orange/20 rounded-lg opacity-0 group-hover:opacity-100 blur-lg transition-opacity"></div>
       </div>
 
       {/* Text logo */}
-      {size !== 'sm' && (
+      {showText && size !== 'sm' && (
         <div className="flex flex-col">
-          <span className="font-bold text-xl leading-none bg-gradient-to-r from-brand-blue to-blue-600 bg-clip-text text-transparent">
-            PaiperSum
+          <span className={`font-bold ${sizes[size].text} leading-none tracking-tight`} style={{ fontFamily: "'Pacifico', cursive" }}>
+            <span className="text-brand-navy">p</span>
+            <span className="text-brand-orange">ai</span>
+            <span className="text-brand-navy">perSum</span>
           </span>
-          <span className="text-xs text-ink-500 leading-none mt-0.5">
+          <span className={`${sizes[size].tagline} text-ink-500 leading-none mt-1`}>
             Legal, Simplified
           </span>
         </div>
       )}
+      
+      {/* Small size just shows icon with tooltip-like text on hover */}
+      {showText && size === 'sm' && (
+        <span className="font-bold text-sm leading-none tracking-tight" style={{ fontFamily: "'Pacifico', cursive" }}>
+          <span className="text-brand-navy">p</span>
+          <span className="text-brand-orange">ai</span>
+          <span className="text-brand-navy">perSum</span>
+        </span>
+      )}
     </div>
+  )
+}
+
+// Standalone P icon component for favicon/small uses
+export function PaiperSumIcon({ className = "w-8 h-8" }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 100 100" 
+      className={className}
+      fill="none"
+    >
+      {/* Speech bubble tail */}
+      <path
+        d="M15 85 L5 95 L15 75 Z"
+        fill="#1e3a5f"
+      />
+      
+      {/* Main P body - navy */}
+      <path
+        d="M15 10 L15 75 L30 75 L30 55 L50 55 C50 55 70 55 70 37.5 C70 20 50 20 50 20 L30 20 L30 10 Z"
+        fill="#1e3a5f"
+      />
+      
+      {/* P inner cutout */}
+      <path
+        d="M30 28 L30 47 L45 47 C45 47 58 47 58 37.5 C58 28 45 28 45 28 Z"
+        fill="white"
+      />
+      
+      {/* Orange accent */}
+      <path
+        d="M60 8 L92 8 L92 35 Z"
+        fill="#f5a623"
+      />
+    </svg>
   )
 }

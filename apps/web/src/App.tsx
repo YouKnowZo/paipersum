@@ -161,7 +161,7 @@ export default function App() {
 
   const showAchievement = (title: string, message: string) => {
     const toast = document.createElement('div')
-    toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-blue to-blue-600 text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
+    toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
     toast.innerHTML = `
       <div class="flex items-start gap-4">
         <div class="text-4xl">🎉</div>
@@ -288,7 +288,7 @@ export default function App() {
                 type="text"
                 name="name"
                 required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy"
                 placeholder="Your name"
               />
             </div>
@@ -298,12 +298,12 @@ export default function App() {
                 type="email"
                 name="email"
                 required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy"
                 placeholder="you@example.com"
               />
             </div>
             <div className="pt-2">
-              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition">
                 Continue →
               </button>
               <button
@@ -320,9 +320,9 @@ export default function App() {
           </form>
         ) : (
           <div className="space-y-4">
-            <div className="p-4 bg-gradient-to-br from-brand-blue/10 to-green-50 rounded-lg border-2 border-brand-blue/20">
+            <div className="p-4 bg-gradient-to-br from-brand-navy/10 to-brand-orange/10 rounded-lg border-2 border-brand-navy/20">
               <div className="text-center mb-4">
-                <div className="text-4xl font-bold text-brand-blue">$20</div>
+                <div className="text-4xl font-bold text-brand-navy">$20</div>
                 <div className="text-sm text-ink-600">per month</div>
               </div>
               <ul className="space-y-2 text-sm">
@@ -352,7 +352,7 @@ export default function App() {
                 </li>
               </ul>
             </div>
-            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition">
               Upgrade to Pro →
             </button>
             <button
@@ -383,9 +383,9 @@ export default function App() {
               
               <div className="flex items-center gap-4">
                 {documentsAnalyzed > 0 && (
-                  <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-blue/10 to-green-50 rounded-lg border border-brand-blue/20">
+                  <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-navy/10 to-brand-orange/10 rounded-lg border border-brand-navy/20">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-brand-blue">{documentsAnalyzed}</div>
+                      <div className="text-2xl font-bold text-brand-navy">{documentsAnalyzed}</div>
                       <div className="text-xs text-ink-600">analyzed</div>
                     </div>
                     {totalSavings > 0 && (
@@ -432,7 +432,7 @@ export default function App() {
                 ) : (
                   <button
                     onClick={() => setShowAuth(true)}
-                    className="px-4 py-2 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
+                    className="px-4 py-2 border-2 border-brand-navy text-brand-navy rounded-lg font-semibold hover:bg-brand-navy hover:text-white transition"
                   >
                     Sign in / Create account
                   </button>
@@ -440,7 +440,7 @@ export default function App() {
                 
                 <button
                   onClick={() => setShowAnalyzer(true)}
-                  className="px-6 py-2.5 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
+                  className="px-6 py-2.5 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -464,7 +464,7 @@ export default function App() {
                     <button
                       key={saved.id}
                       onClick={() => loadSavedAnalysis(saved)}
-                      className="text-left p-4 bg-white border-2 border-border-200 rounded-xl hover:border-brand-blue hover:shadow-lg transition"
+                      className="text-left p-4 bg-white border-2 border-border-200 rounded-xl hover:border-brand-navy hover:shadow-lg transition"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="font-semibold text-ink-900 truncate flex-1">
@@ -481,7 +481,7 @@ export default function App() {
                       <div className="text-xs text-ink-500">
                         {new Date(saved.date).toLocaleDateString()}
                       </div>
-                      <div className="mt-2 text-xs text-brand-blue font-semibold">
+                      <div className="mt-2 text-xs text-brand-navy font-semibold">
                         View Analysis →
                       </div>
                     </button>
@@ -501,7 +501,7 @@ export default function App() {
           <Testimonials />
 
           {/* CTA section */}
-          <div className="bg-gradient-to-br from-brand-blue to-blue-900 py-16">
+          <div className="bg-gradient-to-br from-brand-navy via-brand-navy-dark to-brand-navy py-16">
             <div className="max-w-4xl mx-auto px-4 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                 Ready to Stop Getting Scammed?
@@ -511,7 +511,7 @@ export default function App() {
               </p>
               {totalSavings > 0 && (
                 <div className="inline-block mb-6 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
-                  <span className="text-yellow-300 font-bold text-lg">
+                  <span className="text-brand-orange font-bold text-lg">
                     Our community has saved ${(totalSavings * 50).toLocaleString()}+ collectively!
                   </span>
                 </div>
@@ -519,7 +519,7 @@ export default function App() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={() => setShowAnalyzer(true)}
-                  className="px-8 py-4 bg-white text-brand-blue rounded-xl font-bold text-lg hover:bg-gray-50 transition shadow-lg hover:shadow-xl hover:scale-105"
+                  className="px-8 py-4 bg-brand-orange text-brand-navy-dark rounded-xl font-bold text-lg hover:bg-brand-orange-light transition shadow-lg hover:shadow-xl hover:scale-105"
                 >
                   Analyze a Document →
                 </button>
@@ -620,13 +620,13 @@ export default function App() {
               {user && !user.isPro && (
                 <div className="text-right">
                   <div className="text-xs text-ink-500">Remaining</div>
-                  <div className="text-sm font-bold text-brand-blue">{getRemainingAnalyses()}/30</div>
+                  <div className="text-sm font-bold text-brand-navy">{getRemainingAnalyses()}/30</div>
                 </div>
               )}
               
-              <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-blue/10 to-green-50 rounded-lg border border-brand-blue/20">
+              <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-navy/10 to-brand-orange/10 rounded-lg border border-brand-navy/20">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-brand-blue">{documentsAnalyzed}</div>
+                  <div className="text-lg font-bold text-brand-navy">{documentsAnalyzed}</div>
                   <div className="text-xs text-ink-600">docs</div>
                 </div>
                 {totalSavings > 0 && (
@@ -661,7 +661,7 @@ export default function App() {
                 value={documentName}
                 onChange={(e) => setDocumentName(e.target.value)}
                 placeholder="Name this document (e.g., 'Planet Fitness Membership')"
-                className="w-full px-4 py-3 border-2 border-brand-blue/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue text-center font-semibold"
+                className="w-full px-4 py-3 border-2 border-brand-navy/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy text-center font-semibold"
               />
             </div>
           )}
@@ -680,7 +680,7 @@ export default function App() {
                       value={text}
                       onChange={(e) => setText(e.target.value)}
                       placeholder="Paste your contract, Terms of Service, waiver, lease, or any legal document..."
-                      className="w-full h-64 border-2 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue resize-none"
+                      className="w-full h-64 border-2 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy resize-none"
                       disabled={loading}
                     />
                   </div>
@@ -688,7 +688,7 @@ export default function App() {
                   <button
                     onClick={() => handleAnalyzeText()}
                     disabled={!text.trim() || loading}
-                    className="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-brand-blue to-blue-600 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+                    className="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-brand-navy to-brand-navy-light text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
@@ -729,7 +729,7 @@ export default function App() {
                       <button
                         key={saved.id}
                         onClick={() => loadSavedAnalysis(saved)}
-                        className="w-full text-left p-3 bg-paper-50 hover:bg-brand-blue/5 rounded-lg border hover:border-brand-blue transition"
+                        className="w-full text-left p-3 bg-paper-50 hover:bg-brand-navy/5 rounded-lg border hover:border-brand-navy transition"
                       >
                         <div className="font-medium text-sm text-ink-900 truncate mb-1">
                           {saved.name}
@@ -775,8 +775,8 @@ export default function App() {
               {!analysis ? (
                 <Card>
                   <div className="text-center py-16">
-                    <div className="mb-6 inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-brand-blue/20 to-brand-blue/10 rounded-full">
-                      <svg className="w-12 h-12 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="mb-6 inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-brand-navy/20 to-brand-orange/10 rounded-full">
+                      <svg className="w-12 h-12 text-brand-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
@@ -788,25 +788,25 @@ export default function App() {
                     </p>
                     <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto text-sm">
                       <div className="flex items-center gap-2 text-left">
-                        <svg className="w-5 h-5 text-brand-blue flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 text-brand-orange flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                         <span>Clear recommendation</span>
                       </div>
                       <div className="flex items-center gap-2 text-left">
-                        <svg className="w-5 h-5 text-brand-blue flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 text-brand-orange flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                         <span>$ impact calculation</span>
                       </div>
                       <div className="flex items-center gap-2 text-left">
-                        <svg className="w-5 h-5 text-brand-blue flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 text-brand-orange flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                         <span>Negotiation templates</span>
                       </div>
                       <div className="flex items-center gap-2 text-left">
-                        <svg className="w-5 h-5 text-brand-blue flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 text-brand-orange flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                         <span>Calendar reminders</span>

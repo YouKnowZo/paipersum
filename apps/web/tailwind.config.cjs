@@ -5,9 +5,15 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          blue: '#0f4c81',
+          navy: '#1e3a5f',
+          'navy-dark': '#152a45',
+          'navy-light': '#2a4a73',
+          orange: '#f5a623',
+          'orange-dark': '#e09415',
+          'orange-light': '#fbb84a',
+          blue: '#1e3a5f', // alias for navy
           green: '#2e7d32',
-          yellow: '#f9a825',
+          yellow: '#f5a623', // alias for orange
           red: '#c62828'
         },
         ink: {

@@ -53,7 +53,7 @@ export default function FloatingChatbot() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-brand-blue to-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-50 flex items-center justify-center group"
+          className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-brand-navy to-brand-navy-light text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-50 flex items-center justify-center group"
           aria-label="Open chat"
         >
           <svg className="w-8 h-8 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +68,7 @@ export default function FloatingChatbot() {
       {open && (
         <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-2rem)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4">
           {/* Header */}
-          <div className="bg-gradient-to-r from-brand-blue to-blue-600 text-white p-4 flex justify-between items-center">
+          <div className="bg-gradient-to-r from-brand-navy to-brand-navy-light text-white p-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center relative">
                 <span className="text-2xl">🤖</span>
@@ -95,7 +95,7 @@ export default function FloatingChatbot() {
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] p-3 rounded-2xl ${
                   msg.role === 'user' 
-                    ? 'bg-brand-blue text-white rounded-br-sm' 
+                    ? 'bg-brand-navy text-white rounded-br-sm' 
                     : 'bg-white text-gray-800 rounded-bl-sm shadow-sm border border-border-200'
                 }`}>
                   {msg.text}
@@ -113,7 +113,7 @@ export default function FloatingChatbot() {
                   <button
                     key={i}
                     onClick={() => handleSend(q)}
-                    className="text-xs px-3 py-1.5 bg-paper-100 hover:bg-brand-blue hover:text-white rounded-full transition"
+                    className="text-xs px-3 py-1.5 bg-paper-100 hover:bg-brand-navy hover:text-white rounded-full transition"
                   >
                     {q}
                   </button>
@@ -131,12 +131,12 @@ export default function FloatingChatbot() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="Ask about any legal term..."
-                className="flex-1 px-4 py-3 border border-border-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent"
+                className="flex-1 px-4 py-3 border border-border-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-navy focus:border-transparent"
               />
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim()}
-                className="px-4 py-3 bg-brand-blue text-white rounded-xl hover:bg-brand-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="px-4 py-3 bg-brand-navy text-white rounded-xl hover:bg-brand-navy/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

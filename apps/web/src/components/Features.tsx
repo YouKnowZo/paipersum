@@ -54,7 +54,7 @@ export default function Features() {
           {features.map((feature, i) => (
             <div 
               key={i}
-              className="group relative p-6 bg-gradient-to-br from-white to-paper-50 border border-border-200 rounded-xl hover:border-brand-blue hover:shadow-lg transition-all"
+              className="group relative p-6 bg-gradient-to-br from-white to-paper-50 border border-border-200 rounded-xl hover:border-brand-navy hover:shadow-lg transition-all"
             >
               {/* Icon */}
               <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">
@@ -67,7 +67,7 @@ export default function Features() {
               </h3>
 
               {/* Highlight */}
-              <div className="inline-block px-3 py-1 bg-brand-blue/10 text-brand-blue text-xs font-semibold rounded-full mb-3">
+              <div className="inline-block px-3 py-1 bg-brand-orange/10 text-brand-navy text-xs font-semibold rounded-full mb-3">
                 {feature.highlight}
               </div>
 

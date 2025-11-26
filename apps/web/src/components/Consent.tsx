@@ -39,8 +39,8 @@ export default function Consent() {
           </p>
           <p>
             By continuing, you acknowledge that you have read and understood these limitations and agree 
-            to our <a href="/terms" className="text-brand-blue hover:underline">Terms of Service</a> and{' '}
-            <a href="/privacy" className="text-brand-blue hover:underline">Privacy Policy</a>.
+            to our <a href="/terms" className="text-brand-navy hover:underline">Terms of Service</a> and{' '}
+            <a href="/privacy" className="text-brand-navy hover:underline">Privacy Policy</a>.
           </p>
         </div>
         <div className="mt-6 flex gap-3 justify-end">
@@ -60,7 +60,7 @@ export default function Consent() {
           </a>
           <button 
             onClick={handleAccept}
-            className="px-5 py-2.5 bg-brand-blue text-white rounded-lg hover:bg-brand-blue/90 transition-colors font-medium"
+            className="px-5 py-2.5 bg-brand-navy text-white rounded-lg hover:bg-brand-navy/90 transition-colors font-medium"
           >
             I Understand & Accept
           </button>
