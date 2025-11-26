@@ -1,6 +1,6 @@
 export default function Hero() {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-brand-blue to-blue-900">
+    <div className="relative overflow-hidden bg-gradient-to-br from-brand-blue to-brand-blue-light">
       {/* Animated background */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-white rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>

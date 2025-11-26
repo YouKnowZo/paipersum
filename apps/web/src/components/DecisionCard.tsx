@@ -92,12 +92,12 @@ export default function DecisionCard({ recommendation }: { recommendation: Recom
       {/* CTA based on decision */}
       <div className="mt-6 flex gap-3">
         {decision === 'negotiate' && (
-          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
+          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-brand-blue-bright text-white rounded-lg font-semibold hover:shadow-lg transition">
             📧 Get Negotiation Templates
           </button>
         )}
         {decision === 'walk_away' && (
-          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
+          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-brand-blue-bright text-white rounded-lg font-semibold hover:shadow-lg transition">
             🔍 Find Better Alternatives
           </button>
         )}

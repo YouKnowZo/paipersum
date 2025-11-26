@@ -21,7 +21,7 @@ export default function TrustBadges() {
         {/* Trust metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
           <div className="text-center p-6 bg-white rounded-2xl shadow-soft hover-lift">
-            <div className="text-4xl font-bold bg-gradient-to-r from-brand-blue to-purple-600 bg-clip-text text-transparent mb-2">
+            <div className="text-4xl font-bold bg-gradient-to-r from-brand-blue to-brand-blue-bright bg-clip-text text-transparent mb-2">
               $450K+
             </div>
             <div className="text-sm text-ink-600">Protected for Users</div>

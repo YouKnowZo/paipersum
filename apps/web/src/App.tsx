@@ -161,7 +161,7 @@ export default function App() {
 
   const showAchievement = (title: string, message: string) => {
     const toast = document.createElement('div')
-    toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-blue to-blue-600 text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
+    toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-blue to-brand-blue-bright text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
     toast.innerHTML = `
       <div class="flex items-start gap-4">
         <div class="text-4xl">🎉</div>
@@ -303,7 +303,7 @@ export default function App() {
               />
             </div>
             <div className="pt-2">
-              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-brand-blue-bright text-white rounded-xl font-bold hover:shadow-lg transition">
                 Continue →
               </button>
               <button
@@ -352,7 +352,7 @@ export default function App() {
                 </li>
               </ul>
             </div>
-            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-brand-blue-bright text-white rounded-xl font-bold hover:shadow-lg transition">
               Upgrade to Pro →
             </button>
             <button
@@ -440,7 +440,7 @@ export default function App() {
                 
                 <button
                   onClick={() => setShowAnalyzer(true)}
-                  className="px-6 py-2.5 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
+                  className="px-6 py-2.5 bg-gradient-to-r from-brand-blue to-brand-blue-bright text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -501,7 +501,7 @@ export default function App() {
           <Testimonials />
 
           {/* CTA section */}
-          <div className="bg-gradient-to-br from-brand-blue to-blue-900 py-16">
+          <div className="bg-gradient-to-br from-brand-blue to-brand-blue-light py-16">
             <div className="max-w-4xl mx-auto px-4 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                 Ready to Stop Getting Scammed?
@@ -688,7 +688,7 @@ export default function App() {
                   <button
                     onClick={() => handleAnalyzeText()}
                     disabled={!text.trim() || loading}
-                    className="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-brand-blue to-blue-600 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+                    className="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-brand-blue to-brand-blue-bright text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
