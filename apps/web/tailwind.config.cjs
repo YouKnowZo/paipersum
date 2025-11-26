@@ -5,7 +5,9 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          blue: '#0f4c81',
+          blue: '#2b326d',      // Primary navy from logo
+          'blue-light': '#2c93dc',  // Light blue accent from logo
+          'blue-medium': '#2b5a9b', // Medium blue from logo
           green: '#2e7d32',
           yellow: '#f9a825',
           red: '#c62828'

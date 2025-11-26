@@ -79,7 +79,7 @@ export default function AccountPage({
             {/* Account Status Card */}
             <Card>
               <div className="text-center">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-brand-blue to-blue-600 mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-brand-blue to-brand-blue-light mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold">
                   {user.name?.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <h3 className="text-xl font-bold text-ink-900 mb-1">{user.name}</h3>
@@ -139,7 +139,7 @@ export default function AccountPage({
                   <div className="text-3xl font-bold text-brand-blue mb-4">$20<span className="text-sm text-ink-500">/mo</span></div>
                   <button
                     onClick={onUpgrade}
-                    className="w-full px-4 py-3 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+                    className="w-full px-4 py-3 bg-gradient-to-r from-brand-blue to-brand-blue-light text-white rounded-lg font-semibold hover:shadow-lg transition"
                   >
                     Upgrade Now →
                   </button>
@@ -255,7 +255,7 @@ export default function AccountPage({
                   <div className="flex gap-3 pt-4">
                     <button
                       type="submit"
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-brand-blue-light text-white rounded-lg font-semibold hover:shadow-lg transition"
                     >
                       Save Changes
                     </button>
@@ -321,7 +321,7 @@ export default function AccountPage({
                     <p className="text-ink-600 mb-4">Upgrade to Pro for unlimited analyses</p>
                     <button
                       onClick={onUpgrade}
-                      className="px-6 py-3 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+                      className="px-6 py-3 bg-gradient-to-r from-brand-blue to-brand-blue-light text-white rounded-lg font-semibold hover:shadow-lg transition"
                     >
                       Upgrade to Pro →
                     </button>
@@ -401,7 +401,7 @@ export default function AccountPage({
                 <div className="w-full bg-paper-100 rounded-full h-3">
                   <div
                     className={`h-3 rounded-full ${
-                      user.isPro ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' : 'bg-gradient-to-r from-brand-blue to-blue-600'
+                      user.isPro ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' : 'bg-gradient-to-r from-brand-blue to-brand-blue-light'
                     }`}
                     style={{ width: user.isPro ? '100%' : `${Math.min((user.docsThisMonth / 30) * 100, 100)}%` }}
                   />

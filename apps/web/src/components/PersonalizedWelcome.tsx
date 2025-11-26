@@ -44,7 +44,7 @@ export default function PersonalizedWelcome({ userName, docsAnalyzed, totalSavin
         <div className="flex items-start gap-4">
           {/* Animated avatar */}
           <div className="relative">
-            <div className="w-12 h-12 bg-gradient-to-br from-brand-blue to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold animate-glow">
+            <div className="w-12 h-12 bg-gradient-to-br from-brand-blue to-brand-blue-light rounded-full flex items-center justify-center text-white text-xl font-bold animate-glow">
               {userName ? userName[0].toUpperCase() : '👋'}
             </div>
             {docsAnalyzed > 0 && (

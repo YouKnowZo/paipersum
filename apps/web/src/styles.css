@@ -141,11 +141,11 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-gradient-to-b from-brand-blue to-purple-600 rounded-full;
+    @apply bg-gradient-to-b from-brand-blue to-brand-blue-light rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply from-purple-600 to-brand-blue;
+    @apply from-brand-blue-light to-brand-blue;
   }
   
   /* Selection color */
