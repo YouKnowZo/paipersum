@@ -328,6 +328,10 @@ def get_document_types():
         ]
     }
 
+# Import user routes
+from users import router as users_router
+app.include_router(users_router)
+
 # Stripe Payment Endpoints
 @app.post('/create-checkout-session')
 async def create_checkout_session_endpoint(data: CheckoutSessionRequest):

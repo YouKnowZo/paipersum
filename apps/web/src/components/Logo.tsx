@@ -1,15 +1,44 @@
 // PaiperSum branded logo component - matches official branding
-export default function Logo({ size = 'md', showText = true }: { size?: 'sm' | 'md' | 'lg'; showText?: boolean }) {
+export default function Logo({ 
+  size = 'md', 
+  showText = true,
+  onClick
+}: { 
+  size?: 'sm' | 'md' | 'lg'
+  showText?: boolean
+  onClick?: () => void
+}) {
   const sizes = {
     sm: { icon: 'w-8 h-8', text: 'text-lg', tagline: 'text-[10px]' },
     md: { icon: 'w-10 h-10', text: 'text-xl', tagline: 'text-xs' },
     lg: { icon: 'w-14 h-14', text: 'text-2xl', tagline: 'text-sm' }
   }
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick()
+    } else {
+      // Default: navigate to home
+      window.location.href = '/'
+    }
+  }
+
   return (
     <div className="flex items-center gap-2.5">
       {/* PaiperSum P Icon - matches official logo */}
-      <div className={`${sizes[size].icon} relative group cursor-pointer flex-shrink-0`}>
+      <div 
+        className={`${sizes[size].icon} relative group cursor-pointer flex-shrink-0`}
+        onClick={handleClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleClick()
+          }
+        }}
+        aria-label="PaiperSum Home"
+      >
         <svg 
           viewBox="0 0 100 100" 
           className="w-full h-full"

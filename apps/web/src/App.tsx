@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 import Logo from './components/Logo'
 import Hero from './components/Hero'
 import InstantAnalysis from './components/InstantAnalysis'
@@ -13,8 +14,11 @@ import AdminPage from './pages/AdminPage'
 import { Card } from './components/Cards'
 import { analyzeText, analyzeFile, exportPDF } from './lib/api'
 import type { EnhancedAnalysisT } from './lib/schemas'
+import axios from 'axios'
 
-// Simple auth types (localStorage-based for MVP)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+// User interface
 interface User {
   email: string
   name: string
@@ -23,6 +27,7 @@ interface User {
   address?: string
   phone?: string
   company?: string
+  auth0Id?: string
 }
 
 interface SavedAnalysis {
@@ -33,6 +38,15 @@ interface SavedAnalysis {
 }
 
 export default function App() {
+  const { 
+    user: auth0User, 
+    isAuthenticated: auth0IsAuthenticated, 
+    isLoading: auth0Loading,
+    loginWithRedirect,
+    logout: auth0Logout,
+    getAccessTokenSilently
+  } = useAuth0()
+  
   const [user, setUser] = useState<User | null>(null)
   const [showAuth, setShowAuth] = useState(false)
   const [showAccount, setShowAccount] = useState(false)
@@ -46,6 +60,7 @@ export default function App() {
   const [documentsAnalyzed, setDocumentsAnalyzed] = useState(0)
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([])
   const [totalSavings, setTotalSavings] = useState(0)
+  const [userLoading, setUserLoading] = useState(false)
 
   // Check for admin route on mount
   useEffect(() => {
@@ -54,17 +69,93 @@ export default function App() {
     }
   }, [])
 
-  // Load user and saved data on mount
+  // Load or create user from backend when Auth0 authenticates
   useEffect(() => {
-    const savedUser = localStorage.getItem('paipersum_user')
-    if (savedUser) {
+    const loadUser = async () => {
+      if (!auth0IsAuthenticated || !auth0User) {
+        // Fallback to localStorage if Auth0 not configured
+        const savedUser = localStorage.getItem('paipersum_user')
+        if (savedUser) {
+          try {
+            setUser(JSON.parse(savedUser))
+          } catch (e) {
+            console.error('Failed to load user', e)
+          }
+        }
+        return
+      }
+
+      setUserLoading(true)
       try {
-        setUser(JSON.parse(savedUser))
-      } catch (e) {
-        console.error('Failed to load user', e)
+        const token = await getAccessTokenSilently().catch(() => null)
+        
+        // Try to get user from backend
+        if (token) {
+          try {
+            const response = await axios.get(`${API_URL}/users/me`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+            setUser({
+              email: response.data.email,
+              name: response.data.name,
+              isPro: response.data.is_pro,
+              docsThisMonth: response.data.docs_this_month,
+              address: response.data.address,
+              phone: response.data.phone,
+              company: response.data.company,
+              auth0Id: response.data.auth0_id
+            })
+            setUserLoading(false)
+            return
+          } catch (err) {
+            // User doesn't exist, create it
+            if (axios.isAxiosError(err) && err.response?.status === 404) {
+              await axios.post(`${API_URL}/users/`, {
+                email: auth0User.email,
+                name: auth0User.name || auth0User.nickname || auth0User.email?.split('@')[0] || 'User',
+                auth0_id: auth0User.sub
+              }, {
+                headers: { Authorization: `Bearer ${token}` }
+              })
+              
+              // Reload user
+              const response = await axios.get(`${API_URL}/users/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+              })
+              setUser({
+                email: response.data.email,
+                name: response.data.name,
+                isPro: response.data.is_pro,
+                docsThisMonth: response.data.docs_this_month,
+                address: response.data.address,
+                phone: response.data.phone,
+                company: response.data.company,
+                auth0Id: response.data.auth0_id
+              })
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load user from backend', err)
+        // Fallback to localStorage
+        const savedUser = localStorage.getItem('paipersum_user')
+        if (savedUser) {
+          try {
+            setUser(JSON.parse(savedUser))
+          } catch (e) {
+            console.error('Failed to load user', e)
+          }
+        }
+      } finally {
+        setUserLoading(false)
       }
     }
-    
+
+    loadUser()
+  }, [auth0IsAuthenticated, auth0User, getAccessTokenSilently])
+
+  // Load saved data from localStorage (for backward compatibility)
+  useEffect(() => {
     const count = parseInt(localStorage.getItem('docs_analyzed') || '0')
     setDocumentsAnalyzed(count)
     
@@ -88,7 +179,26 @@ export default function App() {
     return user.docsThisMonth < 30
   }
 
-  const handleLogin = (email: string, name: string) => {
+  const handleLogin = async () => {
+    if (auth0IsAuthenticated) {
+      setShowAuth(false)
+      return
+    }
+    
+    // Use Auth0 if available, otherwise fallback to simple form
+    const domain = import.meta.env.VITE_AUTH0_DOMAIN
+    if (domain) {
+      await loginWithRedirect({
+        appState: { returnTo: window.location.pathname }
+      })
+    } else {
+      // Fallback: show auth modal
+      setShowAuth(true)
+    }
+  }
+
+  const handleLoginFallback = (email: string, name: string) => {
+    // Fallback for when Auth0 is not configured
     const newUser: User = {
       email,
       name,
@@ -100,9 +210,17 @@ export default function App() {
     setShowAuth(false)
   }
 
-  const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem('paipersum_user')
+  const handleLogout = async () => {
+    const domain = import.meta.env.VITE_AUTH0_DOMAIN
+    if (domain && auth0IsAuthenticated) {
+      await auth0Logout({
+        returnTo: window.location.origin
+      })
+    } else {
+      // Fallback: clear localStorage
+      setUser(null)
+      localStorage.removeItem('paipersum_user')
+    }
   }
 
   const handleAnalyzeText = async (textToAnalyze: string = text, name: string = documentName) => {
@@ -129,7 +247,37 @@ export default function App() {
       localStorage.setItem('docs_analyzed', newCount.toString())
       
       // Update user monthly count
-      if (user) {
+      if (user && auth0IsAuthenticated) {
+        try {
+          const token = await getAccessTokenSilently().catch(() => null)
+          if (token) {
+            await axios.post(`${API_URL}/users/me/increment-usage`, {}, {
+              headers: { Authorization: `Bearer ${token}` }
+            }).catch(err => console.error('Failed to sync usage', err))
+            
+            // Reload user to get updated count
+            const response = await axios.get(`${API_URL}/users/me`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }).catch(() => null)
+            
+            if (response) {
+              setUser({
+                email: response.data.email,
+                name: response.data.name,
+                isPro: response.data.is_pro,
+                docsThisMonth: response.data.docs_this_month,
+                address: response.data.address,
+                phone: response.data.phone,
+                company: response.data.company,
+                auth0Id: response.data.auth0_id
+              })
+            }
+          }
+        } catch (err) {
+          console.error('Failed to sync user usage', err)
+        }
+      } else if (user) {
+        // Fallback: update localStorage
         const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
         setUser(updatedUser)
         localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
@@ -204,7 +352,37 @@ export default function App() {
       setDocumentsAnalyzed(newCount)
       localStorage.setItem('docs_analyzed', newCount.toString())
       
-      if (user) {
+      if (user && auth0IsAuthenticated) {
+        try {
+          const token = await getAccessTokenSilently().catch(() => null)
+          if (token) {
+            await axios.post(`${API_URL}/users/me/increment-usage`, {}, {
+              headers: { Authorization: `Bearer ${token}` }
+            }).catch(err => console.error('Failed to sync usage', err))
+            
+            // Reload user to get updated count
+            const response = await axios.get(`${API_URL}/users/me`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }).catch(() => null)
+            
+            if (response) {
+              setUser({
+                email: response.data.email,
+                name: response.data.name,
+                isPro: response.data.is_pro,
+                docsThisMonth: response.data.docs_this_month,
+                address: response.data.address,
+                phone: response.data.phone,
+                company: response.data.company,
+                auth0Id: response.data.auth0_id
+              })
+            }
+          }
+        } catch (err) {
+          console.error('Failed to sync user usage', err)
+        }
+      } else if (user) {
+        // Fallback: update localStorage
         const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
         setUser(updatedUser)
         localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
@@ -289,7 +467,7 @@ export default function App() {
             const formData = new FormData(e.currentTarget)
             const email = formData.get('email') as string
             const name = formData.get('name') as string
-            if (email && name) handleLogin(email, name)
+            if (email && name) handleLoginFallback(email, name)
           }} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-ink-700 mb-2">Name</label>
@@ -396,7 +574,11 @@ export default function App() {
           {/* Navigation */}
           <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-border-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-              <Logo size="md" />
+              <Logo size="md" onClick={() => {
+                setShowAnalyzer(false)
+                setAnalysis(null)
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }} />
               
               <div className="flex items-center gap-4">
                 {documentsAnalyzed > 0 && (
@@ -448,17 +630,24 @@ export default function App() {
                   </div>
                 ) : (
                   <button
-                    onClick={() => setShowAuth(true)}
-                    className="px-4 py-2 border-2 border-brand-navy text-brand-navy rounded-lg font-semibold hover:bg-brand-navy hover:text-white transition"
+                    onClick={handleLogin}
+                    disabled={auth0Loading || userLoading}
+                    className="px-4 py-2 border-2 border-brand-navy text-brand-navy rounded-lg font-semibold hover:bg-brand-navy hover:text-white transition disabled:opacity-50"
                   >
-                    Sign in / Create account
+                    {auth0Loading || userLoading ? 'Loading...' : 'Sign in / Create account'}
                   </button>
                 )}
                 
-                <button
-                  onClick={() => setShowAnalyzer(true)}
-                  className="px-6 py-2.5 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
-                >
+            <button
+              onClick={() => {
+                setShowAnalyzer(true)
+                setAnalysis(null)
+                setText('')
+                setDocumentName('')
+                setError('')
+              }}
+              className="px-6 py-2.5 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
+            >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -535,7 +724,14 @@ export default function App() {
               )}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
-                  onClick={() => setShowAnalyzer(true)}
+                  onClick={() => {
+                    setShowAnalyzer(true)
+                    setAnalysis(null)
+                    setText('')
+                    setDocumentName('')
+                    setError('')
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
                   className="px-8 py-4 bg-brand-orange text-brand-navy-dark rounded-xl font-bold text-lg hover:bg-brand-orange-light transition shadow-lg hover:shadow-xl hover:scale-105"
                 >
                   Analyze a Document →
@@ -627,7 +823,10 @@ export default function App() {
         <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b shadow-sm">
           <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <button
-              onClick={handleClear}
+              onClick={() => {
+                handleClear()
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
               className="text-ink-600 hover:text-ink-900 flex items-center gap-2 transition"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,7 +835,13 @@ export default function App() {
               <span className="font-semibold">Home</span>
             </button>
 
-            <Logo size="sm" />
+            <Logo 
+              size="sm" 
+              onClick={() => {
+                handleClear()
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+            />
 
             {/* Stats */}
             <div className="flex items-center gap-3">
