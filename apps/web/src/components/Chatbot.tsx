@@ -62,7 +62,7 @@ export default function Chatbot() {
               </div>
               <div>
                 <div className="font-semibold">PaiperSum AI</div>
-                <div className="text-xs text-blue-100">Always here to help</div>
+                <div className="text-xs text-brand-yellow/80">Always here to help</div>
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="hover:bg-white/10 p-1 rounded">
@@ -73,13 +73,13 @@ export default function Chatbot() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-paper-50">
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] p-3 rounded-lg ${
                   msg.role === 'user' 
                     ? 'bg-brand-blue text-white rounded-br-none' 
-                    : 'bg-white text-gray-800 rounded-bl-none shadow'
+                    : 'bg-white text-ink-700 rounded-bl-none shadow'
                 }`}>
                   {msg.content}
                 </div>
@@ -89,9 +89,9 @@ export default function Chatbot() {
               <div className="flex justify-start">
                 <div className="bg-white p-3 rounded-lg shadow">
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-2 h-2 bg-brand-blue/40 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-brand-blue/40 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-brand-blue/40 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                   </div>
                 </div>
               </div>
@@ -119,7 +119,7 @@ export default function Chatbot() {
                 </svg>
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-ink-500 mt-2">
               This is an AI assistant. Not legal advice.
             </p>
           </div>

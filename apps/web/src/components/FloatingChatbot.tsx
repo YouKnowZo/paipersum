@@ -53,14 +53,14 @@ export default function FloatingChatbot() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-brand-blue to-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-50 flex items-center justify-center group"
+          className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-brand-blue to-brand-yellow text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-50 flex items-center justify-center group"
           aria-label="Open chat"
         >
           <svg className="w-8 h-8 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
           {/* Notification dot */}
-          <span className="absolute top-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></span>
+          <span className="absolute top-0 right-0 w-4 h-4 bg-brand-green rounded-full border-2 border-white animate-pulse"></span>
         </button>
       )}
 
@@ -68,15 +68,15 @@ export default function FloatingChatbot() {
       {open && (
         <div className="fixed bottom-6 right-6 w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-2rem)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4">
           {/* Header */}
-          <div className="bg-gradient-to-r from-brand-blue to-blue-600 text-white p-4 flex justify-between items-center">
+          <div className="bg-gradient-to-r from-brand-blue to-brand-yellow text-white p-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center relative">
                 <span className="text-2xl">🤖</span>
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-brand-green rounded-full border-2 border-white"></span>
               </div>
               <div>
                 <div className="font-bold">Legal Assistant</div>
-                <div className="text-xs text-blue-100">Always online</div>
+                <div className="text-xs text-brand-yellow/80">Always online</div>
               </div>
             </div>
             <button 
@@ -96,7 +96,7 @@ export default function FloatingChatbot() {
                 <div className={`max-w-[80%] p-3 rounded-2xl ${
                   msg.role === 'user' 
                     ? 'bg-brand-blue text-white rounded-br-sm' 
-                    : 'bg-white text-gray-800 rounded-bl-sm shadow-sm border border-border-200'
+                    : 'bg-white text-ink-700 rounded-bl-sm shadow-sm border border-border-200'
                 }`}>
                   {msg.text}
                 </div>

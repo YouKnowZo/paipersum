@@ -18,14 +18,14 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
       </div>
 
       {potentialWaste > 0 && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-gradient-to-r from-brand-red/10 to-brand-amber/15 border-2 border-brand-red/30 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-red-700 mb-1">⚠️ Potential Hidden Cost</div>
-              <div className="text-3xl font-bold text-red-700">
+              <div className="text-sm text-brand-red mb-1">⚠️ Potential Hidden Cost</div>
+              <div className="text-3xl font-bold text-brand-red">
                 ${potentialWaste.toLocaleString()}
               </div>
-              <div className="text-xs text-red-600 mt-1">
+              <div className="text-xs text-brand-red/80 mt-1">
                 If things don't go perfectly
               </div>
             </div>
@@ -40,9 +40,9 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
             key={i}
             className={`p-4 rounded-lg border-2 transition ${
               scenario.is_best 
-                ? 'border-green-300 bg-green-50' 
+                ? 'border-brand-green/40 bg-brand-green/5' 
                 : scenario.warning
-                ? 'border-red-300 bg-red-50'
+                ? 'border-brand-red/40 bg-brand-red/5'
                 : 'border-border-200 bg-paper-50'
             }`}
           >
@@ -51,12 +51,12 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-bold text-ink-900">{scenario.name}</h4>
                   {scenario.is_best && (
-                    <span className="px-2 py-0.5 bg-green-500 text-white text-xs rounded-full font-bold">
+                    <span className="px-2 py-0.5 bg-brand-green text-white text-xs rounded-full font-bold">
                       BEST CASE
                     </span>
                   )}
                   {scenario.warning && (
-                    <span className="px-2 py-0.5 bg-red-500 text-white text-xs rounded-full font-bold">
+                    <span className="px-2 py-0.5 bg-brand-red text-white text-xs rounded-full font-bold">
                       TRAP
                     </span>
                   )}
@@ -65,8 +65,8 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
               </div>
               <div className="text-right">
                 <div className={`text-2xl font-bold ${
-                  scenario.is_best ? 'text-green-700' :
-                  scenario.warning ? 'text-red-700' :
+                  scenario.is_best ? 'text-brand-green' :
+                  scenario.warning ? 'text-brand-red' :
                   'text-ink-900'
                 }`}>
                   ${scenario.cost.toLocaleString()}
@@ -75,8 +75,8 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
             </div>
 
             {scenario.warning && (
-              <div className="mt-3 pt-3 border-t border-red-200">
-                <div className="flex items-start gap-2 text-sm text-red-700">
+              <div className="mt-3 pt-3 border-t border-brand-red/30">
+                <div className="flex items-start gap-2 text-sm text-brand-red">
                   <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -122,17 +122,17 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
 
       <div className="mt-6 space-y-4">
         {points.map((point, i) => (
-          <div key={i} className="border-2 border-brand-blue/20 rounded-lg p-4 bg-gradient-to-br from-white to-blue-50/30">
+          <div key={i} className="border-2 border-brand-blue/20 rounded-lg p-4 bg-gradient-to-br from-white to-brand-blue/5">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h4 className="font-bold text-ink-900 mb-1">{point.clause_title}</h4>
                 <div className="text-sm space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-red-600">✗</span>
+                    <span className="text-brand-red">✗</span>
                     <span className="text-ink-600">Currently: {point.current_term}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-green-600">✓</span>
+                    <span className="text-brand-green">✓</span>
                     <span className="text-ink-600">Suggest: {point.suggested_term}</span>
                   </div>
                 </div>
@@ -156,19 +156,19 @@ export default function CostCalculator({ scenarios }: { scenarios: CostScenarioT
               
               <div className="mt-3 p-3 bg-ink-900 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-green-400 font-mono">Email Preview:</span>
+                  <span className="text-xs text-brand-green font-mono">Email Preview:</span>
                   <button
                     onClick={() => copyToClipboard(point.email_template, i + 100)}
                     className={`px-2 py-1 rounded text-xs font-bold transition ${
                       copied === i + 100
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-brand-green text-white'
                         : 'bg-white/10 text-white hover:bg-white/20'
                     }`}
                   >
                     {copied === i + 100 ? '✓ Copied' : 'Copy'}
                   </button>
                 </div>
-                <pre className="text-xs text-green-400 font-mono whitespace-pre-wrap overflow-x-auto">
+                <pre className="text-xs text-brand-green font-mono whitespace-pre-wrap overflow-x-auto">
 {point.email_template}
                 </pre>
               </div>

@@ -35,21 +35,21 @@ export default function CelebrationModal({ show, type, amount, milestone, onClos
       title: `You Just Saved $${amount}!`,
       subtitle: 'That\'s real money back in your pocket',
       action: 'Share Your Win',
-      color: 'from-green-400 to-green-600'
+      color: 'from-brand-green to-brand-amber'
     },
     milestone: {
       emoji: '🎉',
       title: `${milestone} Documents Analyzed!`,
       subtitle: 'You\'re officially a contract pro',
       action: 'Unlock Your Badge',
-      color: 'from-purple-400 to-purple-600'
+      color: 'from-brand-blue to-brand-yellow'
     },
     share: {
       emoji: '🙌',
       title: 'You Helped Someone!',
       subtitle: 'Your friend just saved money thanks to you',
       action: 'Share More',
-      color: 'from-blue-400 to-blue-600'
+      color: 'from-brand-yellow to-brand-blue'
     }
   }
 
@@ -61,7 +61,7 @@ export default function CelebrationModal({ show, type, amount, milestone, onClos
       {confetti.map((piece) => (
         <div
           key={piece.id}
-          className="absolute w-2 h-2 bg-gradient-to-br from-yellow-400 to-pink-500 rounded-full animate-confetti"
+          className="absolute w-2 h-2 bg-gradient-to-br from-brand-yellow to-brand-green rounded-full animate-confetti"
           style={{
             left: `${piece.left}%`,
             top: '-10px',
@@ -109,7 +109,7 @@ export default function CelebrationModal({ show, type, amount, milestone, onClos
             <div className="text-xs text-ink-500">{type === 'savings' ? 'Saved' : 'Docs'}</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-purple-600">Top 5%</div>
+            <div className="text-2xl font-bold text-brand-amber">Top 5%</div>
             <div className="text-xs text-ink-500">Users</div>
           </div>
         </div>

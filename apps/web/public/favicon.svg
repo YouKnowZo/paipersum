@@ -1,13 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#2563eb"/>
-      <stop offset="1" stop-color="#0ea5e9"/>
+    <linearGradient id="psSplitSmall" x1="32" y1="8" x2="32" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F7B032" />
+      <stop offset="58%" stop-color="#F7B032" />
+      <stop offset="58%" stop-color="#0D2746" />
+      <stop offset="100%" stop-color="#08152C" />
     </linearGradient>
   </defs>
-  <rect rx="12" ry="12" width="64" height="64" fill="url(#g)"/>
-  <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M20 20h16m-16 10h16m6 14H18a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4h18l12 12v16a4 4 0 0 1-4 4z"/>
-    <path d="M24 30l4 4 8-8"/>
-  </g>
+  <rect width="64" height="64" rx="14" fill="#FDF7EF" />
+  <path d="M22 10c-4.418 0-8 3.582-8 8v28c0 7.732 6.268 14 14 14h8c13.255 0 24-10.745 24-24S49.255 12 36 12H22z" fill="url(#psSplitSmall)" />
+  <path d="M32 20h6c8.284 0 15 6.716 15 15s-6.716 15-15 15h-6z" fill="#FDF7EF" />
+  <circle cx="44" cy="18" r="3" fill="#2FB5B4" />
 </svg>

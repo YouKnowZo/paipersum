@@ -14,7 +14,7 @@ export function RiskMeter({ score }: { score: number }) {
           <span className={`font-medium ${textColor}`}>{label}</span>
         </div>
       </div>
-      <div className="h-4 bg-gray-200 rounded-lg overflow-hidden shadow-inner">
+      <div className="h-4 bg-paper-100 rounded-lg overflow-hidden shadow-inner">
         <div 
           className={`h-4 ${color} rounded-lg transition-all duration-500 ease-out`} 
           style={{ width: `${pct}%` }}

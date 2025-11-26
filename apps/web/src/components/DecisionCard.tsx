@@ -7,28 +7,28 @@ export default function DecisionCard({ recommendation }: { recommendation: Recom
     sign: {
       icon: '✅',
       title: 'SAFE TO SIGN',
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200',
-      textColor: 'text-green-900',
+      color: 'from-brand-green to-brand-amber',
+      bgColor: 'bg-brand-green/10',
+      borderColor: 'border-brand-green/30',
+      textColor: 'text-brand-green',
       emoji: '😊'
     },
     negotiate: {
       icon: '⚠️',
       title: 'NEGOTIATE FIRST',
-      color: 'from-yellow-500 to-orange-500',
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-200',
-      textColor: 'text-yellow-900',
+      color: 'from-brand-yellow to-brand-amber',
+      bgColor: 'bg-brand-yellow/10',
+      borderColor: 'border-brand-yellow/30',
+      textColor: 'text-brand-amber',
       emoji: '🤝'
     },
     walk_away: {
       icon: '🚨',
       title: 'DON\'T SIGN - WALK AWAY',
-      color: 'from-red-500 to-red-600',
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-200',
-      textColor: 'text-red-900',
+      color: 'from-brand-red to-brand-blueDeep',
+      bgColor: 'bg-brand-red/10',
+      borderColor: 'border-brand-red/30',
+      textColor: 'text-brand-red',
       emoji: '🚫'
     }
   }
@@ -77,9 +77,9 @@ export default function DecisionCard({ recommendation }: { recommendation: Recom
           {action_items.map((item, i) => (
             <div key={i} className="flex items-start gap-3 p-3 bg-white rounded-lg border">
               <span className={`flex-shrink-0 w-6 h-6 rounded-full ${
-                decision === 'sign' ? 'bg-green-100 text-green-700' :
-                decision === 'negotiate' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-red-100 text-red-700'
+                decision === 'sign' ? 'bg-brand-green/10 text-brand-green' :
+                decision === 'negotiate' ? 'bg-brand-yellow/20 text-brand-amber' :
+                'bg-brand-red/10 text-brand-red'
               } flex items-center justify-center text-sm font-bold`}>
                 {i + 1}
               </span>
@@ -92,17 +92,17 @@ export default function DecisionCard({ recommendation }: { recommendation: Recom
       {/* CTA based on decision */}
       <div className="mt-6 flex gap-3">
         {decision === 'negotiate' && (
-          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
+          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-brand-yellow text-white rounded-lg font-semibold hover:shadow-lg transition">
             📧 Get Negotiation Templates
           </button>
         )}
         {decision === 'walk_away' && (
-          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
+          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-blue to-brand-yellow text-white rounded-lg font-semibold hover:shadow-lg transition">
             🔍 Find Better Alternatives
           </button>
         )}
         {decision === 'sign' && (
-          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-green to-green-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
+          <button className="flex-1 px-6 py-3 bg-gradient-to-r from-brand-green to-brand-amber text-white rounded-lg font-semibold hover:shadow-lg transition">
             📅 Set Calendar Reminders
           </button>
         )}

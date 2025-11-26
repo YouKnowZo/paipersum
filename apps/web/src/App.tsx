@@ -161,13 +161,13 @@ export default function App() {
 
   const showAchievement = (title: string, message: string) => {
     const toast = document.createElement('div')
-    toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-blue to-blue-600 text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
+    toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-blue to-brand-yellow text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
     toast.innerHTML = `
       <div class="flex items-start gap-4">
         <div class="text-4xl">🎉</div>
         <div>
           <div class="font-bold text-lg mb-1">${title}</div>
-          <div class="text-sm text-blue-100">${message}</div>
+          <div class="text-sm text-brand-yellow/80">${message}</div>
         </div>
       </div>
     `
@@ -303,7 +303,7 @@ export default function App() {
               />
             </div>
             <div className="pt-2">
-              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-brand-yellow text-white rounded-xl font-bold hover:shadow-lg transition">
                 Continue →
               </button>
               <button
@@ -320,7 +320,7 @@ export default function App() {
           </form>
         ) : (
           <div className="space-y-4">
-            <div className="p-4 bg-gradient-to-br from-brand-blue/10 to-green-50 rounded-lg border-2 border-brand-blue/20">
+            <div className="p-4 bg-gradient-to-br from-brand-blue/10 to-brand-yellow/10 rounded-lg border-2 border-brand-blue/20">
               <div className="text-center mb-4">
                 <div className="text-4xl font-bold text-brand-blue">$20</div>
                 <div className="text-sm text-ink-600">per month</div>
@@ -352,7 +352,7 @@ export default function App() {
                 </li>
               </ul>
             </div>
-            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-brand-yellow text-white rounded-xl font-bold hover:shadow-lg transition">
               Upgrade to Pro →
             </button>
             <button
@@ -383,7 +383,7 @@ export default function App() {
               
               <div className="flex items-center gap-4">
                 {documentsAnalyzed > 0 && (
-                  <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-blue/10 to-green-50 rounded-lg border border-brand-blue/20">
+                  <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-blue/10 to-brand-yellow/10 rounded-lg border border-brand-blue/20">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-brand-blue">{documentsAnalyzed}</div>
                       <div className="text-xs text-ink-600">analyzed</div>
@@ -423,7 +423,7 @@ export default function App() {
                     {!user.isPro && (
                       <button
                         onClick={() => setShowAuth(true)}
-                        className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-ink-900 rounded-lg font-semibold text-sm hover:shadow-lg transition"
+                        className="px-4 py-2 bg-gradient-to-r from-brand-yellow to-brand-amber text-ink-900 rounded-lg font-semibold text-sm hover:shadow-lg transition"
                       >
                         Upgrade
                       </button>
@@ -440,7 +440,7 @@ export default function App() {
                 
                 <button
                   onClick={() => setShowAnalyzer(true)}
-                  className="px-6 py-2.5 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
+                  className="px-6 py-2.5 bg-gradient-to-r from-brand-blue to-brand-yellow text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -471,9 +471,9 @@ export default function App() {
                           {saved.name}
                         </div>
                         <div className={`px-2 py-1 rounded-full text-xs font-bold ${
-                          saved.analysis.recommendation.decision === 'sign' ? 'bg-green-100 text-green-700' :
-                          saved.analysis.recommendation.decision === 'negotiate' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
+                          saved.analysis.recommendation.decision === 'sign' ? 'bg-brand-green/10 text-brand-green' :
+                          saved.analysis.recommendation.decision === 'negotiate' ? 'bg-brand-yellow/20 text-brand-amber' :
+                          'bg-brand-red/10 text-brand-red'
                         }`}>
                           {saved.analysis.risk_score}
                         </div>
@@ -501,17 +501,17 @@ export default function App() {
           <Testimonials />
 
           {/* CTA section */}
-          <div className="bg-gradient-to-br from-brand-blue to-blue-900 py-16">
+          <div className="bg-gradient-to-br from-brand-blue to-brand-blueDeep py-16">
             <div className="max-w-4xl mx-auto px-4 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                 Ready to Stop Getting Scammed?
               </h2>
-              <p className="text-xl text-blue-100 mb-6">
+              <p className="text-xl text-brand-yellow/80 mb-6">
                 Join {Math.max(5000, documentsAnalyzed * 50).toLocaleString()}+ people who analyze before they sign
               </p>
               {totalSavings > 0 && (
                 <div className="inline-block mb-6 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
-                  <span className="text-yellow-300 font-bold text-lg">
+                  <span className="text-brand-yellow font-bold text-lg">
                     Our community has saved ${(totalSavings * 50).toLocaleString()}+ collectively!
                   </span>
                 </div>
@@ -624,7 +624,7 @@ export default function App() {
                 </div>
               )}
               
-              <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-blue/10 to-green-50 rounded-lg border border-brand-blue/20">
+              <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-blue/10 to-brand-yellow/10 rounded-lg border border-brand-blue/20">
                 <div className="text-center">
                   <div className="text-lg font-bold text-brand-blue">{documentsAnalyzed}</div>
                   <div className="text-xs text-ink-600">docs</div>
@@ -643,7 +643,7 @@ export default function App() {
               {user && !user.isPro && (
                 <button
                   onClick={() => setShowAuth(true)}
-                  className="px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-yellow-500 text-ink-900 rounded-lg font-semibold text-sm hover:shadow-lg transition"
+                  className="px-3 py-1.5 bg-gradient-to-r from-brand-yellow to-brand-amber text-ink-900 rounded-lg font-semibold text-sm hover:shadow-lg transition"
                 >
                   Upgrade
                 </button>
@@ -688,7 +688,7 @@ export default function App() {
                   <button
                     onClick={() => handleAnalyzeText()}
                     disabled={!text.trim() || loading}
-                    className="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-brand-blue to-blue-600 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+                    className="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-brand-blue to-brand-yellow text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
@@ -739,9 +739,9 @@ export default function App() {
                             {new Date(saved.date).toLocaleDateString()}
                           </span>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                            saved.analysis.recommendation.decision === 'sign' ? 'bg-green-100 text-green-700' :
-                            saved.analysis.recommendation.decision === 'negotiate' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
+                            saved.analysis.recommendation.decision === 'sign' ? 'bg-brand-green/10 text-brand-green' :
+                            saved.analysis.recommendation.decision === 'negotiate' ? 'bg-brand-yellow/20 text-brand-amber' :
+                            'bg-brand-red/10 text-brand-red'
                           }`}>
                             {saved.analysis.risk_score}
                           </span>
@@ -756,15 +756,15 @@ export default function App() {
             {/* Results column */}
             <div className="lg:col-span-2">
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-4">
-                  <svg className="w-6 h-6 text-red-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <div className="mb-6 p-4 bg-brand-red/10 border-2 border-brand-red/30 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-4">
+                  <svg className="w-6 h-6 text-brand-red mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
                   <div className="flex-1">
-                    <h3 className="font-bold text-red-900 mb-1">Analysis Failed</h3>
-                    <p className="text-sm text-red-700">{error}</p>
+                    <h3 className="font-bold text-brand-red mb-1">Analysis Failed</h3>
+                    <p className="text-sm text-brand-red/80">{error}</p>
                   </div>
-                  <button onClick={() => setError('')} className="text-red-600 hover:text-red-800">
+                  <button onClick={() => setError('')} className="text-brand-red hover:text-brand-red/80">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
@@ -824,14 +824,14 @@ export default function App() {
                 </div>
               )}
 
-              <div className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl text-center">
+              <div className="mt-6 p-4 bg-gradient-to-r from-brand-yellow/10 to-brand-amber/10 border-2 border-brand-yellow/40 rounded-xl text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <svg className="w-5 h-5 text-yellow-700" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-brand-amber" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-bold text-yellow-900">Legal Disclaimer</span>
+                  <span className="font-bold text-brand-yellow">Legal Disclaimer</span>
                 </div>
-                <p className="text-xs text-yellow-800 leading-relaxed">
+                <p className="text-xs text-brand-amber leading-relaxed">
                   This analysis is for informational purposes only and does not constitute legal advice. 
                   Automated analysis may miss clauses or misinterpret language. Always consult a licensed 
                   attorney for legal decisions. We are not responsible for any decisions made based on this analysis.

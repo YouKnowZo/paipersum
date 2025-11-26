@@ -17,9 +17,9 @@ export default function NegotiationTemplates({ points }: { points: NegotiationPo
   }
 
   const importanceConfig = {
-    critical: { label: 'Must Negotiate', color: 'bg-red-100 text-red-700', icon: '🚨' },
-    important: { label: 'Should Negotiate', color: 'bg-yellow-100 text-yellow-700', icon: '⚠️' },
-    nice_to_have: { label: 'Worth Asking', color: 'bg-blue-100 text-blue-700', icon: '💡' }
+    critical: { label: 'Must Negotiate', color: 'bg-brand-red/10 text-brand-red', icon: '🚨' },
+    important: { label: 'Should Negotiate', color: 'bg-brand-yellow/20 text-brand-amber', icon: '⚠️' },
+    nice_to_have: { label: 'Worth Asking', color: 'bg-brand-green/10 text-brand-green', icon: '💡' }
   }
 
   return (
@@ -53,8 +53,8 @@ export default function NegotiationTemplates({ points }: { points: NegotiationPo
                   </div>
                   <h4 className="font-bold text-ink-900">{point.clause_title}</h4>
                   <div className="text-sm text-ink-600 mt-2 space-y-1">
-                    <div>Current: <span className="font-medium text-red-700">{point.current_term}</span></div>
-                    <div>Suggested: <span className="font-medium text-green-700">{point.suggested_term}</span></div>
+                    <div>Current: <span className="font-medium text-brand-red">{point.current_term}</span></div>
+                    <div>Suggested: <span className="font-medium text-brand-green">{point.suggested_term}</span></div>
                   </div>
                 </div>
               </div>
@@ -67,7 +67,7 @@ export default function NegotiationTemplates({ points }: { points: NegotiationPo
                     onClick={() => copyToClipboard(point.email_template, i)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                       copied === i
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-brand-green text-white'
                         : 'bg-paper-100 hover:bg-brand-blue hover:text-white'
                     }`}
                   >
@@ -75,7 +75,7 @@ export default function NegotiationTemplates({ points }: { points: NegotiationPo
                   </button>
                 </div>
                 
-                <pre className="bg-ink-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto font-mono whitespace-pre-wrap">
+                <pre className="bg-ink-900 text-brand-green p-4 rounded-lg text-sm overflow-x-auto font-mono whitespace-pre-wrap">
 {point.email_template}
                 </pre>
 
@@ -102,9 +102,9 @@ export default function NegotiationTemplates({ points }: { points: NegotiationPo
       </div>
 
       {/* Tips */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h4 className="font-semibold text-blue-900 mb-2">💡 Negotiation Tips:</h4>
-        <ul className="text-sm text-blue-800 space-y-1">
+      <div className="mt-6 p-4 bg-brand-blue/5 border border-brand-blue/20 rounded-lg">
+        <h4 className="font-semibold text-brand-blue mb-2">💡 Negotiation Tips:</h4>
+        <ul className="text-sm text-ink-700 space-y-1">
           <li>• Be polite but firm - you're a customer, not asking for a favor</li>
           <li>• Reference market standards - they want your business</li>
           <li>• Be ready to walk away - best negotiation leverage</li>
