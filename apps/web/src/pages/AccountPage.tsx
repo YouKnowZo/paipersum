@@ -18,6 +18,7 @@ interface AccountPageProps {
   onUpgrade: () => void
   totalSavings: number
   documentsAnalyzed: number
+  storageKey: (key: string) => string
 }
 
 export default function AccountPage({ 
@@ -26,7 +27,8 @@ export default function AccountPage({
   onCancel, 
   onUpgrade,
   totalSavings,
-  documentsAnalyzed
+  documentsAnalyzed,
+  storageKey
 }: AccountPageProps) {
   const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -341,9 +343,9 @@ export default function AccountPage({
                     onClick={() => {
                       const payload = {
                         user,
-                        savedAnalyses: JSON.parse(localStorage.getItem('saved_analyses') || '[]'),
-                        docsAnalyzed: parseInt(localStorage.getItem('docs_analyzed') || '0'),
-                        totalSavings: parseInt(localStorage.getItem('total_savings') || '0'),
+                        savedAnalyses: JSON.parse(localStorage.getItem(storageKey('saved_analyses')) || '[]'),
+                        docsAnalyzed: parseInt(localStorage.getItem(storageKey('docs_analyzed')) || '0'),
+                        totalSavings: parseInt(localStorage.getItem(storageKey('total_savings')) || '0'),
                       }
                       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
                       const url = URL.createObjectURL(blob)
@@ -360,6 +362,11 @@ export default function AccountPage({
                   <button
                     onClick={() => {
                       if (!confirm('This will delete your account data on this device. Continue?')) return
+                      localStorage.removeItem(storageKey('profile'))
+                      localStorage.removeItem(storageKey('saved_analyses'))
+                      localStorage.removeItem(storageKey('docs_analyzed'))
+                      localStorage.removeItem(storageKey('total_savings'))
+                      // Legacy keys for backwards compatibility
                       localStorage.removeItem('paipersum_user')
                       localStorage.removeItem('saved_analyses')
                       localStorage.removeItem('docs_analyzed')

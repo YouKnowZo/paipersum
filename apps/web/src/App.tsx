@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useAuth0 } from '@auth0/auth0-react'
 import Logo from './components/Logo'
 import Hero from './components/Hero'
 import InstantAnalysis from './components/InstantAnalysis'
@@ -33,6 +34,14 @@ interface SavedAnalysis {
 }
 
 export default function App() {
+  const { 
+    user: authUser, 
+    isAuthenticated, 
+    isLoading: authLoading, 
+    loginWithRedirect, 
+    logout 
+  } = useAuth0()
+
   const [user, setUser] = useState<User | null>(null)
   const [showAuth, setShowAuth] = useState(false)
   const [showAccount, setShowAccount] = useState(false)
@@ -47,6 +56,58 @@ export default function App() {
   const [savedAnalyses, setSavedAnalyses] = useState<SavedAnalysis[]>([])
   const [totalSavings, setTotalSavings] = useState(0)
 
+  const storagePrefix = useMemo(() => {
+    if (isAuthenticated && authUser?.sub) {
+      return `paipersum:${authUser.sub}`
+    }
+    return 'paipersum:guest'
+  }, [authUser?.sub, isAuthenticated])
+
+  const storageKey = useCallback((key: string) => `${storagePrefix}:${key}`, [storagePrefix])
+
+  const persistValue = useCallback((key: string, value: string) => {
+    localStorage.setItem(storageKey(key), value)
+    if (!isAuthenticated) {
+      localStorage.setItem(key, value)
+    }
+  }, [storageKey, isAuthenticated])
+
+  const readWithFallback = useCallback((key: string) => {
+    const namespaced = localStorage.getItem(storageKey(key))
+    if (namespaced !== null) {
+      return namespaced
+    }
+    if (!isAuthenticated) {
+      const legacy = localStorage.getItem(key)
+      if (legacy !== null) {
+        localStorage.setItem(storageKey(key), legacy)
+        return legacy
+      }
+    }
+    return null
+  }, [storageKey, isAuthenticated])
+
+  const upsertUserProfile = useCallback((next: User | null) => {
+    if (next) {
+      persistValue('profile', JSON.stringify(next))
+    } else {
+      localStorage.removeItem(storageKey('profile'))
+      if (!isAuthenticated) {
+        localStorage.removeItem('paipersum_user')
+      }
+    }
+    setUser(next)
+  }, [persistValue, storageKey, isAuthenticated])
+
+  const updateUserProfile = useCallback((updates: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, ...updates }
+      persistValue('profile', JSON.stringify(next))
+      return next
+    })
+  }, [persistValue])
+
   // Check for admin route on mount
   useEffect(() => {
     if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
@@ -54,30 +115,49 @@ export default function App() {
     }
   }, [])
 
-  // Load user and saved data on mount
+  // Load auth-backed profile + saved data whenever the account context changes
   useEffect(() => {
-    const savedUser = localStorage.getItem('paipersum_user')
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser))
-      } catch (e) {
-        console.error('Failed to load user', e)
+    if (authLoading) return
+
+    if (isAuthenticated && authUser) {
+      const baseProfile: User = {
+        email: authUser.email || '',
+        name: authUser.name || authUser.nickname || authUser.email || 'Your Account',
+        isPro: false,
+        docsThisMonth: 0
       }
+      const storedProfile = readWithFallback('profile')
+      if (storedProfile) {
+        try {
+          const parsed = JSON.parse(storedProfile)
+          upsertUserProfile({ ...baseProfile, ...parsed })
+        } catch {
+          upsertUserProfile(baseProfile)
+        }
+      } else {
+        upsertUserProfile(baseProfile)
+      }
+    } else {
+      upsertUserProfile(null)
     }
-    
-    const count = parseInt(localStorage.getItem('docs_analyzed') || '0')
-    setDocumentsAnalyzed(count)
-    
-    const savings = parseInt(localStorage.getItem('total_savings') || '0')
-    setTotalSavings(savings)
-    
-    const saved = JSON.parse(localStorage.getItem('saved_analyses') || '[]')
-    setSavedAnalyses(saved)
-  }, [])
+
+    const count = parseInt(readWithFallback('docs_analyzed') || '0', 10)
+    setDocumentsAnalyzed(Number.isNaN(count) ? 0 : count)
+
+    const savings = parseInt(readWithFallback('total_savings') || '0', 10)
+    setTotalSavings(Number.isNaN(savings) ? 0 : savings)
+
+    const savedRaw = readWithFallback('saved_analyses') || '[]'
+    try {
+      setSavedAnalyses(JSON.parse(savedRaw))
+    } catch {
+      setSavedAnalyses([])
+    }
+  }, [authLoading, authUser, isAuthenticated, readWithFallback, upsertUserProfile])
 
   // Check free tier limit
   const canAnalyze = (): boolean => {
-    if (!user) {
+    if (!isAuthenticated || !user) {
       // Not logged in - allow 5 free analyses
       return documentsAnalyzed < 5
     }
@@ -88,29 +168,29 @@ export default function App() {
     return user.docsThisMonth < 30
   }
 
-  const handleLogin = (email: string, name: string) => {
-    const newUser: User = {
-      email,
-      name,
-      isPro: false,
-      docsThisMonth: 0
-    }
-    setUser(newUser)
-    localStorage.setItem('paipersum_user', JSON.stringify(newUser))
-    setShowAuth(false)
-  }
+  const startAuth = useCallback((screenHint?: 'signup') => {
+    loginWithRedirect({
+      authorizationParams: {
+        redirect_uri: window.location.origin,
+        ...(screenHint ? { screen_hint: screenHint } : {})
+      }
+    })
+  }, [loginWithRedirect])
 
-  const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem('paipersum_user')
-  }
+  const handleLogout = useCallback(() => {
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin
+      }
+    })
+  }, [logout])
 
   const handleAnalyzeText = async (textToAnalyze: string = text, name: string = documentName) => {
     if (!textToAnalyze.trim()) return
     
     // Check limits
     if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro for unlimited analyses!' : 'Create an account to continue')
+      setError(isAuthenticated ? 'Monthly limit reached. Upgrade to Pro for unlimited analyses!' : 'Create an account to continue')
       setShowAuth(true)
       return
     }
@@ -126,19 +206,15 @@ export default function App() {
       // Track metrics
       const newCount = documentsAnalyzed + 1
       setDocumentsAnalyzed(newCount)
-      localStorage.setItem('docs_analyzed', newCount.toString())
+      persistValue('docs_analyzed', newCount.toString())
       
       // Update user monthly count
-      if (user) {
-        const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
-        setUser(updatedUser)
-        localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
-      }
+      updateUserProfile({ docsThisMonth: (user?.docsThisMonth || 0) + 1 })
       
       // Track savings
       const newSavings = totalSavings + (result.recommendation.cost_impact || 0)
       setTotalSavings(newSavings)
-      localStorage.setItem('total_savings', newSavings.toString())
+      persistValue('total_savings', newSavings.toString())
       
       // Save analysis
       const savedAnalysis: SavedAnalysis = {
@@ -149,7 +225,7 @@ export default function App() {
       }
       const newSaved = [savedAnalysis, ...savedAnalyses].slice(0, 10)
       setSavedAnalyses(newSaved)
-      localStorage.setItem('saved_analyses', JSON.stringify(newSaved))
+      persistValue('saved_analyses', JSON.stringify(newSaved))
       
       // Achievement notifications
       if (newCount === 1) {
@@ -186,7 +262,7 @@ export default function App() {
 
   const handleFileSelect = async (file: File) => {
     if (!canAnalyze()) {
-      setError(user ? 'Monthly limit reached. Upgrade to Pro!' : 'Create an account to continue')
+      setError(isAuthenticated ? 'Monthly limit reached. Upgrade to Pro!' : 'Create an account to continue')
       setShowAuth(true)
       return
     }
@@ -202,17 +278,13 @@ export default function App() {
       
       const newCount = documentsAnalyzed + 1
       setDocumentsAnalyzed(newCount)
-      localStorage.setItem('docs_analyzed', newCount.toString())
+      persistValue('docs_analyzed', newCount.toString())
       
-      if (user) {
-        const updatedUser = { ...user, docsThisMonth: user.docsThisMonth + 1 }
-        setUser(updatedUser)
-        localStorage.setItem('paipersum_user', JSON.stringify(updatedUser))
-      }
+      updateUserProfile({ docsThisMonth: (user?.docsThisMonth || 0) + 1 })
       
       const newSavings = totalSavings + (result.recommendation.cost_impact || 0)
       setTotalSavings(newSavings)
-      localStorage.setItem('total_savings', newSavings.toString())
+      persistValue('total_savings', newSavings.toString())
       
       const savedAnalysis: SavedAnalysis = {
         id: Date.now().toString(),
@@ -222,7 +294,7 @@ export default function App() {
       }
       const newSaved = [savedAnalysis, ...savedAnalyses].slice(0, 10)
       setSavedAnalyses(newSaved)
-      localStorage.setItem('saved_analyses', JSON.stringify(newSaved))
+      persistValue('saved_analyses', JSON.stringify(newSaved))
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'File analysis failed')
@@ -257,6 +329,14 @@ export default function App() {
     setShowAnalyzer(false)
   }
 
+  const goHome = () => {
+    setShowAnalyzer(false)
+    setShowAccount(false)
+    setShowAdmin(false)
+    window.history.replaceState({}, '', '/')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const loadSavedAnalysis = (saved: SavedAnalysis) => {
     setAnalysis(saved.analysis)
     setDocumentName(saved.name)
@@ -264,9 +344,9 @@ export default function App() {
   }
 
   const getRemainingAnalyses = (): number => {
-    if (!user) return 5 - documentsAnalyzed
+    if (!isAuthenticated || !user) return Math.max(0, 5 - documentsAnalyzed)
     if (user.isPro) return 999999
-    return 30 - user.docsThisMonth
+    return Math.max(0, 30 - user.docsThisMonth)
   }
 
   // Auth Modal
@@ -274,59 +354,42 @@ export default function App() {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in slide-in-from-bottom-4">
         <div className="text-center mb-6">
-          <Logo size="lg" />
+          <Logo size="lg" onClick={goHome} />
           <h2 className="text-2xl font-bold text-ink-900 mt-4 mb-2">
-            {user ? 'Upgrade to Pro' : 'Sign in or create an account'}
+            {isAuthenticated ? 'Upgrade to Pro' : 'Sign in or create an account'}
           </h2>
           <p className="text-ink-600">
-            {user ? 'Get unlimited document analyses' : 'Continue analyzing your documents'}
+            {isAuthenticated ? 'Get unlimited document analyses' : 'Continue analyzing your documents securely'}
           </p>
         </div>
 
-        {!user ? (
-          <form onSubmit={(e) => {
-            e.preventDefault()
-            const formData = new FormData(e.currentTarget)
-            const email = formData.get('email') as string
-            const name = formData.get('name') as string
-            if (email && name) handleLogin(email, name)
-          }} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-ink-700 mb-2">Name</label>
-              <input
-                type="text"
-                name="name"
-                required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy"
-                placeholder="Your name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-ink-700 mb-2">Email</label>
-              <input
-                type="email"
-                name="email"
-                required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-navy"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div className="pt-2">
-              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition">
-                Continue →
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAuth(false)}
-                className="w-full mt-3 px-6 py-3 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition"
-              >
-                Cancel
-              </button>
-            </div>
+        {!isAuthenticated ? (
+          <div className="space-y-4">
+            <button
+              type="button"
+              onClick={() => startAuth('signup')}
+              className="w-full px-6 py-4 bg-gradient-to-r from-brand-navy to-brand-navy-light text-white rounded-xl font-bold hover:shadow-lg transition"
+            >
+              Create a free account →
+            </button>
+            <button
+              type="button"
+              onClick={() => startAuth()}
+              className="w-full px-6 py-3 bg-paper-100 text-ink-700 rounded-lg font-semibold hover:bg-paper-200 transition"
+            >
+              I already have an account
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAuth(false)}
+              className="w-full px-6 py-3 border border-border-200 text-ink-700 rounded-lg font-semibold hover:bg-paper-50 transition"
+            >
+              Not now
+            </button>
             <p className="text-xs text-center text-ink-500 mt-4">
-              By signing up, you agree to our Terms & Privacy Policy
+              Secure login powered by Auth0. We never store or see your password.
             </p>
-          </form>
+          </div>
         ) : (
           <div className="space-y-4">
             <div className="p-4 bg-gradient-to-br from-brand-navy/10 to-brand-orange/10 rounded-lg border-2 border-brand-navy/20">
@@ -376,6 +439,15 @@ export default function App() {
     </div>
   )
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-white to-paper-50 gap-6">
+        <Logo size="lg" />
+        <p className="text-ink-600 font-medium">Connecting to your secure account...</p>
+      </div>
+    )
+  }
+
   // Admin Portal
   if (showAdmin) {
     return <AdminPage onClose={() => {
@@ -396,7 +468,7 @@ export default function App() {
           {/* Navigation */}
           <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-border-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-              <Logo size="md" />
+              <Logo size="md" onClick={goHome} />
               
               <div className="flex items-center gap-4">
                 {documentsAnalyzed > 0 && (
@@ -603,14 +675,12 @@ export default function App() {
     return (
       <AccountPage
         user={user}
-        onUpdate={(updated) => {
-          setUser(updated)
-          localStorage.setItem('paipersum_user', JSON.stringify(updated))
-        }}
+        onUpdate={(updated) => upsertUserProfile(updated)}
         onCancel={() => setShowAccount(false)}
         onUpgrade={() => setShowAuth(true)}
         totalSavings={totalSavings}
         documentsAnalyzed={documentsAnalyzed}
+        storageKey={storageKey}
       />
     )
   }
@@ -636,7 +706,7 @@ export default function App() {
               <span className="font-semibold">Home</span>
             </button>
 
-            <Logo size="sm" />
+            <Logo size="sm" onClick={goHome} ariaLabel="Return home" />
 
             {/* Stats */}
             <div className="flex items-center gap-3">
