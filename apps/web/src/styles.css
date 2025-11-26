@@ -7,10 +7,10 @@
   :root {
     --color-scheme: light;
     
-    /* Premium color palette */
-    --premium-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --trust-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    /* paiperSum brand color palette */
+    --premium-gradient: linear-gradient(135deg, #F5A623 0%, #2C5F8D 100%);
+    --trust-gradient: linear-gradient(135deg, #FDB44B 0%, #1E3A5F 100%);
+    --success-gradient: linear-gradient(135deg, #F5A623 0%, #2C5F8D 100%);
     
     /* Shadows for depth */
     --shadow-soft: 0 2px 8px rgba(0,0,0,0.04);
@@ -50,7 +50,7 @@
   
   /* Focus states for accessibility */
   *:focus-visible {
-    @apply outline-none ring-4 ring-brand-blue/20 ring-offset-2;
+    @apply outline-none ring-4 ring-brand-orange/30 ring-offset-2;
   }
   
   /* Smooth scrolling */
@@ -90,8 +90,8 @@
   }
   
   @keyframes glow {
-    0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.4) }
-    50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.6) }
+    0%, 100% { box-shadow: 0 0 20px rgba(245, 166, 35, 0.4) }
+    50% { box-shadow: 0 0 40px rgba(245, 166, 35, 0.6) }
   }
   
   @keyframes shimmer {
@@ -141,16 +141,16 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-gradient-to-b from-brand-blue to-purple-600 rounded-full;
+    @apply bg-gradient-to-b from-brand-orange to-brand-navy rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply from-purple-600 to-brand-blue;
+    @apply from-brand-navy to-brand-orange;
   }
   
   /* Selection color */
   ::selection {
-    @apply bg-brand-blue/20 text-ink-900;
+    @apply bg-brand-orange/20 text-ink-900;
   }
   
   /* Premium gradients */

@@ -5,14 +5,17 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          blue: '#0f4c81',
+          navy: '#1E3A5F',      // Primary navy blue
+          orange: '#F5A623',    // Primary orange/yellow
+          blue: '#2C5F8D',      // Secondary blue
+          'navy-dark': '#152940', // Darker navy
+          'orange-light': '#FDB44B', // Lighter orange
           green: '#2e7d32',
-          yellow: '#f9a825',
           red: '#c62828'
         },
         ink: {
-          900: '#0b1324',
-          700: '#1f2937',
+          900: '#0F1419',       // Darkest text
+          700: '#1E3A5F',       // Navy for text
           600: '#4b5563',
           500: '#6b7280',
           300: '#9ca3af'

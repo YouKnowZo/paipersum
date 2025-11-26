@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#F5A623"/>
+      <stop offset="0.5" stop-color="#2C5F8D"/>
+      <stop offset="1" stop-color="#1E3A5F"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="128" height="128" rx="24" fill="url(#bg)"/>
+  
+  <!-- Stylized P logo -->
+  <g transform="translate(25, 20)">
+    <!-- Orange top section -->
+    <path d="M30 10 C30 10, 50 0, 65 10 L65 35 C65 35, 50 45, 30 35 Z" fill="#FDB44B" opacity="0.9"/>
+    
+    <!-- Navy P shape -->
+    <path d="M20 25 L20 90 M20 25 C20 25, 45 18, 58 28 C68 36, 68 44, 58 52 C45 62, 20 55, 20 55" 
+          stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- White circle accent -->
+    <circle cx="20" cy="70" r="11" fill="white"/>
+    
+    <!-- Blue accent -->
+    <path d="M48 50 C48 50, 62 45, 72 52 L72 70 C72 70, 62 77, 48 70 Z" fill="#2C5F8D" opacity="0.8"/>
+  </g>
+</svg>

@@ -161,13 +161,13 @@ export default function App() {
 
   const showAchievement = (title: string, message: string) => {
     const toast = document.createElement('div')
-    toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-blue to-blue-600 text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
+    toast.className = 'fixed top-20 right-6 z-50 bg-gradient-to-r from-brand-orange to-brand-navy text-white p-6 rounded-xl shadow-2xl animate-in slide-in-from-top-4 max-w-sm'
     toast.innerHTML = `
       <div class="flex items-start gap-4">
         <div class="text-4xl">🎉</div>
         <div>
           <div class="font-bold text-lg mb-1">${title}</div>
-          <div class="text-sm text-blue-100">${message}</div>
+          <div class="text-sm opacity-90">${message}</div>
         </div>
       </div>
     `
@@ -288,7 +288,7 @@ export default function App() {
                 type="text"
                 name="name"
                 required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange"
                 placeholder="Your name"
               />
             </div>
@@ -298,12 +298,12 @@ export default function App() {
                 type="email"
                 name="email"
                 required
-                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                className="w-full px-4 py-3 border-2 border-border-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange"
                 placeholder="you@example.com"
               />
             </div>
             <div className="pt-2">
-              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+              <button type="submit" className="w-full px-6 py-4 bg-gradient-to-r from-brand-orange to-brand-navy text-white rounded-xl font-bold hover:shadow-lg transition">
                 Continue →
               </button>
               <button
@@ -320,9 +320,9 @@ export default function App() {
           </form>
         ) : (
           <div className="space-y-4">
-            <div className="p-4 bg-gradient-to-br from-brand-blue/10 to-green-50 rounded-lg border-2 border-brand-blue/20">
+            <div className="p-4 bg-gradient-to-br from-brand-orange/10 to-brand-navy/5 rounded-lg border-2 border-brand-orange/20">
               <div className="text-center mb-4">
-                <div className="text-4xl font-bold text-brand-blue">$20</div>
+                <div className="text-4xl font-bold text-brand-navy">$20</div>
                 <div className="text-sm text-ink-600">per month</div>
               </div>
               <ul className="space-y-2 text-sm">
@@ -352,7 +352,7 @@ export default function App() {
                 </li>
               </ul>
             </div>
-            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+            <button className="w-full px-6 py-4 bg-gradient-to-r from-brand-orange to-brand-navy text-white rounded-xl font-bold hover:shadow-lg transition">
               Upgrade to Pro →
             </button>
             <button
@@ -383,9 +383,9 @@ export default function App() {
               
               <div className="flex items-center gap-4">
                 {documentsAnalyzed > 0 && (
-                  <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-blue/10 to-green-50 rounded-lg border border-brand-blue/20">
+                  <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-brand-orange/10 to-brand-navy/5 rounded-lg border border-brand-orange/20">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-brand-blue">{documentsAnalyzed}</div>
+                      <div className="text-2xl font-bold text-brand-navy">{documentsAnalyzed}</div>
                       <div className="text-xs text-ink-600">analyzed</div>
                     </div>
                     {totalSavings > 0 && (
@@ -423,7 +423,7 @@ export default function App() {
                     {!user.isPro && (
                       <button
                         onClick={() => setShowAuth(true)}
-                        className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-ink-900 rounded-lg font-semibold text-sm hover:shadow-lg transition"
+                        className="px-4 py-2 bg-gradient-to-r from-brand-orange to-brand-orange-light text-white rounded-lg font-semibold text-sm hover:shadow-lg transition"
                       >
                         Upgrade
                       </button>
@@ -432,7 +432,7 @@ export default function App() {
                 ) : (
                   <button
                     onClick={() => setShowAuth(true)}
-                    className="px-4 py-2 border-2 border-brand-blue text-brand-blue rounded-lg font-semibold hover:bg-brand-blue hover:text-white transition"
+                    className="px-4 py-2 border-2 border-brand-navy text-brand-navy rounded-lg font-semibold hover:bg-brand-navy hover:text-white transition"
                   >
                     Sign in / Create account
                   </button>
@@ -440,7 +440,7 @@ export default function App() {
                 
                 <button
                   onClick={() => setShowAnalyzer(true)}
-                  className="px-6 py-2.5 bg-gradient-to-r from-brand-blue to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
+                  className="px-6 py-2.5 bg-gradient-to-r from-brand-orange to-brand-navy text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

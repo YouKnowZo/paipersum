@@ -1,13 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
-    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#2563eb"/>
-      <stop offset="1" stop-color="#0ea5e9"/>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#F5A623"/>
+      <stop offset="0.5" stop-color="#2C5F8D"/>
+      <stop offset="1" stop-color="#1E3A5F"/>
     </linearGradient>
   </defs>
-  <rect rx="12" ry="12" width="64" height="64" fill="url(#g)"/>
-  <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M20 20h16m-16 10h16m6 14H18a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4h18l12 12v16a4 4 0 0 1-4 4z"/>
-    <path d="M24 30l4 4 8-8"/>
+  
+  <!-- Background -->
+  <rect width="100" height="100" rx="20" fill="url(#bg)"/>
+  
+  <!-- Simplified P icon for favicon -->
+  <g transform="translate(15, 10)">
+    <!-- Orange top arc -->
+    <path d="M25 10 C25 10, 40 5, 50 15 L50 30 C50 30, 40 35, 25 30 Z" fill="#F5A623" opacity="0.9"/>
+    
+    <!-- Navy P shape -->
+    <path d="M15 20 L15 75 M15 20 C15 20, 35 15, 45 25 C52 32, 52 38, 45 45 C35 55, 15 50, 15 50" 
+          stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- White circle accent -->
+    <circle cx="15" cy="60" r="8" fill="white"/>
   </g>
 </svg>
