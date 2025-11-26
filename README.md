@@ -1,8 +1,8 @@
-# 📄 PaiperSum - Legal Document Simplifier
+# 🛡️ PaiperSum Atlas — Anything Analyzer + Threat Desk
 
-> **AI-powered legal document analysis that translates complex contracts into plain English with risk assessments.**
+> **A professional AI workspace that distills any document into an executive brief and streams live cybersecurity telemetry to the same console.**
 
-PaiperSum is a production-ready SaaS platform that helps individuals and businesses understand legal documents by automatically identifying risks, highlighting important clauses, and providing plain-English summaries.
+PaiperSum Atlas is a production-ready SaaS platform built for legal, security, GTM, and operations teams. Upload contracts, SOC reports, procurement questionnaires, privacy updates, SIEM exports—Atlas produces minimal, board-ready summaries while the built-in admin portal highlights every blocked attack and compliance risk.
 
 [![CI](https://github.com/yourusername/paipersum/workflows/CI/badge.svg)](https://github.com/yourusername/paipersum/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -12,27 +12,31 @@ PaiperSum is a production-ready SaaS platform that helps individuals and busines
 ## ✨ Features
 
 ### Core Capabilities
-- 🔍 **Automated Analysis** - Instant risk assessment of legal documents
-- 📊 **Risk Scoring** - 0-100 risk score with confidence metrics
-- 🎯 **Clause Detection** - Identifies 14+ types of important clauses
-- 📝 **Plain English** - Complex legalese translated into readable summaries
-- 📄 **PDF Export** - Professional reports with citations
-- 🔌 **Browser Extension** - Analyze any webpage instantly
-- 📱 **Responsive UI** - Beautiful, accessible interface
+- 🧭 **Atlas Briefings** - Instant recommendations for contracts, privacy updates, vendor questionnaires, SOC evidence, product launches, and more
+- 🛡️ **Admin Threat Desk** - Live feed of blocked attacks, suspicious IPs, CVE watchlists, and geo heat maps
+- 📊 **Risk Scoring & Cost Math** - 0-100 risk score, cost impact modeling, and benchmarking across industries
+- 🎯 **Negotiation & Response Kits** - Auto-generated legal redlines, procurement replies, and trust communications
+- 📄 **Executive Exports** - PDF, DOCX, and share links with citations, mitigation actions, and disclaimers
+- 🔌 **Free Integrations** - Slack/Teams/Notion/Jira digests plus browser extension for instant captures
 
-### Document Types Supported
-- Terms of Service / EULA
-- Privacy Policies
-- Contracts & Agreements
-- Waivers & Releases
-- NDAs & Confidentiality Agreements
-- Employment Agreements
-- Rental/Lease Agreements
+### Workflows Covered
+- Master service agreements, statements of work, and NDAs
+- Privacy, trust, and legal policy updates
+- Vendor security questionnaires and compliance evidence packs
+- SOC reports, audit findings, and SIEM/EDR exports
+- GTM assets (pricing decks, marketing claims, launch copy)
+- HR, ops, and finance approvals (offer letters, procurement memos)
 
 ### Detected Clauses
 - ❗ **High Risk (Red)**: Indemnification, Liability Waivers, Assumption of Risk
 - ⚠️ **Moderate Risk (Yellow)**: Arbitration, Class Action Waivers, Auto-Renewal, Data Sharing
 - ✅ **Low Risk (Green)**: Governing Law, Termination, Force Majeure
+
+### Admin Cybersecurity Portal
+- 📡 **Live telemetry** - Aggregated attack attempts, blocked credentials, and geo maps with ISP and ASN attribution
+- 🧪 **Threat simulations** - Synthetic red-team runs to validate rate limits, header policies, and WAF coverage
+- 📬 **Digest delivery** - Slack, Teams, and email summaries for exec staff without exposing raw logs
+- 📁 **Audit-ready evidence** - Exportable JSON/PDF with timestamps, controls, and follow-up owners
 
 ---
 
@@ -372,17 +376,17 @@ railway up
 
 ## 🛡️ Disclaimer
 
-**⚠️ IMPORTANT: THIS IS NOT LEGAL ADVICE**
+**⚠️ IMPORTANT: THIS IS NOT LEGAL OR SECURITY ADVICE**
 
-PaiperSum provides automated document analysis for **informational purposes only**. This service:
+PaiperSum provides automated analysis and telemetry summaries for **informational purposes only**. This service:
 
-- Does NOT constitute legal advice
-- Does NOT create an attorney-client relationship
-- May miss important clauses or misinterpret legal language
-- Should NOT be relied upon for legal decisions
-- Is NOT a substitute for consultation with a licensed attorney
+- Does NOT constitute legal advice or cybersecurity guidance
+- Does NOT create an attorney-client or consultant relationship
+- May miss important clauses, threats, or misinterpret data
+- Should NOT be relied upon for legal, compliance, or security decisions
+- Is NOT a substitute for consultation with licensed professionals
 
-**Always consult a qualified attorney** licensed in your jurisdiction before making legal decisions.
+**Always consult qualified legal counsel and certified security practitioners** before making binding decisions or claims.
 
 ---
 
@@ -390,15 +394,14 @@ PaiperSum provides automated document analysis for **informational purposes only
 
 ### Pricing Tiers
 
-| Tier | Price | Features |
-|------|-------|----------|
-| **Free** | $0 | 30 documents/month, basic analysis |
-| **Pro** | $12/mo | Unlimited documents, PDF export, priority support |
-| **Team** | $39/user/mo | Collaboration, API access, custom clauses |
-| **Enterprise** | Custom | SLA, dedicated support, on-premise deployment |
+| Tier | Price | Designed For | Highlights |
+|------|-------|--------------|------------|
+| **Starter** | $0 | Solo users validating drafts | 40 analyses/month, weekly threat digest, PDF/DOCX export |
+| **Operator** | $49/seat | GTM, legal, and security leads | Unlimited analyses, live threat desk, Slack/Teams/Notion sync |
+| **Enterprise** | Custom | Regulated orgs & large teams | Private AI enclaves, SSO/SCIM, DPA, dedicated trust engineer |
 
 ### Stripe Integration
-See `apps/api/billing.py` for webhook handlers and checkout flow.
+See `apps/api/stripe_routes.py` for checkout and webhook flow.
 
 ---
 

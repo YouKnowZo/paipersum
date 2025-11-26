@@ -1,40 +1,40 @@
 export default function Features() {
   const features = [
     {
-      icon: '⚡',
-      title: 'Instant Analysis',
-      description: 'Upload a document and get results quickly. Clear, action‑oriented summaries.',
-      highlight: 'Fast turnaround'
+      icon: '🧭',
+      title: 'Atlas briefings',
+      description: 'Upload anything—contracts, SOC reports, audits, marketing plans—and get a one-page brief with actions and blockers.',
+      highlight: 'Any format'
     },
     {
-      icon: '🎯',
-      title: '14 Risk Types',
-      description: 'Detects hidden fees, auto-renewals, arbitration clauses, and more.',
-      highlight: 'Comprehensive'
+      icon: '🛡️',
+      title: 'Threat desk',
+      description: 'Stream blocked attacks, CVE watchlists, and geo heat maps into the same workspace your exec team already uses.',
+      highlight: 'Live telemetry'
     },
     {
-      icon: '📊',
-      title: 'Visual Risk Score',
-      description: 'See your risk at a glance with color-coded scores and plain English.',
-      highlight: 'Easy to understand'
+      icon: '🤝',
+      title: 'Negotiation + response kits',
+      description: 'Pre-baked legal redlines, procurement replies, customer comms, and trust updates tailored to each analysis.',
+      highlight: 'Cross-team ready'
     },
     {
-      icon: '🔒',
-      title: '100% Private',
-      description: 'Your documents are analyzed and immediately deleted. Zero storage.',
-      highlight: 'Your data, your privacy'
+      icon: '🔐',
+      title: 'Security defaults on',
+      description: 'No training data retention, signed URLs, strict rate limits, and immutable audit logs for every analysis request.',
+      highlight: 'Private by design'
+    },
+    {
+      icon: '📦',
+      title: 'Free integrations',
+      description: 'Drop-in connectors for Slack, Teams, Notion, Jira, Linear, and email digests. No paid add-ons required.',
+      highlight: 'Works everywhere'
     },
     {
       icon: '📄',
-      title: 'PDF Export',
-      description: 'Download professional reports with citations you can share.',
-      highlight: 'Professional output'
-    },
-    {
-      icon: '👤',
-      title: 'Designed for People',
-      description: 'Friendly experience that respects your time and privacy.',
-      highlight: 'Human‑centered'
+      title: 'Executive-grade exports',
+      description: 'Export PDF, DOCX, or secure links with citations, risk math, and mitigation steps your counsel can trust.',
+      highlight: 'Board ready'
     }
   ]
 
@@ -43,10 +43,10 @@ export default function Features() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-            Everything You Need to Stay Safe
+            Built for legal, security, GTM, and ops in one panel
           </h2>
-          <p className="text-lg text-ink-600 max-w-2xl mx-auto">
-            Stop signing documents blindly. Know exactly what you're agreeing to.
+          <p className="text-lg text-ink-600 max-w-3xl mx-auto">
+            No more switching tools. Atlas keeps contracts, privacy updates, product launches, and security telemetry in sync.
           </p>
         </div>
 

@@ -5,28 +5,28 @@ import type { AnalysisT } from '../lib/schemas'
 // Quick analysis examples users can try instantly
 const QUICK_EXAMPLES = [
   {
-    title: 'Gym Membership',
-    emoji: '💪',
-    preview: 'See hidden fees and cancellation tricks',
-    text: 'You agree to a 12-month commitment. Cancellation requires 30 days written notice and a $50 fee. The membership automatically renews. We reserve the right to change pricing with 30 days notice.'
+    title: 'Vendor Security Questionnaire',
+    emoji: '🛡️',
+    preview: 'Condense 180 questions into a summary',
+    text: 'Does your organization maintain ISO 27001 certification? Provide evidence of SOC 2 controls, incident response plans, and quarterly access reviews. List every sub-processor with current pen tests.'
   },
   {
-    title: 'Phone Contract',
-    emoji: '📱',
-    preview: 'Find early termination fees',
-    text: 'This 24-month service agreement includes an early termination fee of $350. You waive your right to participate in class action lawsuits. All disputes must be resolved through binding arbitration.'
+    title: 'Sales MSA',
+    emoji: '📑',
+    preview: 'Surface risk and negotiation levers',
+    text: 'Supplier caps liability at fees paid in the last 12 months. Customer must provide 60 days notice to terminate. Data residency limited to US regions. Auto-renewal triggers unless canceled 45 days prior.'
   },
   {
-    title: 'Apartment Lease',
-    emoji: '🏠',
-    preview: 'Spot unfair clauses',
-    text: 'Tenant agrees to indemnify and hold harmless the Landlord from all claims. Landlord may enter premises with 24 hours notice. Security deposit is non-refundable for cleaning fees.'
+    title: 'Privacy Update Email',
+    emoji: '🔍',
+    preview: 'See what actually changed',
+    text: 'We now share hashed identifiers with strategic partners to measure campaign performance. By continuing to use the service you accept the new arbitration clause and waive class action rights.'
   },
   {
-    title: 'Software ToS',
-    emoji: '💻',
-    preview: 'See what data they collect',
-    text: 'We collect and share your data with third parties for advertising. You grant us a perpetual license to your content. We disclaim all warranties and limit liability to $100.'
+    title: 'SIEM Export',
+    emoji: '📈',
+    preview: 'Spot spikes in login abuse',
+    text: '11,248 failed logins from AS4134 between 03:10-03:18 UTC. Payloads attempted: credential stuffing with known test accounts plus Graph API token probing. WAF rule PS-992 blocked 100% of requests.'
   }
 ]
 
@@ -53,10 +53,10 @@ export default function InstantAnalysis() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">
-            Try it Right Now
+            Try the anything analyzer right now
           </h2>
-          <p className="text-lg text-ink-600 max-w-2xl mx-auto">
-            Click any example below for instant analysis. No signup, no waiting.
+          <p className="text-lg text-ink-600 max-w-3xl mx-auto">
+            Legal, security, GTM, ops—Atlas handles it. Tap an example to see how the same engine writes a brief across teams.
           </p>
         </div>
 

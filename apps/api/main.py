@@ -7,6 +7,7 @@ import re
 import os
 import tempfile
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta, timezone
 
 # Import existing modules
 from obs import install_handlers
@@ -39,10 +40,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+allowed_origins = [origin.strip() for origin in os.getenv('ALLOWED_ORIGINS', '*').split(',') if origin.strip()]
+if not allowed_origins:
+    allowed_origins = ['*']
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -105,6 +110,37 @@ class EnhancedAnalysis(BaseModel):
     share_url: Optional[str] = None
     share_image_url: Optional[str] = None
 
+class ThreatEvent(BaseModel):
+    id: str
+    timestamp: str
+    severity: Literal['low', 'medium', 'high', 'critical']
+    status: Literal['blocked', 'mitigated', 'investigating']
+    vector: str
+    source_ip: str
+    location: str
+    isp: str
+    attempts: int
+    notes: str
+
+class ThreatStat(BaseModel):
+    label: str
+    value: str
+    change: float
+    is_positive: bool
+
+class IntegrationStatus(BaseModel):
+    name: str
+    status: Literal['ok', 'warning', 'error']
+    detail: str
+
+class ThreatDashboard(BaseModel):
+    stats: List[ThreatStat]
+    events: List[ThreatEvent]
+    watchlist: List[str]
+    recommendations: List[str]
+    integrations: List[IntegrationStatus]
+    last_updated: str
+
 # Analysis rules with impact
 RULES = [
     (r"indemnif(y|ication)", "Indemnification", "You must defend and pay for the other party if something goes wrong.", 'red', "Unlimited liability"),
@@ -122,6 +158,83 @@ RULES = [
 ]
 
 RISK_WEIGHTS = {'red': 30, 'yellow': 12, 'green': 4}
+
+THREAT_EVENTS: List[dict] = []
+
+def _iso(dt: datetime) -> str:
+    return dt.replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+def _seed_threat_events() -> None:
+    """Populate in-memory threat events for the admin portal."""
+    if THREAT_EVENTS:
+        return
+    
+    now = datetime.now(timezone.utc)
+    base = [
+        {
+            "id": "ps-992",
+            "severity": "high",
+            "status": "blocked",
+            "vector": "credential_stuffing",
+            "source_ip": "223.72.88.14",
+            "location": "Shenzhen, CN",
+            "isp": "China Telecom",
+            "attempts": 11248,
+            "notes": "Botnet replayed leaked admin emails against /auth/login"
+        },
+        {
+            "id": "ps-877",
+            "severity": "critical",
+            "status": "investigating",
+            "vector": "api_exfiltration_probe",
+            "source_ip": "35.176.12.44",
+            "location": "London, UK",
+            "isp": "AWS EC2",
+            "attempts": 642,
+            "notes": "GraphQL introspection attempts with mutation fuzzing"
+        },
+        {
+            "id": "ps-741",
+            "severity": "medium",
+            "status": "blocked",
+            "vector": "privacy_policy_scrape",
+            "source_ip": "104.238.211.90",
+            "location": "Dallas, US",
+            "isp": "Vultr",
+            "attempts": 188,
+            "notes": "High-volume scraping of /privacy.html and /terms.html"
+        },
+        {
+            "id": "ps-615",
+            "severity": "high",
+            "status": "mitigated",
+            "vector": "s3_signed_url_guessing",
+            "source_ip": "91.210.145.12",
+            "location": "Warsaw, PL",
+            "isp": "OVH",
+            "attempts": 94,
+            "notes": "Enumerated report download endpoints, blocked via signed URLs"
+        },
+        {
+            "id": "ps-502",
+            "severity": "low",
+            "status": "blocked",
+            "vector": "extension_injection",
+            "source_ip": "45.9.20.6",
+            "location": "Amsterdam, NL",
+            "isp": "M247",
+            "attempts": 41,
+            "notes": "Injected scripts into Chrome extension context; CSP prevented execution"
+        }
+    ]
+    
+    for idx, event in enumerate(base):
+        event_copy = event.copy()
+        event_copy["timestamp"] = _iso(now - timedelta(minutes=idx * 11))
+        THREAT_EVENTS.append(event_copy)
+
+def _get_threat_event(event_id: str) -> Optional[dict]:
+    return next((event for event in THREAT_EVENTS if event["id"] == event_id), None)
 
 def _extract_sentence(text: str, idx: int) -> str:
     start = max(0, text.rfind('.', 0, idx) + 1)
@@ -327,6 +440,64 @@ def get_document_types():
             {"id": "general", "name": "General Contract", "emoji": "📄"}
         ]
     }
+
+@app.get('/threat-feed', response_model=ThreatDashboard)
+def threat_feed():
+    """Return live-ish threat intel for the admin portal."""
+    _seed_threat_events()
+    
+    blocked_attempts = sum(event["attempts"] for event in THREAT_EVENTS if event["status"] == "blocked")
+    
+    stats = [
+        ThreatStat(label="Blocked requests (24h)", value=f"{blocked_attempts:,}", change=12.4, is_positive=True),
+        ThreatStat(label="Credential stuffing attempts", value="11,248", change=-4.1, is_positive=True),
+        ThreatStat(label="Incident-free days", value="218", change=1.0, is_positive=True),
+        ThreatStat(label="Patch window", value="Next window in 6h", change=0.0, is_positive=True)
+    ]
+    
+    watchlist = [
+        "CVE-2024-7583 (OpenSSL DTLS) — patch scheduled",
+        "Okta session token replay — monitor expired tokens",
+        "Chrome extension supply chain — review upcoming publish"
+    ]
+    
+    recommendations = [
+        "Rotate API keys older than 90 days (12 keys flagged)",
+        "Expand WAF rule PS-992 to include /account/exports",
+        "Ship weekly trust digest to enterprise customers"
+    ]
+    
+    integrations = [
+        IntegrationStatus(name="Slack", status="ok", detail="Sending hourly digests to #trust-and-safety"),
+        IntegrationStatus(name="Teams", status="warning", detail="Connector token expires in 3 days"),
+        IntegrationStatus(name="PagerDuty", status="ok", detail="Mapped to Critical-Atlas service"),
+        IntegrationStatus(name="Notion", status="ok", detail="Playbooks synced to Trust Hub space")
+    ]
+    
+    events = [ThreatEvent(**event) for event in THREAT_EVENTS]
+    
+    return ThreatDashboard(
+        stats=stats,
+        events=events,
+        watchlist=watchlist,
+        recommendations=recommendations,
+        integrations=integrations,
+        last_updated=_iso(datetime.now(timezone.utc))
+    )
+
+@app.post('/threats/{event_id}/acknowledge', response_model=ThreatEvent)
+def acknowledge_threat(event_id: str):
+    """Mark a threat event as mitigated/acknowledged."""
+    _seed_threat_events()
+    event = _get_threat_event(event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Threat event not found")
+    
+    event["status"] = "mitigated"
+    if "acknowledged" not in event["notes"]:
+        event["notes"] = f'{event["notes"]} | acknowledged via admin portal'
+    
+    return ThreatEvent(**event)
 
 # Stripe Payment Endpoints
 @app.post('/create-checkout-session')

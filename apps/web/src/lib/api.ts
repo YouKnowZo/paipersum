@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { EnhancedAnalysis, type EnhancedAnalysisT } from './schemas'
+import { EnhancedAnalysis, ThreatDashboard, ThreatEvent, type EnhancedAnalysisT, type ThreatDashboardT, type ThreatEventT } from './schemas'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -57,6 +57,38 @@ export async function exportPDF(text: string): Promise<Blob> {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error('PDF export failed')
+    }
+    throw error
+  }
+}
+
+export async function fetchThreatFeed(): Promise<ThreatDashboardT> {
+  try {
+    const res = await axios.get(`${API_URL}/threat-feed`)
+    const parsed = ThreatDashboard.safeParse(res.data)
+    if (!parsed.success) {
+      throw new Error('Invalid threat feed response')
+    }
+    return parsed.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Threat feed unavailable')
+    }
+    throw error
+  }
+}
+
+export async function acknowledgeThreat(eventId: string): Promise<ThreatEventT> {
+  try {
+    const res = await axios.post(`${API_URL}/threats/${eventId}/acknowledge`)
+    const parsed = ThreatEvent.safeParse(res.data)
+    if (!parsed.success) {
+      throw new Error('Invalid acknowledgment response')
+    }
+    return parsed.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Failed to acknowledge threat')
     }
     throw error
   }

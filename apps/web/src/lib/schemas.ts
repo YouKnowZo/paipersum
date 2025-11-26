@@ -53,9 +53,46 @@ export const EnhancedAnalysis = z.object({
   share_image_url: z.string().optional()
 })
 
+export const ThreatEvent = z.object({
+  id: z.string(),
+  timestamp: z.string(),
+  severity: z.enum(['low', 'medium', 'high', 'critical']),
+  status: z.enum(['blocked', 'mitigated', 'investigating']),
+  vector: z.string(),
+  source_ip: z.string(),
+  location: z.string(),
+  isp: z.string(),
+  attempts: z.number(),
+  notes: z.string()
+})
+
+export const ThreatStat = z.object({
+  label: z.string(),
+  value: z.string(),
+  change: z.number(),
+  is_positive: z.boolean()
+})
+
+export const IntegrationStatus = z.object({
+  name: z.string(),
+  status: z.enum(['ok', 'warning', 'error']),
+  detail: z.string()
+})
+
+export const ThreatDashboard = z.object({
+  stats: z.array(ThreatStat),
+  events: z.array(ThreatEvent),
+  watchlist: z.array(z.string()),
+  recommendations: z.array(z.string()),
+  integrations: z.array(IntegrationStatus),
+  last_updated: z.string()
+})
+
 export type ClauseT = z.infer<typeof Clause>
 export type RecommendationT = z.infer<typeof Recommendation>
 export type BenchmarkT = z.infer<typeof Benchmark>
 export type NegotiationPointT = z.infer<typeof NegotiationPoint>
 export type CostScenarioT = z.infer<typeof CostScenario>
 export type EnhancedAnalysisT = z.infer<typeof EnhancedAnalysis>
+export type ThreatEventT = z.infer<typeof ThreatEvent>
+export type ThreatDashboardT = z.infer<typeof ThreatDashboard>

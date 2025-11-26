@@ -3,12 +3,14 @@ import Logo from './components/Logo'
 import Hero from './components/Hero'
 import InstantAnalysis from './components/InstantAnalysis'
 import Features from './components/Features'
+import Pricing from './components/Pricing'
 import Testimonials from './components/Testimonials'
 import FloatingChatbot from './components/FloatingChatbot'
 import Consent from './components/Consent'
 import Upload from './components/Upload'
 import EnhancedSummaryPage from './pages/EnhancedSummaryPage'
 import AccountPage from './pages/AccountPage'
+import AdminPortalPage from './pages/AdminPortalPage'
 import { Card } from './components/Cards'
 import { analyzeText, analyzeFile, exportPDF } from './lib/api'
 import type { EnhancedAnalysisT } from './lib/schemas'
@@ -39,6 +41,7 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showAnalyzer, setShowAnalyzer] = useState(false)
+  const [showAdminPortal, setShowAdminPortal] = useState(false)
   const [text, setText] = useState('')
   const [documentName, setDocumentName] = useState('')
   const [documentsAnalyzed, setDocumentsAnalyzed] = useState(0)
@@ -367,6 +370,12 @@ export default function App() {
     </div>
   )
 
+  if (showAdminPortal) {
+    return (
+      <AdminPortalPage onClose={() => setShowAdminPortal(false)} />
+    )
+  }
+
   // Landing page
   if (!showAnalyzer) {
     return (
@@ -447,12 +456,18 @@ export default function App() {
                   </svg>
                   Analyze Document
                 </button>
+                <button
+                  onClick={() => setShowAdminPortal(true)}
+                  className="px-4 py-2 border border-border-200 rounded-lg font-semibold text-sm hover:border-brand-blue hover:text-brand-blue transition"
+                >
+                  Admin Security Portal
+                </button>
               </div>
             </div>
           </nav>
 
           {/* Hero section */}
-          <Hero onAnalyze={handleAnalyzeText} />
+          <Hero onAnalyze={handleAnalyzeText} onOpenAdmin={() => setShowAdminPortal(true)} />
 
           {/* Recent analyses */}
           {savedAnalyses.length > 0 && (
@@ -497,6 +512,9 @@ export default function App() {
           {/* Features */}
           <Features />
 
+          {/* Pricing */}
+          <Pricing />
+
           {/* Testimonials */}
           <Testimonials />
 
@@ -504,10 +522,10 @@ export default function App() {
           <div className="bg-gradient-to-br from-brand-blue to-blue-900 py-16">
             <div className="max-w-4xl mx-auto px-4 text-center">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Ready to Stop Getting Scammed?
+                One analyzer, one security desk, zero guesswork.
               </h2>
               <p className="text-xl text-blue-100 mb-6">
-                Join {Math.max(5000, documentsAnalyzed * 50).toLocaleString()}+ people who analyze before they sign
+                Join {Math.max(5000, documentsAnalyzed * 50).toLocaleString()}+ teams replacing five tools with PaiperSum Atlas.
               </p>
               {totalSavings > 0 && (
                 <div className="inline-block mb-6 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
@@ -536,7 +554,7 @@ export default function App() {
                     <Logo size="md" />
                   </div>
                   <p className="text-sm text-ink-300 leading-relaxed">
-                    Understand legal documents in plain English. Stop getting screwed by fine print.
+                    Atlas distills any document and streams live threat intel so you can move fast without surprises.
                   </p>
                 </div>
                 <div>
@@ -640,6 +658,13 @@ export default function App() {
                 )}
               </div>
               
+              <button
+                onClick={() => setShowAdminPortal(true)}
+                className="px-3 py-1.5 border border-border-200 rounded-lg text-sm font-semibold hover:border-brand-blue hover:text-brand-blue transition"
+              >
+                Security Portal
+              </button>
+
               {user && !user.isPro && (
                 <button
                   onClick={() => setShowAuth(true)}
@@ -660,7 +685,7 @@ export default function App() {
                 type="text"
                 value={documentName}
                 onChange={(e) => setDocumentName(e.target.value)}
-                placeholder="Name this document (e.g., 'Planet Fitness Membership')"
+                placeholder="Name this work item (e.g., '2025 SOC 2 addendum')"
                 className="w-full px-4 py-3 border-2 border-brand-blue/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue text-center font-semibold"
               />
             </div>
@@ -679,7 +704,7 @@ export default function App() {
                     <textarea
                       value={text}
                       onChange={(e) => setText(e.target.value)}
-                      placeholder="Paste your contract, Terms of Service, waiver, lease, or any legal document..."
+                      placeholder="Paste your contract, SOC report, vendor questionnaire, GTM plan, or any work item..."
                       className="w-full h-64 border-2 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue resize-none"
                       disabled={loading}
                     />
@@ -784,32 +809,32 @@ export default function App() {
                       Let's Analyze Your Document
                     </h3>
                     <p className="text-ink-600 max-w-md mx-auto mb-6 leading-relaxed">
-                      Paste text or upload a file to get instant analysis with:
+                      Paste text or upload a file to get instant Atlas briefings with:
                     </p>
                     <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto text-sm">
                       <div className="flex items-center gap-2 text-left">
                         <svg className="w-5 h-5 text-brand-blue flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
-                        <span>Clear recommendation</span>
+                        <span>Clear go / hold / escalate call</span>
                       </div>
                       <div className="flex items-center gap-2 text-left">
                         <svg className="w-5 h-5 text-brand-blue flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
-                        <span>$ impact calculation</span>
+                        <span>$ impact & effort math</span>
                       </div>
                       <div className="flex items-center gap-2 text-left">
                         <svg className="w-5 h-5 text-brand-blue flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
-                        <span>Negotiation templates</span>
+                        <span>Negotiation & comms kits</span>
                       </div>
                       <div className="flex items-center gap-2 text-left">
                         <svg className="w-5 h-5 text-brand-blue flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
-                        <span>Calendar reminders</span>
+                        <span>Threat + compliance cues</span>
                       </div>
                     </div>
                   </div>
@@ -829,12 +854,12 @@ export default function App() {
                   <svg className="w-5 h-5 text-yellow-700" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-bold text-yellow-900">Legal Disclaimer</span>
+                  <span className="font-bold text-yellow-900">Legal & Security Disclaimer</span>
                 </div>
                 <p className="text-xs text-yellow-800 leading-relaxed">
-                  This analysis is for informational purposes only and does not constitute legal advice. 
-                  Automated analysis may miss clauses or misinterpret language. Always consult a licensed 
-                  attorney for legal decisions. We are not responsible for any decisions made based on this analysis.
+                  This workspace is for informational purposes only and does not constitute legal, compliance, or security advice.
+                  Automated analysis may miss clauses, threats, or misinterpret language/logs. Always consult licensed professionals
+                  before making binding or technical decisions. We are not responsible for actions taken from these summaries.
                 </p>
               </div>
             </div>
