@@ -2,10 +2,10 @@ fastapi==0.115.5
 uvicorn[standard]==0.30.6
 pydantic==2.9.2
 pydantic-settings==2.6.0
-python-multipart==0.0.12
+python-multipart==0.0.31
 beautifulsoup4==4.12.3
 passlib[argon2]==1.7.4
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.5.0
 SQLAlchemy==2.0.35
 psycopg[binary]==3.2.2
 alembic==1.13.2
@@ -18,7 +18,7 @@ opentelemetry-sdk==1.27.0
 opentelemetry-instrumentation-fastapi==0.48b0
 pdfminer.six==20231228
 pytesseract==0.3.13
-Pillow==10.4.0
+Pillow==13.0.0
 fpdf==1.7.2
-transformers==4.46.2
-torch==2.5.1
+transformers==5.10.1
+torch==2.13.0
